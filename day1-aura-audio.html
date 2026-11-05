@@ -586,6 +586,43 @@
       color: #ffffff;
     }
 
+    /* Simulated Demo Cursor & Click Ripple for Auto-Choreography */
+    .demo-cursor {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      width: 26px;
+      height: 26px;
+      pointer-events: none;
+      z-index: 9999;
+      opacity: 0;
+      transform: translate(-4px, -4px);
+      filter: drop-shadow(0 6px 14px rgba(0, 0, 0, 0.75));
+      transition: opacity 0.25s ease;
+    }
+    .demo-cursor.visible {
+      opacity: 1;
+    }
+    .click-ripple {
+      position: fixed;
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      border: 2.5px solid var(--accent);
+      box-shadow: 0 0 24px var(--accent);
+      pointer-events: none;
+      z-index: 9998;
+      transform: translate(-50%, -50%) scale(0.2);
+      opacity: 0;
+    }
+    .click-ripple.boom {
+      animation: rippleBoom 0.55s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    }
+    @keyframes rippleBoom {
+      0% { transform: translate(-50%, -50%) scale(0.25); opacity: 1; }
+      100% { transform: translate(-50%, -50%) scale(1.65); opacity: 0; }
+    }
+
     /* Checkout Modal Drawer */
     .drawer-backdrop {
       position: fixed;
@@ -854,6 +891,14 @@
     </div>
     <button class="apple-pay-btn" id="applePayBtn"> Pay — £649.00</button>
   </aside>
+
+  <!-- Simulated Pointer & Click Ripple for Choreography -->
+  <div class="demo-cursor" id="demoCursor">
+    <svg viewBox="0 0 28 28" width="28" height="28" fill="none">
+      <path d="M5 3L23 13.5L14.5 16L10.5 24.5L5 3Z" fill="#ffffff" stroke="#06080d" stroke-width="2.2" stroke-linejoin="round"/>
+    </svg>
+  </div>
+  <div class="click-ripple" id="clickRipple"></div>
 
   <script>
     /* ==========================================================================
@@ -1487,27 +1532,9 @@
        ========================================================================== */
     const tempVec = new THREE.Vector3();
     let clockTime = 0;
+    let demoModeManual = false;
 
-    function animate() {
-      requestAnimationFrame(animate);
-      clockTime += 0.025;
-
-      // Apply momentum & auto-spin
-      if (!isDragging) {
-        targetRotY += velY;
-        targetRotX = Math.max(-1.2, Math.min(1.2, targetRotX + velX));
-        velY *= 0.92;
-        velX *= 0.92;
-        if (autoSpin) {
-          targetRotY += 0.0045;
-        }
-      }
-
-      curRotY += (targetRotY - curRotY) * 0.1;
-      curRotX += (targetRotX - curRotX) * 0.1;
-      curZoom += (targetZoom - curZoom) * 0.1;
-      curExplode += (targetExplode - curExplode) * 0.09;
-
+    function updateSceneAndRender() {
       camera.position.z = curZoom;
       headphoneGroup.rotation.y = curRotY;
       headphoneGroup.rotation.x = curRotX;
@@ -1533,9 +1560,9 @@
       // Physical 3D Speaker Cone Bass Excursion & Sonic Rings
       driverCones.forEach(({ mesh, side }) => {
         if (isBassPlaying) {
-          const excursion = Math.sin(clockTime * 14) * 0.09;
+          const excursion = Math.sin(clockTime * 16) * 0.11;
           mesh.position.x += side * excursion;
-          const s = 1 + Math.abs(excursion) * 1.4;
+          const s = 1 + Math.abs(excursion) * 1.55;
           mesh.scale.set(s, s, s);
         } else {
           mesh.scale.set(1, 1, 1);
@@ -1543,17 +1570,269 @@
       });
 
       sonicRings.forEach((ring, idx) => {
-        ring.rotation.z = clockTime * (0.3 + idx * 0.15);
-        const pulse = isBassPlaying ? 1 + Math.sin(clockTime * 10 - idx) * 0.14 : 1;
+        ring.rotation.z = clockTime * (0.35 + idx * 0.18);
+        const pulse = isBassPlaying ? 1 + Math.sin(clockTime * 12 - idx) * 0.16 : 1;
         ring.scale.set(pulse, pulse, pulse);
       });
 
       particleSystem.rotation.y = clockTime * 0.08;
-
       renderer.render(scene, camera);
     }
 
+    function animate() {
+      requestAnimationFrame(animate);
+      if (demoModeManual) return;
+      clockTime += 0.025;
+
+      // Apply momentum & auto-spin
+      if (!isDragging) {
+        targetRotY += velY;
+        targetRotX = Math.max(-1.2, Math.min(1.2, targetRotX + velX));
+        velY *= 0.92;
+        velX *= 0.92;
+        if (autoSpin) {
+          targetRotY += 0.0045;
+        }
+      }
+
+      curRotY += (targetRotY - curRotY) * 0.1;
+      curRotX += (targetRotX - curRotX) * 0.1;
+      curZoom += (targetZoom - curZoom) * 0.1;
+      curExplode += (targetExplode - curExplode) * 0.09;
+
+      updateSceneAndRender();
+    }
+
     animate();
+
+    /* ==========================================================================
+       6. DETERMINISTIC CHOREOGRAPHY ENGINE FOR TIKTOK VIDEO & LIVE DEMO (Press R)
+       ========================================================================== */
+    const demoCursor = document.getElementById('demoCursor');
+    const clickRipple = document.getElementById('clickRipple');
+
+    function smoothstep(a, b, x) {
+      const t = Math.max(0, Math.min(1, (x - a) / (b - a)));
+      return t * t * (3 - 2 * t);
+    }
+
+    function lerp(a, b, t) {
+      return a + (b - a) * t;
+    }
+
+    function getCenter(el) {
+      const r = el.getBoundingClientRect();
+      return { x: r.left + r.width * 0.5, y: r.top + r.height * 0.5 };
+    }
+
+    function applySwatchIndex(idx) {
+      const item = swatchItems[idx];
+      if (!item) return;
+      swatchItems.forEach((s) => s.classList.remove('active'));
+      item.classList.add('active');
+      metalMaterial.color.setHex(Number(item.dataset.metal));
+      cushionMaterial.color.setHex(Number(item.dataset.cushion));
+      const hexAccent = Number(item.dataset.hex);
+      accentGlowMaterial.color.setHex(hexAccent);
+      accentGlowMaterial.emissive.setHex(hexAccent);
+      rimLightLeft.color.setHex(hexAccent);
+      rimLightRight.color.setHex(hexAccent);
+      pMat.color.setHex(hexAccent);
+      sonicRings.forEach((r) => r.material.color.setHex(hexAccent));
+      document.documentElement.style.setProperty('--accent', item.dataset.accent);
+      document.documentElement.style.setProperty('--accent-rgb', item.dataset.rgb);
+      materialNameText.textContent = item.dataset.name;
+      editionChip.textContent = item.dataset.chip;
+      kineticWord.textContent = item.dataset.word;
+    }
+
+    // Deterministic timeline state evaluation at `sec` (0.0s -> 13.5s)
+    window.setDemoTime = function(sec) {
+      demoModeManual = true;
+      clockTime = sec * 2.2;
+      demoCursor.classList.add('visible');
+
+      const W = window.innerWidth;
+      const H = window.innerHeight;
+      const pExplode = getCenter(explodeMasterBtn);
+      const pBass = getCenter(bassPlayerCard);
+      const pGold = getCenter(swatchItems[1]);
+      const pCobalt = getCenter(swatchItems[2]);
+      const pCrimson = getCenter(swatchItems[3]);
+      const pWire = getCenter(wireframeBtn);
+
+      // 1. Swatch state
+      if (sec < 8.0) applySwatchIndex(0);
+      else if (sec < 9.1) applySwatchIndex(1);
+      else if (sec < 10.2) applySwatchIndex(2);
+      else if (sec < 12.2) applySwatchIndex(3);
+      else applySwatchIndex(0);
+
+      // 2. Wireframe state (11.1s to 12.2s)
+      const wfActive = sec >= 11.1 && sec < 12.2;
+      metalMaterial.wireframe = wfActive;
+      cushionMaterial.wireframe = wfActive;
+      wireframeBtn.classList.toggle('active', wfActive);
+
+      // 3. Exploded state (opens at 2.2s, stays open during bass & swatches, closes at 12.2s)
+      let expVal = 0;
+      if (sec >= 2.2 && sec < 12.2) {
+        const openT = smoothstep(2.2, 2.85, sec);
+        expVal = 92 * openT;
+      } else if (sec >= 12.2) {
+        const closeT = smoothstep(12.2, 12.85, sec);
+        expVal = 92 * (1 - closeT);
+      }
+      curExplode = expVal / 100;
+      explodeSlider.value = Math.round(expVal);
+      explodeValText.textContent = `${Math.round(expVal)}%`;
+      const isExp = expVal > 25;
+      explodeMasterBtn.classList.toggle('exploded', isExp);
+      explodeMasterBtn.innerHTML = isExp ? '<span>🔒 Assemble 3D Parts</span>' : '<span>💥 Explode 3D Parts</span>';
+      hudLabelsLayer.classList.toggle('visible', expVal > 35);
+
+      // 4. Bass Excursion state (5.2s to 11.1s)
+      isBassPlaying = sec >= 5.2 && sec < 11.1;
+      bassPlayerCard.classList.toggle('playing', isBassPlaying);
+      bassPlayIcon.textContent = isBassPlaying ? '❚❚' : '▶';
+      bassTitle.textContent = isBassPlaying ? '8D Sub-Bass Excursion Active' : 'Test 3D Driver Bass Excursion';
+
+      // 5. 3D Rotation & Camera Zoom Trajectory
+      if (sec < 2.2) {
+        // Fast 360° drag spin hook
+        const t = smoothstep(0.15, 2.0, sec);
+        curRotY = -0.45 + t * Math.PI * 2.15;
+        curRotX = 0.14 + Math.sin(t * Math.PI) * 0.28;
+        curZoom = 8.0 - Math.sin(t * Math.PI) * 0.6;
+      } else if (sec < 5.2) {
+        // Orbit around exploded 14-part CAD view
+        const t = smoothstep(2.2, 5.1, sec);
+        curRotY = 0.4 - t * 1.15;
+        curRotX = 0.16 + Math.sin(t * Math.PI) * 0.14;
+        curZoom = lerp(8.0, 8.5, smoothstep(2.2, 2.9, sec));
+      } else if (sec < 8.0) {
+        // Zoom in slightly on vibrating 3D Beryllium speaker cones
+        const t = smoothstep(5.2, 7.9, sec);
+        curRotY = -0.75 + t * 1.1;
+        curRotX = 0.12;
+        curZoom = lerp(8.5, 7.25, smoothstep(5.2, 5.9, sec));
+      } else if (sec < 12.2) {
+        // Showcase metallic shaders spinning smoothly
+        const t = (sec - 8.0) / 4.2;
+        curRotY = 0.35 + t * Math.PI * 1.65;
+        curRotX = 0.18 - Math.sin(t * Math.PI * 2) * 0.12;
+        curZoom = lerp(7.25, 8.1, smoothstep(8.0, 8.7, sec));
+      } else {
+        // Snap back cleanly to exact starting pose for seamless loop
+        const t = smoothstep(12.2, 13.3, sec);
+        const startRotY = 0.35 + Math.PI * 1.65;
+        curRotY = lerp(startRotY, -0.45 + Math.PI * 2, t);
+        curRotX = lerp(0.18, 0.14, t);
+        curZoom = lerp(8.1, 8.0, t);
+      }
+
+      // 6. Simulated Cursor Position & Click Ripples
+      let cx = W * 0.5;
+      let cy = H * 0.5;
+      if (sec < 1.8) {
+        const t = smoothstep(0.1, 1.7, sec);
+        cx = lerp(W * 0.36, W * 0.66, t);
+        cy = lerp(H * 0.54, H * 0.44, t);
+      } else if (sec < 2.5) {
+        const t = smoothstep(1.8, 2.2, sec);
+        cx = lerp(W * 0.66, pExplode.x, t);
+        cy = lerp(H * 0.44, pExplode.y, t);
+      } else if (sec < 4.6) {
+        const t = smoothstep(2.5, 4.5, sec);
+        cx = lerp(pExplode.x, W * 0.54, t);
+        cy = lerp(pExplode.y, H * 0.52, t);
+      } else if (sec < 5.5) {
+        const t = smoothstep(4.6, 5.2, sec);
+        cx = lerp(W * 0.54, pBass.x, t);
+        cy = lerp(H * 0.52, pBass.y, t);
+      } else if (sec < 8.3) {
+        const t = smoothstep(7.3, 8.0, sec);
+        cx = lerp(pBass.x, pGold.x, t);
+        cy = lerp(pBass.y, pGold.y, t);
+      } else if (sec < 9.4) {
+        const t = smoothstep(8.5, 9.1, sec);
+        cx = lerp(pGold.x, pCobalt.x, t);
+        cy = lerp(pGold.y, pCobalt.y, t);
+      } else if (sec < 10.5) {
+        const t = smoothstep(9.6, 10.2, sec);
+        cx = lerp(pCobalt.x, pCrimson.x, t);
+        cy = lerp(pCobalt.y, pCrimson.y, t);
+      } else if (sec < 11.4) {
+        const t = smoothstep(10.5, 11.1, sec);
+        cx = lerp(pCrimson.x, pWire.x, t);
+        cy = lerp(pCrimson.y, pWire.y, t);
+      } else {
+        const t = smoothstep(11.6, 12.2, sec);
+        cx = lerp(pWire.x, pExplode.x, t);
+        cy = lerp(pWire.y, pExplode.y, t);
+      }
+
+      demoCursor.style.left = `${cx}px`;
+      demoCursor.style.top = `${cy}px`;
+
+      // Deterministic Click Ripple at click timestamps
+      const clickEvents = [
+        { t: 2.2, pos: pExplode },
+        { t: 5.2, pos: pBass },
+        { t: 8.0, pos: pGold },
+        { t: 9.1, pos: pCobalt },
+        { t: 10.2, pos: pCrimson },
+        { t: 11.1, pos: pWire },
+        { t: 12.2, pos: pExplode }
+      ];
+      let activeClick = null;
+      for (const ev of clickEvents) {
+        if (sec >= ev.t && sec <= ev.t + 0.48) {
+          activeClick = { dt: (sec - ev.t) / 0.48, pos: ev.pos };
+          break;
+        }
+      }
+      if (activeClick) {
+        const scale = lerp(0.25, 1.75, activeClick.dt);
+        const alpha = 1 - activeClick.dt;
+        clickRipple.style.left = `${activeClick.pos.x}px`;
+        clickRipple.style.top = `${activeClick.pos.y}px`;
+        clickRipple.style.opacity = String(alpha);
+        clickRipple.style.transform = `translate(-50%, -50%) scale(${scale})`;
+      } else {
+        clickRipple.style.opacity = '0';
+      }
+
+      updateSceneAndRender();
+    };
+
+    // Press "R" anytime to watch the choreographed demo live with real-time Web Audio SFX!
+    window.addEventListener('keydown', (e) => {
+      if (e.key === 'r' || e.key === 'R') {
+        let start = performance.now();
+        const triggered = new Set();
+        function step(now) {
+          const sec = (now - start) / 1000;
+          if (sec <= 13.5) {
+            window.setDemoTime(sec);
+            if (sec >= 2.2 && !triggered.has('exp')) { triggered.add('exp'); SoundFX.playHydraulicExplode(true); }
+            if (sec >= 5.2 && !triggered.has('b1')) { triggered.add('b1'); SoundFX.playBassDropPulse(); }
+            if (sec >= 6.15 && !triggered.has('b2')) { triggered.add('b2'); SoundFX.playBassDropPulse(); }
+            if (sec >= 7.1 && !triggered.has('b3')) { triggered.add('b3'); SoundFX.playBassDropPulse(); }
+            if (sec >= 8.0 && !triggered.has('c1')) { triggered.add('c1'); SoundFX.playClick(580); }
+            if (sec >= 9.1 && !triggered.has('c2')) { triggered.add('c2'); SoundFX.playClick(640); }
+            if (sec >= 10.2 && !triggered.has('c3')) { triggered.add('c3'); SoundFX.playClick(700); }
+            if (sec >= 11.1 && !triggered.has('c4')) { triggered.add('c4'); SoundFX.playClick(760); }
+            if (sec >= 12.2 && !triggered.has('close')) { triggered.add('close'); SoundFX.playHydraulicExplode(false); }
+            requestAnimationFrame(step);
+          } else {
+            demoModeManual = false;
+            demoCursor.classList.remove('visible');
+          }
+        }
+        requestAnimationFrame(step);
+      }
+    });
 
     window.addEventListener('resize', () => {
       camera.aspect = window.innerWidth / window.innerHeight;
