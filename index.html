@@ -1,0 +1,1565 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Flashlight App - Apple in 2030</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      user-select: none;
+      -webkit-user-select: none;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    body {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      background: radial-gradient(circle at 50% 50%, #1d1d22 0%, #09090c 100%);
+      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", "Helvetica Neue", sans-serif;
+      overflow: hidden;
+      transition: background 0.55s cubic-bezier(0.22, 1, 0.36, 1);
+      perspective: 1200px;
+    }
+
+    body.ambient-light {
+      background: radial-gradient(circle at 50% 50%, #4b4e5c 0%, #191a22 58%, #0b0b0f 100%);
+    }
+
+    /* Ambient Volumetric God-Rays behind iPhone when Flashlight is ON */
+    .ambient-bloom {
+      position: fixed;
+      width: 680px;
+      height: 680px;
+      border-radius: 50%;
+      background: radial-gradient(
+        circle,
+        rgba(255, 252, 235, 0.28) 0%,
+        rgba(165, 200, 255, 0.12) 38%,
+        transparent 70%
+      );
+      filter: blur(25px);
+      opacity: 0;
+      transform: scale(0.75);
+      pointer-events: none;
+      transition: opacity 0.5s ease, transform 0.6s cubic-bezier(0.22, 1, 0.36, 1);
+      z-index: 0;
+    }
+
+    body.ambient-light .ambient-bloom {
+      opacity: 1;
+      transform: scale(1.08);
+    }
+
+    /* Outer iPhone Titanium Chassis */
+    .iphone-frame {
+      position: relative;
+      width: 354px;
+      height: 728px;
+      border-radius: 58px;
+      padding: 11px;
+      background: linear-gradient(145deg, #5a5a60 0%, #2d2d30 48%, #47474d 100%);
+      box-shadow:
+        0 30px 70px rgba(0, 0, 0, 0.8),
+        0 0 0 1px rgba(255, 255, 255, 0.18) inset,
+        0 0 0 2px #141416;
+      transition:
+        box-shadow 0.45s cubic-bezier(0.22, 1, 0.36, 1),
+        transform 0.25s cubic-bezier(0.22, 1, 0.36, 1);
+      z-index: 2;
+    }
+
+    .iphone-frame.flashlight-on {
+      box-shadow:
+        0 30px 80px rgba(0, 0, 0, 0.65),
+        0 0 110px rgba(255, 251, 232, 0.48),
+        0 0 35px rgba(255, 255, 255, 0.25),
+        0 0 0 1px rgba(255, 255, 255, 0.32) inset,
+        0 0 0 2px #141416;
+    }
+
+    .iphone-frame.taptic-bump {
+      transform: scale(0.993);
+    }
+
+    /* Hardware Side Buttons */
+    .hw-btn {
+      position: absolute;
+      background: linear-gradient(180deg, #4b4b50, #2a2a2e);
+      border-radius: 2px;
+      box-shadow: 0 0 1px rgba(255, 255, 255, 0.25) inset;
+    }
+    .hw-action {
+      left: -3px;
+      top: 132px;
+      width: 3px;
+      height: 28px;
+      border-top-left-radius: 3px;
+      border-bottom-left-radius: 3px;
+    }
+    .hw-vol-up {
+      left: -3px;
+      top: 180px;
+      width: 3px;
+      height: 52px;
+      border-top-left-radius: 3px;
+      border-bottom-left-radius: 3px;
+    }
+    .hw-vol-down {
+      left: -3px;
+      top: 244px;
+      width: 3px;
+      height: 52px;
+      border-top-left-radius: 3px;
+      border-bottom-left-radius: 3px;
+    }
+    .hw-power {
+      right: -3px;
+      top: 200px;
+      width: 3px;
+      height: 78px;
+      border-top-right-radius: 3px;
+      border-bottom-right-radius: 3px;
+    }
+
+    /* Inner Black Hardware Bezel */
+    .iphone-bezel {
+      position: relative;
+      width: 100%;
+      height: 100%;
+      background: #000;
+      border-radius: 48px;
+      padding: 3px;
+      overflow: hidden;
+    }
+
+    /* Top Earpiece Speaker Slit */
+    .earpiece-slit {
+      position: absolute;
+      top: 4px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 48px;
+      height: 3px;
+      border-radius: 2px;
+      background: #141416;
+      z-index: 30;
+    }
+
+    /* Screen Area */
+    .iphone-screen {
+      position: relative;
+      width: 100%;
+      height: 100%;
+      border-radius: 45px;
+      background: #050506;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      transition: background 0.35s ease;
+    }
+
+    .iphone-screen.on {
+      background: radial-gradient(circle at 50% 55%, #e8f1ff 0%, #fffdf8 52%, #f4efe2 100%);
+    }
+
+    /* Screen Flash Burst on Turn On */
+    .screen-flash {
+      position: absolute;
+      inset: 0;
+      background: #ffffff;
+      opacity: 0;
+      pointer-events: none;
+      z-index: 15;
+      transition: opacity 0.45s ease-out;
+    }
+
+    .screen-flash.burst {
+      opacity: 0.85;
+      transition: none;
+    }
+
+    /* Persistent Status Bar & Dynamic Island (stays crisp above blur) */
+    .status-bar {
+      position: absolute;
+      top: 12px;
+      left: 0;
+      right: 0;
+      width: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      height: 32px;
+      padding: 0 26px;
+      z-index: 45;
+      color: #ffffff;
+      transition: color 0.3s ease;
+      pointer-events: none;
+    }
+
+    .iphone-screen.on .status-bar {
+      color: #111111;
+    }
+
+    .status-time {
+      font-size: 14px;
+      font-weight: 600;
+      letter-spacing: -0.3px;
+      width: 54px;
+    }
+
+    /* Dynamic Island with Live Expansion */
+    .dynamic-island {
+      position: relative;
+      width: 96px;
+      height: 27px;
+      background: #000000;
+      border-radius: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 9px;
+      box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.07);
+      transition:
+        width 0.38s cubic-bezier(0.22, 1.25, 0.36, 1),
+        height 0.38s cubic-bezier(0.22, 1.25, 0.36, 1),
+        padding 0.3s ease;
+      overflow: hidden;
+    }
+
+    .dynamic-island.expanded {
+      width: 174px;
+      height: 30px;
+      padding: 0 11px;
+    }
+
+    .island-left {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      opacity: 0;
+      transform: translateX(-4px) scale(0.85);
+      transition: opacity 0.2s ease, transform 0.25s ease;
+      white-space: nowrap;
+    }
+
+    .dynamic-island.expanded .island-left {
+      opacity: 1;
+      transform: translateX(0) scale(1);
+    }
+
+    .island-torch-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: #ffd60a;
+      box-shadow: 0 0 8px #ffd60a;
+    }
+
+    .island-label {
+      font-size: 10.5px;
+      font-weight: 600;
+      color: #ffffff;
+      letter-spacing: -0.2px;
+    }
+
+    .island-camera {
+      margin-left: auto;
+      width: 10px;
+      height: 10px;
+      flex-shrink: 0;
+      border-radius: 50%;
+      background: radial-gradient(circle at 35% 35%, #1e2846 0%, #080b14 60%, #050505 100%);
+      box-shadow: 0 0 1px rgba(255, 255, 255, 0.18) inset;
+    }
+
+    .status-icons {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      width: 54px;
+      justify-content: flex-end;
+    }
+
+    .status-icons svg {
+      height: 11px;
+      fill: currentColor;
+    }
+
+    .battery-fill {
+      transition: width 0.3s ease, fill 0.3s ease;
+    }
+
+    /* Main Content Layer (blurs when modal/sheet is active) */
+    .screen-content {
+      position: relative;
+      width: 100%;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      align-items: center;
+      padding: 46px 24px 26px;
+      transition: filter 0.38s ease, transform 0.38s ease;
+      z-index: 1;
+    }
+
+    .iphone-screen.blurred .screen-content {
+      filter: blur(9px);
+    }
+
+    /* Header Text */
+    .header-area {
+      text-align: center;
+      margin-top: 56px;
+      transition: color 0.3s ease, transform 0.3s ease;
+    }
+
+    .app-title {
+      font-size: 31px;
+      font-weight: 700;
+      letter-spacing: -0.7px;
+      color: #ffffff;
+      margin-bottom: 6px;
+      transition: color 0.3s ease;
+    }
+
+    .app-subtitle {
+      font-size: 15px;
+      font-weight: 400;
+      color: #8e8e93;
+      letter-spacing: -0.2px;
+      transition: color 0.3s ease;
+    }
+
+    .iphone-screen.on .app-title {
+      color: #141416;
+    }
+
+    .iphone-screen.on .app-subtitle {
+      color: #636366;
+    }
+
+    /* Center Power Button */
+    .power-button-wrapper {
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 92px;
+    }
+
+    /* Multi-layered Ambient Glow Rings when ON */
+    .power-glow-ring {
+      position: absolute;
+      width: 210px;
+      height: 210px;
+      border-radius: 50%;
+      background: radial-gradient(
+        circle,
+        rgba(59, 130, 246, 0.3) 0%,
+        rgba(59, 130, 246, 0.12) 48%,
+        transparent 72%
+      );
+      opacity: 0;
+      transform: scale(0.8);
+      transition: opacity 0.4s ease, transform 0.45s cubic-bezier(0.22, 1, 0.36, 1);
+      pointer-events: none;
+    }
+
+    .power-glow-pulse {
+      position: absolute;
+      width: 150px;
+      height: 150px;
+      border-radius: 50%;
+      border: 1.5px solid rgba(59, 130, 246, 0.28);
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    .iphone-screen.on .power-glow-ring {
+      opacity: 1;
+      transform: scale(1);
+    }
+
+    .iphone-screen.on .power-glow-pulse {
+      animation: ringRipple 2.2s cubic-bezier(0.16, 1, 0.3, 1) infinite;
+    }
+
+    @keyframes ringRipple {
+      0% {
+        transform: scale(0.85);
+        opacity: 0.65;
+      }
+      100% {
+        transform: scale(1.45);
+        opacity: 0;
+      }
+    }
+
+    .power-btn {
+      position: relative;
+      width: 118px;
+      height: 118px;
+      border-radius: 50%;
+      border: none;
+      background: rgba(118, 118, 128, 0.55);
+      color: #ffffff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      outline: none;
+      box-shadow:
+        0 10px 26px rgba(0, 0, 0, 0.38),
+        0 1px 1px rgba(255, 255, 255, 0.18) inset;
+      transition:
+        background 0.3s ease,
+        transform 0.15s cubic-bezier(0.22, 1.4, 0.36, 1),
+        box-shadow 0.3s ease,
+        color 0.3s ease;
+    }
+
+    .power-btn:hover {
+      transform: scale(1.03);
+    }
+
+    .power-btn:active {
+      transform: scale(0.91);
+    }
+
+    .iphone-screen.on .power-btn {
+      background: radial-gradient(circle at 50% 35%, #5b8ef7 0%, #3b6fe0 68%, #2b57be 100%);
+      color: #ffffff;
+      box-shadow:
+        0 12px 35px rgba(59, 130, 246, 0.48),
+        0 0 0 18px rgba(59, 130, 246, 0.13),
+        0 1.5px 2px rgba(255, 255, 255, 0.4) inset;
+    }
+
+    .power-btn svg {
+      width: 44px;
+      height: 44px;
+      stroke: currentColor;
+      stroke-width: 2.5;
+      stroke-linecap: round;
+      fill: none;
+      filter: drop-shadow(0 1px 3px rgba(0, 0, 0, 0.2));
+    }
+
+    /* Bottom Page Dots & Home Indicator */
+    .bottom-nav-area {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 14px;
+      width: 100%;
+    }
+
+    .page-dots {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      margin-bottom: 2px;
+    }
+
+    .dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.32);
+      transition: all 0.3s ease;
+    }
+
+    .dot.active {
+      width: 7px;
+      height: 7px;
+      background: #ffffff;
+    }
+
+    .iphone-screen.on .dot {
+      background: rgba(0, 0, 0, 0.22);
+    }
+
+    .iphone-screen.on .dot.active {
+      background: #1c1c1e;
+    }
+
+    /* Overlay Backdrop inside Phone */
+    .overlay-backdrop {
+      position: absolute;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.18);
+      z-index: 20;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.28s ease;
+    }
+
+    .overlay-backdrop.active {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    /* iOS Alert Modal ("Flashlight Pro™") */
+    .ios-alert {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: 278px;
+      transform: translate(-50%, -50%) scale(0.84);
+      background: rgba(38, 38, 42, 0.88);
+      backdrop-filter: blur(24px) saturate(190%);
+      -webkit-backdrop-filter: blur(24px) saturate(190%);
+      border-radius: 16px;
+      box-shadow:
+        0 20px 50px rgba(0, 0, 0, 0.48),
+        0 0 0 0.5px rgba(255, 255, 255, 0.16) inset;
+      color: #ffffff;
+      text-align: center;
+      z-index: 30;
+      opacity: 0;
+      pointer-events: none;
+      overflow: hidden;
+      transition:
+        opacity 0.2s ease,
+        transform 0.28s cubic-bezier(0.22, 1.22, 0.36, 1);
+    }
+
+    .ios-alert.visible {
+      opacity: 1;
+      pointer-events: auto;
+      transform: translate(-50%, -50%) scale(1);
+    }
+
+    .ios-alert.shake {
+      animation: alertShake 0.36s cubic-bezier(0.36, 0.07, 0.19, 0.97);
+    }
+
+    @keyframes alertShake {
+      0%, 100% { transform: translate(-50%, -50%) translateX(0); }
+      20% { transform: translate(-50%, -50%) translateX(-8px); }
+      40% { transform: translate(-50%, -50%) translateX(8px); }
+      60% { transform: translate(-50%, -50%) translateX(-5px); }
+      80% { transform: translate(-50%, -50%) translateX(5px); }
+    }
+
+    .alert-body {
+      padding: 20px 18px 17px;
+    }
+
+    .alert-title {
+      font-size: 17px;
+      font-weight: 600;
+      letter-spacing: -0.3px;
+      margin-bottom: 6px;
+      color: #ffffff;
+    }
+
+    .alert-message {
+      font-size: 13px;
+      font-weight: 400;
+      line-height: 1.38;
+      letter-spacing: -0.1px;
+      color: rgba(235, 235, 245, 0.9);
+    }
+
+    .alert-actions {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      border-top: 0.5px solid rgba(255, 255, 255, 0.18);
+      height: 44px;
+    }
+
+    .alert-btn {
+      background: transparent;
+      border: none;
+      color: #0a84ff;
+      font-size: 16.5px;
+      font-family: inherit;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background 0.12s ease;
+    }
+
+    .alert-btn:first-child {
+      border-right: 0.5px solid rgba(255, 255, 255, 0.18);
+      font-weight: 400;
+    }
+
+    .alert-btn:last-child {
+      font-weight: 600;
+    }
+
+    .alert-btn:hover {
+      background: rgba(255, 255, 255, 0.06);
+    }
+
+    .alert-btn:active {
+      background: rgba(255, 255, 255, 0.14);
+    }
+
+    /* Apple Pay Bottom Sheet */
+    .apple-pay-sheet {
+      position: absolute;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(28, 28, 30, 0.96);
+      backdrop-filter: blur(28px) saturate(180%);
+      -webkit-backdrop-filter: blur(28px) saturate(180%);
+      border-top-left-radius: 26px;
+      border-top-right-radius: 26px;
+      padding: 8px 18px 24px;
+      color: #ffffff;
+      z-index: 40;
+      transform: translateY(104%);
+      box-shadow:
+        0 -10px 35px rgba(0, 0, 0, 0.45),
+        0 0.5px 0 rgba(255, 255, 255, 0.16) inset;
+      transition: transform 0.44s cubic-bezier(0.22, 1, 0.36, 1);
+    }
+
+    .apple-pay-sheet.visible {
+      transform: translateY(0%);
+    }
+
+    .sheet-grabber {
+      width: 36px;
+      height: 4.5px;
+      border-radius: 3px;
+      background: rgba(255, 255, 255, 0.28);
+      margin: 0 auto 12px;
+    }
+
+    /* Main Payment Details View */
+    .pay-details-view {
+      transition: opacity 0.25s ease;
+    }
+
+    .pay-details-view.hidden {
+      display: none;
+    }
+
+    .apple-pay-header {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 4px;
+      font-size: 19px;
+      font-weight: 600;
+      letter-spacing: -0.3px;
+      margin-bottom: 16px;
+    }
+
+    .apple-pay-header svg {
+      width: 16px;
+      height: 19px;
+      fill: #ffffff;
+      transform: translateY(-1px);
+    }
+
+    .subscription-summary {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 14px;
+      padding: 0 2px;
+    }
+
+    .sub-info-title {
+      font-size: 14.5px;
+      font-weight: 600;
+      color: #ffffff;
+      margin-bottom: 2px;
+    }
+
+    .sub-info-desc {
+      font-size: 12px;
+      color: #8e8e93;
+    }
+
+    .sub-price {
+      font-size: 21px;
+      font-weight: 700;
+      letter-spacing: -0.4px;
+      color: #ffffff;
+    }
+
+    .card-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: rgba(58, 58, 62, 0.76);
+      border-radius: 12px;
+      padding: 11px 13px;
+      margin-bottom: 16px;
+      cursor: pointer;
+      transition: background 0.15s ease, transform 0.12s ease;
+    }
+
+    .card-row:hover {
+      background: rgba(72, 72, 76, 0.85);
+    }
+
+    .card-row:active {
+      transform: scale(0.985);
+    }
+
+    .card-left {
+      display: flex;
+      align-items: center;
+      gap: 11px;
+    }
+
+    .mastercard-logo {
+      position: relative;
+      width: 30px;
+      height: 20px;
+      display: flex;
+      align-items: center;
+    }
+
+    .mc-circle {
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      position: absolute;
+    }
+
+    .mc-red {
+      background: #eb001b;
+      left: 0;
+    }
+
+    .mc-orange {
+      background: #f79e1b;
+      left: 11px;
+      mix-blend-mode: screen;
+      opacity: 0.92;
+    }
+
+    .card-name {
+      font-size: 13.5px;
+      font-weight: 500;
+      color: #ffffff;
+      margin-bottom: 1px;
+    }
+
+    .card-number {
+      font-size: 11.5px;
+      color: #98989f;
+      letter-spacing: 0.4px;
+    }
+
+    .card-chevron {
+      color: #8e8e93;
+      font-size: 18px;
+      font-weight: 500;
+      line-height: 1;
+    }
+
+    /* Confirm Button / Face ID Area */
+    .pay-footer {
+      min-height: 54px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .confirm-btn {
+      width: 100%;
+      height: 46px;
+      border: none;
+      border-radius: 23px;
+      background: #007aff;
+      color: #ffffff;
+      font-size: 15px;
+      font-weight: 600;
+      font-family: inherit;
+      cursor: pointer;
+      box-shadow: 0 4px 14px rgba(0, 122, 255, 0.35);
+      transition: background 0.15s ease, transform 0.12s ease, box-shadow 0.15s ease;
+    }
+
+    .confirm-btn:hover {
+      background: #0a84ff;
+      box-shadow: 0 6px 18px rgba(10, 132, 255, 0.45);
+    }
+
+    .confirm-btn:active {
+      transform: scale(0.975);
+      background: #0062cc;
+    }
+
+    /* Face ID Scanning Indicator */
+    .face-id-box {
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 5px;
+      padding: 2px 0;
+      color: #ffffff;
+      transition: color 0.25s ease;
+    }
+
+    .face-id-box.active {
+      display: flex;
+      animation: fadeInScale 0.22s ease;
+    }
+
+    .face-id-box.verified {
+      color: #30d158;
+    }
+
+    .face-id-icon-wrap {
+      position: relative;
+      width: 36px;
+      height: 36px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    /* Biometric Laser Scan Line */
+    .face-scan-laser {
+      position: absolute;
+      left: 3px;
+      right: 3px;
+      height: 2px;
+      background: linear-gradient(90deg, transparent, #64d2ff, #ffffff, #64d2ff, transparent);
+      box-shadow: 0 0 8px #64d2ff;
+      border-radius: 2px;
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    .face-id-box.scanning .face-scan-laser {
+      opacity: 0.95;
+      animation: laserSweep 0.75s ease-in-out infinite alternate;
+    }
+
+    @keyframes laserSweep {
+      0% { top: 5px; }
+      100% { top: 28px; }
+    }
+
+    .face-id-icon {
+      width: 34px;
+      height: 34px;
+      stroke: currentColor;
+      stroke-width: 2.2;
+      fill: none;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+      transition: transform 0.25s cubic-bezier(0.22, 1.4, 0.36, 1);
+    }
+
+    .face-id-box.scanning .face-id-icon {
+      animation: pulseScan 0.8s ease-in-out infinite;
+    }
+
+    .face-id-box.verified .face-id-icon {
+      transform: scale(1.08);
+      filter: drop-shadow(0 0 8px rgba(48, 209, 88, 0.45));
+    }
+
+    .face-id-label {
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: -0.1px;
+    }
+
+    /* Done Checkmark View (replaces sheet content on completion) */
+    .pay-done-view {
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 30px 0 22px;
+      gap: 10px;
+      animation: fadeInScale 0.26s cubic-bezier(0.22, 1, 0.36, 1);
+    }
+
+    .pay-done-view.active {
+      display: flex;
+    }
+
+    .done-circle {
+      width: 46px;
+      height: 46px;
+      border-radius: 50%;
+      border: 2.5px solid #30d158;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #30d158;
+      box-shadow: 0 0 18px rgba(48, 209, 88, 0.3);
+    }
+
+    .done-circle svg {
+      width: 24px;
+      height: 24px;
+      stroke: currentColor;
+      stroke-width: 2.8;
+      fill: none;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+      stroke-dasharray: 30;
+      stroke-dashoffset: 30;
+      animation: drawCheck 0.35s 0.06s ease forwards;
+    }
+
+    .done-text {
+      font-size: 16px;
+      font-weight: 500;
+      color: #ffffff;
+    }
+
+    @keyframes drawCheck {
+      to {
+        stroke-dashoffset: 0;
+      }
+    }
+
+    @keyframes pulseScan {
+      0%, 100% { transform: scale(1); opacity: 1; }
+      50% { transform: scale(0.92); opacity: 0.74; }
+    }
+
+    @keyframes fadeInScale {
+      from { opacity: 0; transform: scale(0.85); }
+      to { opacity: 1; transform: scale(1); }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Volumetric Light Bloom behind the iPhone -->
+  <div class="ambient-bloom"></div>
+
+  <div class="iphone-frame" id="iphoneFrame">
+    <!-- Hardware Titanium Side Buttons -->
+    <div class="hw-btn hw-action"></div>
+    <div class="hw-btn hw-vol-up"></div>
+    <div class="hw-btn hw-vol-down"></div>
+    <div class="hw-btn hw-power"></div>
+
+    <div class="iphone-bezel">
+      <div class="earpiece-slit"></div>
+
+      <div class="iphone-screen" id="iphoneScreen">
+        <div class="screen-flash" id="screenFlash"></div>
+
+        <!-- Status Bar & Dynamic Island -->
+        <div class="status-bar">
+          <div class="status-time">15:03</div>
+          <div class="dynamic-island" id="dynamicIsland">
+            <div class="island-left">
+              <span class="island-torch-dot"></span>
+              <span class="island-label" id="islandLabel">Torch ON</span>
+            </div>
+            <div class="island-camera"></div>
+          </div>
+          <div class="status-icons">
+            <!-- Signal Bars -->
+            <svg viewBox="0 0 18 12">
+              <rect x="0" y="8" width="3" height="4" rx="1"/>
+              <rect x="4.5" y="6" width="3" height="6" rx="1"/>
+              <rect x="9" y="3.5" width="3" height="8.5" rx="1"/>
+              <rect x="13.5" y="1" width="3" height="11" rx="1"/>
+            </svg>
+            <!-- Wi-Fi -->
+            <svg viewBox="0 0 16 12">
+              <path d="M8 9.6a1.4 1.4 0 1 0 0 2.8 1.4 1.4 0 0 0 0-2.8zm-3.05-1.9a4.5 4.5 0 0 1 6.1 0 .75.75 0 0 1-1.04 1.08 3 3 0 0 0-4.02 0 .75.75 0 0 1-1.04-1.08zm-2.4-2.4a7.9 7.9 0 0 1 10.9 0 .75.75 0 0 1-1.04 1.08 6.4 6.4 0 0 0-8.82 0 .75.75 0 0 1-1.04-1.08z"/>
+            </svg>
+            <!-- Battery -->
+            <svg viewBox="0 0 25 12">
+              <rect x="0.75" y="1" width="21" height="10" rx="3" fill="none" stroke="currentColor" stroke-width="1.2" opacity="0.45"/>
+              <rect class="battery-fill" id="batteryFill" x="2.5" y="2.75" width="17.5" height="6.5" rx="1.6"/>
+              <path d="M23 4.2v3.6a1.6 1.6 0 0 0 0-3.6z" opacity="0.45"/>
+            </svg>
+          </div>
+        </div>
+
+        <!-- Main App Screen -->
+        <div class="screen-content">
+          <!-- Title & Subtitle -->
+          <div class="header-area">
+            <h1 class="app-title">Flashlight</h1>
+            <p class="app-subtitle" id="statusSubtitle">Tap to turn on</p>
+          </div>
+
+          <!-- Center Power Button -->
+          <div class="power-button-wrapper">
+            <div class="power-glow-ring"></div>
+            <div class="power-glow-pulse"></div>
+            <button class="power-btn" id="powerBtn" aria-label="Toggle Flashlight">
+              <svg viewBox="0 0 24 24">
+                <path d="M12 3v9" />
+                <path d="M17.66 6.34a8 8 0 1 1-11.32 0" />
+              </svg>
+            </button>
+          </div>
+
+          <!-- Bottom Pagination Dots -->
+          <div class="bottom-nav-area">
+            <div class="page-dots">
+              <span class="dot active"></span>
+              <span class="dot"></span>
+              <span class="dot"></span>
+              <span class="dot"></span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Dim / Blur Overlay Backdrop -->
+        <div class="overlay-backdrop" id="overlayBackdrop"></div>
+
+        <!-- iOS Alert Dialog: Flashlight Pro™ -->
+        <div class="ios-alert" id="proAlert" role="dialog" aria-labelledby="alertTitle">
+          <div class="alert-body">
+            <div class="alert-title" id="alertTitle">Flashlight Pro™</div>
+            <div class="alert-message" id="alertMessage">
+              Turning off the flashlight requires a Premium Subscription. Please complete the purchase to continue.
+            </div>
+          </div>
+          <div class="alert-actions">
+            <button class="alert-btn" id="cancelBtn">Cancel</button>
+            <button class="alert-btn" id="subscribeBtn">Subscribe</button>
+          </div>
+        </div>
+
+        <!-- Apple Pay Sheet -->
+        <div class="apple-pay-sheet" id="applePaySheet">
+          <div class="sheet-grabber"></div>
+
+          <!-- Payment Details View -->
+          <div class="pay-details-view" id="payDetailsView">
+            <div class="apple-pay-header">
+              <svg viewBox="0 0 170 170">
+                <path d="M150.37 130.25c-2.45 5.66-5.35 10.87-8.71 15.66-4.58 6.53-8.33 11.05-11.22 13.56-4.48 4.12-9.28 6.23-14.42 6.35-3.69 0-8.14-1.05-13.32-3.18-5.19-2.12-9.97-3.17-14.34-3.17-4.58 0-9.49 1.05-14.75 3.17-5.26 2.13-9.5 3.24-12.74 3.35-4.35.13-9.13-1.9-14.34-6.08-3.69-3.03-7.61-7.82-11.77-14.37-5.6-8.84-10.22-19.08-13.86-30.71-3.64-11.63-5.46-22.42-5.46-32.37 0-12.35 3.09-22.49 9.28-30.43 6.18-7.93 13.99-12.02 23.43-12.26 4.7 0 9.92 1.4 15.65 4.21 5.74 2.81 9.42 4.27 11.05 4.38 1.23 0 5.31-1.69 12.24-5.06 6.59-3.13 12.24-4.43 16.95-3.9 12.52 1.01 21.93 5.95 28.22 14.82-11.18 6.79-16.65 16.29-16.43 28.51.11 9.51 3.55 17.42 10.31 23.73 4.69 4.44 10.17 7.21 16.43 8.31-1.32 3.92-2.73 7.73-4.21 11.44zM119.22 31.1c0 7.45-2.72 14.41-8.16 20.88-6.56 7.66-14.5 12.09-23.1 11.42-.16-.92-.25-1.92-.25-3.01 0-7.15 3.02-14.79 8.4-21.05 2.68-3.09 6.09-5.66 10.22-7.72 4.12-2.05 8.02-3.19 11.69-3.42.14 1.03.2 2 .2 2.9z"/>
+              </svg>
+              <span>Pay</span>
+            </div>
+
+            <div class="subscription-summary">
+              <div>
+                <div class="sub-info-title">Flashlight Pro™</div>
+                <div class="sub-info-desc">Premium Subscription</div>
+              </div>
+              <div class="sub-price" id="subPrice">$999.99</div>
+            </div>
+
+            <div class="card-row" id="cardRow" title="Click to switch card">
+              <div class="card-left">
+                <div class="mastercard-logo">
+                  <span class="mc-circle mc-red"></span>
+                  <span class="mc-circle mc-orange"></span>
+                </div>
+                <div>
+                  <div class="card-name" id="cardName">Mastercard</div>
+                  <div class="card-number" id="cardNumber">•••• 8924</div>
+                </div>
+              </div>
+              <div class="card-chevron">›</div>
+            </div>
+
+            <div class="pay-footer">
+              <button class="confirm-btn" id="confirmFaceIdBtn">Confirm with Face ID</button>
+
+              <div class="face-id-box" id="faceIdBox">
+                <div class="face-id-icon-wrap">
+                  <div class="face-scan-laser"></div>
+                  <svg class="face-id-icon" viewBox="0 0 24 24">
+                    <!-- Corner Brackets -->
+                    <path d="M7 3H5a2 2 0 0 0-2 2v2" />
+                    <path d="M17 3h2a2 2 0 0 1 2 2v2" />
+                    <path d="M7 21H5a2 2 0 0 1-2-2v-2" />
+                    <path d="M17 21h2a2 2 0 0 0 2-2v-2" />
+                    <!-- Eyes, Nose, Smile -->
+                    <path d="M9 9v1" />
+                    <path d="M15 9v1" />
+                    <path d="M12 9v3.5h-1" />
+                    <path d="M9.5 15.5a3.5 3.5 0 0 0 5 0" />
+                  </svg>
+                </div>
+                <span class="face-id-label">Face ID</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Done Checkmark View -->
+          <div class="pay-done-view" id="payDoneView">
+            <div class="done-circle">
+              <svg viewBox="0 0 24 24">
+                <path d="M6 12.5l4 4 8-8.5" />
+              </svg>
+            </div>
+            <div class="done-text">Done</div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const iphoneFrame = document.getElementById('iphoneFrame');
+    const iphoneScreen = document.getElementById('iphoneScreen');
+    const screenFlash = document.getElementById('screenFlash');
+    const dynamicIsland = document.getElementById('dynamicIsland');
+    const islandLabel = document.getElementById('islandLabel');
+    const statusSubtitle = document.getElementById('statusSubtitle');
+    const powerBtn = document.getElementById('powerBtn');
+    const overlayBackdrop = document.getElementById('overlayBackdrop');
+    const proAlert = document.getElementById('proAlert');
+    const cancelBtn = document.getElementById('cancelBtn');
+    const subscribeBtn = document.getElementById('subscribeBtn');
+    const applePaySheet = document.getElementById('applePaySheet');
+    const payDetailsView = document.getElementById('payDetailsView');
+    const cardRow = document.getElementById('cardRow');
+    const cardName = document.getElementById('cardName');
+    const cardNumber = document.getElementById('cardNumber');
+    const confirmFaceIdBtn = document.getElementById('confirmFaceIdBtn');
+    const faceIdBox = document.getElementById('faceIdBox');
+    const payDoneView = document.getElementById('payDoneView');
+
+    let isFlashlightOn = false;
+    let isFlowBusy = false;
+
+    /* ==========================================================================
+       Synthesized Web Audio Sound Engine (Zero external assets required)
+       ========================================================================== */
+    const SoundFX = (() => {
+      let ctx = null;
+
+      function getCtx() {
+        if (!ctx) {
+          const AudioCtx = window.AudioContext || window.webkitAudioContext;
+          ctx = new AudioCtx();
+        }
+        if (ctx.state === 'suspended') {
+          ctx.resume();
+        }
+        return ctx;
+      }
+
+      // Trigger subtle visual Taptic bump on the iPhone chassis
+      function triggerTapticBump() {
+        iphoneFrame.classList.remove('taptic-bump');
+        void iphoneFrame.offsetWidth;
+        iphoneFrame.classList.add('taptic-bump');
+        setTimeout(() => iphoneFrame.classList.remove('taptic-bump'), 120);
+      }
+
+      // 1. Flashlight Switch ON: Crisp mechanical click + xenon capacitor charge hum
+      function playTorchOn() {
+        try {
+          triggerTapticBump();
+          const c = getCtx();
+          const now = c.currentTime;
+
+          // Mechanical Taptic click transient
+          const clickOsc = c.createOscillator();
+          const clickGain = c.createGain();
+          clickOsc.type = 'triangle';
+          clickOsc.frequency.setValueAtTime(190, now);
+          clickOsc.frequency.exponentialRampToValueAtTime(55, now + 0.035);
+          clickGain.gain.setValueAtTime(0.38, now);
+          clickGain.gain.exponentialRampToValueAtTime(0.001, now + 0.04);
+          clickOsc.connect(clickGain);
+          clickGain.connect(c.destination);
+          clickOsc.start(now);
+          clickOsc.stop(now + 0.045);
+
+          // High-tech xenon/LED charge-up sweep
+          const chargeOsc = c.createOscillator();
+          const chargeGain = c.createGain();
+          chargeOsc.type = 'sine';
+          chargeOsc.frequency.setValueAtTime(520, now + 0.01);
+          chargeOsc.frequency.exponentialRampToValueAtTime(2400, now + 0.22);
+          chargeGain.gain.setValueAtTime(0.001, now);
+          chargeGain.gain.linearRampToValueAtTime(0.045, now + 0.05);
+          chargeGain.gain.exponentialRampToValueAtTime(0.0001, now + 0.25);
+          chargeOsc.connect(chargeGain);
+          chargeGain.connect(c.destination);
+          chargeOsc.start(now + 0.01);
+          chargeOsc.stop(now + 0.26);
+        } catch (e) {}
+      }
+
+      // 2. iOS Alert Modal Pop: Classic crystalline two-note alert chord
+      function playAlertPop() {
+        try {
+          triggerTapticBump();
+          const c = getCtx();
+          const now = c.currentTime;
+
+          const playTone = (freq, delay, dur, vol) => {
+            const osc = c.createOscillator();
+            const gain = c.createGain();
+            osc.type = 'sine';
+            osc.frequency.setValueAtTime(freq, now + delay);
+            gain.gain.setValueAtTime(0.0001, now + delay);
+            gain.gain.linearRampToValueAtTime(vol, now + delay + 0.012);
+            gain.gain.exponentialRampToValueAtTime(0.0001, now + delay + dur);
+            osc.connect(gain);
+            gain.connect(c.destination);
+            osc.start(now + delay);
+            osc.stop(now + delay + dur + 0.01);
+          };
+
+          playTone(587.33, 0.0, 0.16, 0.11);  // D5
+          playTone(880.00, 0.045, 0.24, 0.12); // A5
+        } catch (e) {}
+      }
+
+      // 3. Soft UI Tap / Cancel / Button Click
+      function playTap(pitch = 140) {
+        try {
+          triggerTapticBump();
+          const c = getCtx();
+          const now = c.currentTime;
+
+          const osc = c.createOscillator();
+          const gain = c.createGain();
+          osc.type = 'sine';
+          osc.frequency.setValueAtTime(pitch, now);
+          osc.frequency.exponentialRampToValueAtTime(48, now + 0.03);
+          gain.gain.setValueAtTime(0.22, now);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + 0.035);
+          osc.connect(gain);
+          gain.connect(c.destination);
+          osc.start(now);
+          osc.stop(now + 0.04);
+        } catch (e) {}
+      }
+
+      // 4. Apple Pay Sheet Slide-Up: Subtle upward air whoosh + low taptic thump
+      function playSheetSlideUp() {
+        try {
+          triggerTapticBump();
+          const c = getCtx();
+          const now = c.currentTime;
+
+          // Filtered noise whoosh
+          const bufferSize = c.sampleRate * 0.22;
+          const buffer = c.createBuffer(1, bufferSize, c.sampleRate);
+          const data = buffer.getChannelData(0);
+          for (let i = 0; i < bufferSize; i++) {
+            data[i] = Math.random() * 2 - 1;
+          }
+
+          const noise = c.createBufferSource();
+          noise.buffer = buffer;
+
+          const filter = c.createBiquadFilter();
+          filter.type = 'bandpass';
+          filter.frequency.setValueAtTime(320, now);
+          filter.frequency.exponentialRampToValueAtTime(1450, now + 0.2);
+          filter.Q.value = 1.8;
+
+          const gain = c.createGain();
+          gain.gain.setValueAtTime(0.001, now);
+          gain.gain.linearRampToValueAtTime(0.07, now + 0.07);
+          gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.21);
+
+          noise.connect(filter);
+          filter.connect(gain);
+          gain.connect(c.destination);
+          noise.start(now);
+
+          // Soft double-click confirmation tone
+          const osc = c.createOscillator();
+          const oGain = c.createGain();
+          osc.type = 'sine';
+          osc.frequency.setValueAtTime(360, now + 0.04);
+          osc.frequency.exponentialRampToValueAtTime(540, now + 0.12);
+          oGain.gain.setValueAtTime(0.06, now + 0.04);
+          oGain.gain.exponentialRampToValueAtTime(0.0001, now + 0.14);
+          osc.connect(oGain);
+          oGain.connect(c.destination);
+          osc.start(now + 0.04);
+          osc.stop(now + 0.15);
+        } catch (e) {}
+      }
+
+      // 5. Face ID Biometric Scanning Shimmer
+      function playFaceIdScan() {
+        try {
+          triggerTapticBump();
+          const c = getCtx();
+          const now = c.currentTime;
+
+          // Futuristic soft dual-oscillator biometric scan pulse
+          const freqs = [660, 880, 1108.73];
+          freqs.forEach((f, idx) => {
+            const osc = c.createOscillator();
+            const gain = c.createGain();
+            osc.type = 'sine';
+            const start = now + idx * 0.18;
+            osc.frequency.setValueAtTime(f, start);
+            osc.frequency.exponentialRampToValueAtTime(f * 1.06, start + 0.16);
+            gain.gain.setValueAtTime(0.0001, start);
+            gain.gain.linearRampToValueAtTime(0.045, start + 0.04);
+            gain.gain.exponentialRampToValueAtTime(0.0001, start + 0.19);
+            osc.connect(gain);
+            gain.connect(c.destination);
+            osc.start(start);
+            osc.stop(start + 0.2);
+          });
+        } catch (e) {}
+      }
+
+      // 6. Face ID Green Verified Lock Tick
+      function playFaceIdVerified() {
+        try {
+          triggerTapticBump();
+          const c = getCtx();
+          const now = c.currentTime;
+
+          const osc = c.createOscillator();
+          const gain = c.createGain();
+          osc.type = 'triangle';
+          osc.frequency.setValueAtTime(1046.5, now); // C6
+          osc.frequency.setValueAtTime(1396.9, now + 0.045); // F6
+          gain.gain.setValueAtTime(0.09, now);
+          gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.14);
+          osc.connect(gain);
+          gain.connect(c.destination);
+          osc.start(now);
+          osc.stop(now + 0.15);
+        } catch (e) {}
+      }
+
+      // 7. Iconic Apple Pay "Ding!" Chime (Rich Harmonic Synthesis)
+      function playApplePayChime() {
+        try {
+          triggerTapticBump();
+          const c = getCtx();
+          const now = c.currentTime;
+
+          const playBellNote = (freq, start, duration, peakGain) => {
+            // Fundamental + 2nd & 3rd overtone partials for authentic glassy bell timbre
+            [
+              { ratio: 1, weight: 1.0, decay: duration },
+              { ratio: 2, weight: 0.32, decay: duration * 0.65 },
+              { ratio: 3, weight: 0.12, decay: duration * 0.4 }
+            ].forEach(({ ratio, weight, decay }) => {
+              const osc = c.createOscillator();
+              const gain = c.createGain();
+              osc.type = 'sine';
+              osc.frequency.setValueAtTime(freq * ratio, start);
+
+              gain.gain.setValueAtTime(0.0001, start);
+              gain.gain.linearRampToValueAtTime(peakGain * weight, start + 0.012);
+              gain.gain.exponentialRampToValueAtTime(0.0001, start + decay);
+
+              osc.connect(gain);
+              gain.connect(c.destination);
+              osc.start(start);
+              osc.stop(start + decay + 0.02);
+            });
+          };
+
+          // Iconic B5 -> E6 perfect fourth interval
+          playBellNote(987.77, now, 0.36, 0.18);          // B5
+          playBellNote(1318.51, now + 0.115, 0.85, 0.22); // E6
+        } catch (e) {}
+      }
+
+      // 8. Flashlight Turn OFF: Satisfying power-down discharge & mechanical click
+      function playTorchOff() {
+        try {
+          triggerTapticBump();
+          const c = getCtx();
+          const now = c.currentTime;
+
+          // Mechanical off switch
+          const clickOsc = c.createOscillator();
+          const clickGain = c.createGain();
+          clickOsc.type = 'triangle';
+          clickOsc.frequency.setValueAtTime(140, now);
+          clickOsc.frequency.exponentialRampToValueAtTime(42, now + 0.04);
+          clickGain.gain.setValueAtTime(0.32, now);
+          clickGain.gain.exponentialRampToValueAtTime(0.001, now + 0.045);
+          clickOsc.connect(clickGain);
+          clickGain.connect(c.destination);
+          clickOsc.start(now);
+          clickOsc.stop(now + 0.05);
+
+          // Downward capacitor power-down sigh
+          const downOsc = c.createOscillator();
+          const downGain = c.createGain();
+          downOsc.type = 'sine';
+          downOsc.frequency.setValueAtTime(950, now + 0.01);
+          downOsc.frequency.exponentialRampToValueAtTime(120, now + 0.26);
+          downGain.gain.setValueAtTime(0.05, now + 0.01);
+          downGain.gain.exponentialRampToValueAtTime(0.0001, now + 0.28);
+          downOsc.connect(downGain);
+          downGain.connect(c.destination);
+          downOsc.start(now + 0.01);
+          downOsc.stop(now + 0.29);
+        } catch (e) {}
+      }
+
+      return {
+        playTorchOn,
+        playAlertPop,
+        playTap,
+        playSheetSlideUp,
+        playFaceIdScan,
+        playFaceIdVerified,
+        playApplePayChime,
+        playTorchOff
+      };
+    })();
+
+    /* ==========================================================================
+       App State & Meme Flow
+       ========================================================================== */
+    const cards = [
+      { name: 'Mastercard', number: '•••• 8924' },
+      { name: 'Apple Card', number: '•••• 2030' },
+      { name: 'Kidney Pay™', number: '•••• 0001' }
+    ];
+    let currentCardIdx = 0;
+
+    cardRow.addEventListener('click', () => {
+      if (isFlowBusy) return;
+      SoundFX.playTap(180);
+      currentCardIdx = (currentCardIdx + 1) % cards.length;
+      cardName.textContent = cards[currentCardIdx].name;
+      cardNumber.textContent = cards[currentCardIdx].number;
+    });
+
+    function setFlashlightState(on) {
+      isFlashlightOn = on;
+      if (on) {
+        // Trigger initial xenon flash burst
+        screenFlash.classList.add('burst');
+        requestAnimationFrame(() => {
+          requestAnimationFrame(() => {
+            screenFlash.classList.remove('burst');
+          });
+        });
+
+        iphoneScreen.classList.add('on');
+        iphoneFrame.classList.add('flashlight-on');
+        document.body.classList.add('ambient-light');
+        statusSubtitle.textContent = 'Tap to turn off';
+        islandLabel.textContent = 'Torch ON';
+        dynamicIsland.classList.add('expanded');
+      } else {
+        iphoneScreen.classList.remove('on');
+        iphoneFrame.classList.remove('flashlight-on');
+        document.body.classList.remove('ambient-light');
+        statusSubtitle.textContent = 'Tap to turn on';
+        dynamicIsland.classList.remove('expanded');
+      }
+    }
+
+    function showProAlert() {
+      iphoneScreen.classList.add('blurred');
+      overlayBackdrop.classList.add('active');
+      proAlert.classList.add('visible');
+      SoundFX.playAlertPop();
+    }
+
+    function hideProAlert() {
+      proAlert.classList.remove('visible');
+    }
+
+    // Power Button Click
+    powerBtn.addEventListener('click', () => {
+      if (isFlowBusy) return;
+
+      if (!isFlashlightOn) {
+        // Turn ON flashlight with sound + visual flash, then pop up the paywall
+        SoundFX.playTorchOn();
+        setFlashlightState(true);
+        isFlowBusy = true;
+        setTimeout(() => {
+          showProAlert();
+          isFlowBusy = false;
+        }, 520);
+      } else {
+        // Attempting to turn OFF triggers the Flashlight Pro subscription alert
+        showProAlert();
+      }
+    });
+
+    // Cancel Button: closes alert, leaving the user stuck with the blinding flashlight ON
+    cancelBtn.addEventListener('click', () => {
+      if (isFlowBusy) return;
+      SoundFX.playTap(110);
+      hideProAlert();
+      iphoneScreen.classList.remove('blurred');
+      overlayBackdrop.classList.remove('active');
+    });
+
+    // Subscribe Button: transitions from Alert to Apple Pay Sheet
+    subscribeBtn.addEventListener('click', () => {
+      if (isFlowBusy) return;
+      SoundFX.playTap(170);
+      hideProAlert();
+
+      // Reset Apple Pay sheet internal states
+      payDetailsView.classList.remove('hidden');
+      confirmFaceIdBtn.style.display = 'block';
+      faceIdBox.classList.remove('active', 'scanning', 'verified');
+      payDoneView.classList.remove('active');
+
+      setTimeout(() => {
+        applePaySheet.classList.add('visible');
+        SoundFX.playSheetSlideUp();
+      }, 120);
+    });
+
+    // Confirm with Face ID Flow
+    confirmFaceIdBtn.addEventListener('click', () => {
+      if (isFlowBusy) return;
+      isFlowBusy = true;
+
+      // Step 1: Hide blue button, show white scanning Face ID icon + biometric laser + scan sound
+      confirmFaceIdBtn.style.display = 'none';
+      faceIdBox.classList.add('active', 'scanning');
+      SoundFX.playFaceIdScan();
+
+      // Step 2: Turn Face ID icon green ("verified") + lock-in tick
+      setTimeout(() => {
+        faceIdBox.classList.remove('scanning');
+        faceIdBox.classList.add('verified');
+        SoundFX.playFaceIdVerified();
+      }, 950);
+
+      // Step 3: Show green checkmark "Done" screen + iconic Apple Pay Ding chime
+      setTimeout(() => {
+        payDetailsView.classList.add('hidden');
+        payDoneView.classList.add('active');
+        SoundFX.playApplePayChime();
+      }, 1650);
+
+      // Step 4: Dismiss Apple Pay sheet & finally turn off the flashlight with power-down sound
+      setTimeout(() => {
+        applePaySheet.classList.remove('visible');
+        iphoneScreen.classList.remove('blurred');
+        overlayBackdrop.classList.remove('active');
+        setFlashlightState(false);
+        SoundFX.playTorchOff();
+        isFlowBusy = false;
+      }, 2800);
+    });
+  </script>
+</body>
+</html>
