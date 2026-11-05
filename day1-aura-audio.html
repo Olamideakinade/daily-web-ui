@@ -3,18 +3,17 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>AURA H100™ — Reference Spatial Headphones</title>
+  <title>AURA H100™ — Interactive 3D WebGL Spatial Studio</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
   <style>
     :root {
-      --bg-deep: #040507;
-      --bg-Glow: rgba(56, 189, 248, 0.22);
+      --bg-dark: #040508;
       --accent: #38bdf8;
       --accent-rgb: 56, 189, 248;
       --text-main: #f8fafc;
-      --text-dim: #94a3b8;
-      --glass-bg: rgba(15, 18, 26, 0.62);
-      --glass-border: rgba(255, 255, 255, 0.09);
-      --hp-filter: brightness(1.04) contrast(1.08) saturate(1.05) hue-rotate(0deg);
+      --text-muted: #94a3b8;
+      --glass: rgba(12, 15, 24, 0.68);
+      --glass-border: rgba(255, 255, 255, 0.1);
     }
 
     * {
@@ -26,122 +25,169 @@
       -webkit-font-smoothing: antialiased;
     }
 
-    html {
-      scroll-behavior: smooth;
-    }
-
     body {
-      background-color: var(--bg-deep);
+      width: 100vw;
+      height: 100vh;
+      overflow: hidden;
+      background: radial-gradient(circle at 50% 45%, #111624 0%, #040508 78%);
       color: var(--text-main);
       font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Inter", "Helvetica Neue", sans-serif;
-      overflow-x: hidden;
     }
 
-    /* Subtle Studio Film Grain Overlay */
-    body::before {
-      content: "";
+    /* Ambient Glow Behind 3D Canvas */
+    .ambient-glow {
+      position: fixed;
+      top: 48%;
+      left: 50%;
+      width: 760px;
+      height: 760px;
+      transform: translate(-50%, -50%);
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(var(--accent-rgb), 0.22) 0%, transparent 66%);
+      filter: blur(60px);
+      pointer-events: none;
+      z-index: 0;
+      transition: background 0.6s ease;
+    }
+
+    /* Giant Background Kinetic Wordmark */
+    .kinetic-backdrop {
+      position: fixed;
+      top: 46%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      text-align: center;
+      pointer-events: none;
+      z-index: 1;
+      width: 100%;
+    }
+
+    .kinetic-eyebrow {
+      font-size: 12px;
+      font-weight: 800;
+      letter-spacing: 10px;
+      text-transform: uppercase;
+      color: rgba(var(--accent-rgb), 0.45);
+      margin-bottom: -10px;
+      transition: color 0.5s ease;
+    }
+
+    .kinetic-word {
+      font-size: clamp(100px, 15.5vw, 230px);
+      font-weight: 900;
+      letter-spacing: -0.04em;
+      line-height: 0.9;
+      color: transparent;
+      -webkit-text-stroke: 1.5px rgba(255, 255, 255, 0.06);
+      background: linear-gradient(180deg, rgba(255, 255, 255, 0.07) 0%, rgba(255, 255, 255, 0.005) 100%);
+      -webkit-background-clip: text;
+      background-clip: text;
+      transition: transform 0.45s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.3s ease;
+    }
+
+    .kinetic-word.switching {
+      opacity: 0;
+      transform: scale(0.92) translateY(15px);
+    }
+
+    /* Full-Screen Interactive Three.js 3D Canvas */
+    #webglContainer {
+      position: fixed;
+      inset: 0;
+      z-index: 5;
+      cursor: grab;
+    }
+
+    #webglContainer:active {
+      cursor: grabbing;
+    }
+
+    /* 3D Projected Callout Labels (Track 3D Parts in Real Time!) */
+    .hud-labels-layer {
       position: fixed;
       inset: 0;
       pointer-events: none;
-      z-index: 100;
-      opacity: 0.03;
-      background-image: radial-gradient(rgba(255, 255, 255, 0.8) 1px, transparent 0);
-      background-size: 24px 24px;
+      z-index: 12;
     }
 
-    /* Custom Magnetic Cursor Follower */
-    .cursor-ring {
-      position: fixed;
+    .part-label {
+      position: absolute;
       top: 0;
       left: 0;
-      width: 34px;
-      height: 34px;
-      border-radius: 50%;
-      border: 1.5px solid rgba(var(--accent-rgb), 0.55);
-      pointer-events: none;
-      z-index: 999;
-      transform: translate(-50%, -50%);
-      transition: width 0.2s ease, height 0.2s ease, background 0.2s ease, border-color 0.3s ease;
-      mix-blend-mode: screen;
-    }
-
-    .cursor-ring.hovered {
-      width: 56px;
-      height: 56px;
-      background: rgba(var(--accent-rgb), 0.14);
-      border-color: var(--accent);
-    }
-
-    /* Dynamic Ambient Backdrop Aura */
-    .ambient-stage-glow {
-      position: fixed;
-      top: 42%;
-      left: 50%;
-      width: 820px;
-      height: 820px;
-      transform: translate(-50%, -50%);
-      border-radius: 50%;
-      background: radial-gradient(circle, var(--bg-Glow) 0%, transparent 66%);
-      filter: blur(65px);
-      pointer-events: none;
-      z-index: 0;
-      transition: background 0.7s ease;
-    }
-
-    /* ANC Sonic Shockwave Pulse */
-    .anc-shockwave {
-      position: fixed;
-      top: 45%;
-      left: 50%;
-      width: 160px;
-      height: 160px;
-      transform: translate(-50%, -50%) scale(0.3);
-      border-radius: 50%;
-      border: 2.5px solid var(--accent);
-      box-shadow: 0 0 60px var(--accent), 0 0 30px var(--accent) inset;
+      transform: translate(-50%, -50%) scale(0.85);
+      background: rgba(8, 11, 18, 0.88);
+      border: 1px solid rgba(var(--accent-rgb), 0.55);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      padding: 7px 12px;
+      border-radius: 12px;
+      color: #ffffff;
       opacity: 0;
-      pointer-events: none;
-      z-index: 40;
+      transition: opacity 0.3s ease;
+      box-shadow: 0 10px 28px rgba(0, 0, 0, 0.65);
+      white-space: nowrap;
     }
 
-    .anc-shockwave.fire {
-      animation: shockwaveExpand 1s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    .hud-labels-layer.visible .part-label {
+      opacity: 1;
     }
 
-    @keyframes shockwaveExpand {
-      0% { transform: translate(-50%, -50%) scale(0.3); opacity: 1; }
-      100% { transform: translate(-50%, -50%) scale(8.5); opacity: 0; }
+    .part-label-code {
+      font-size: 9px;
+      font-weight: 800;
+      letter-spacing: 1px;
+      color: var(--accent);
+      text-transform: uppercase;
     }
 
-    /* Sticky Glass Navigation Bar */
-    .navbar {
+    .part-label-name {
+      font-size: 12px;
+      font-weight: 700;
+      color: #ffffff;
+    }
+
+    .part-dot {
+      position: absolute;
+      left: -5px;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--accent);
+      box-shadow: 0 0 10px var(--accent);
+    }
+
+    /* Top Glass Header */
+    .topbar {
       position: fixed;
       top: 0;
       left: 0;
       right: 0;
-      height: 76px;
-      padding: 0 48px;
+      height: 74px;
+      padding: 0 42px;
       display: flex;
       align-items: center;
       justify-content: space-between;
-      background: rgba(4, 5, 7, 0.65);
-      backdrop-filter: blur(20px) saturate(180%);
-      -webkit-backdrop-filter: blur(20px) saturate(180%);
-      border-bottom: 1px solid rgba(255, 255, 255, 0.06);
-      z-index: 80;
+      z-index: 30;
+      pointer-events: none;
     }
 
-    .brand {
+    .topbar > * {
+      pointer-events: auto;
+    }
+
+    .brand-logo {
       display: flex;
       align-items: center;
-      gap: 11px;
+      gap: 10px;
       font-size: 17px;
-      font-weight: 800;
+      font-weight: 900;
       letter-spacing: 3px;
       color: #ffffff;
     }
 
-    .brand-orb {
+    .brand-dot {
       width: 10px;
       height: 10px;
       border-radius: 50%;
@@ -150,541 +196,339 @@
       transition: background 0.4s ease, box-shadow 0.4s ease;
     }
 
-    .nav-pills {
+    /* Camera Angle & View Switcher Pills */
+    .camera-Switcher {
       display: flex;
       align-items: center;
       gap: 6px;
-      background: rgba(255, 255, 255, 0.04);
+      background: var(--glass);
       border: 1px solid var(--glass-border);
+      backdrop-filter: blur(20px);
       padding: 5px;
       border-radius: 100px;
+      box-shadow: 0 12px 32px rgba(0, 0, 0, 0.4);
     }
 
-    .nav-pill {
-      padding: 8px 18px;
+    .cam-btn {
+      padding: 8px 16px;
       border-radius: 100px;
-      font-size: 12.5px;
-      font-weight: 600;
-      color: var(--text-dim);
-      text-decoration: none;
-      cursor: pointer;
       border: none;
       background: transparent;
+      color: var(--text-muted);
+      font-size: 12px;
+      font-weight: 700;
       font-family: inherit;
-      transition: all 0.25s ease;
+      cursor: pointer;
+      transition: all 0.22s ease;
     }
 
-    .nav-pill:hover,
-    .nav-pill.active {
+    .cam-btn:hover {
       color: #ffffff;
-      background: rgba(255, 255, 255, 0.09);
     }
 
-    .nav-right {
+    .cam-btn.active {
+      background: rgba(var(--accent-rgb), 0.2);
+      color: #ffffff;
+      box-shadow: 0 0 16px rgba(var(--accent-rgb), 0.25);
+    }
+
+    .top-right-actions {
       display: flex;
       align-items: center;
-      gap: 12px;
+      gap: 10px;
     }
 
-    .hud-toggle-btn {
+    .explode-master-btn {
       display: flex;
       align-items: center;
       gap: 8px;
-      padding: 9px 16px;
+      padding: 10px 18px;
       border-radius: 100px;
-      border: 1px solid var(--glass-border);
-      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid rgba(var(--accent-rgb), 0.45);
+      background: rgba(var(--accent-rgb), 0.12);
       color: #ffffff;
-      font-size: 12.5px;
-      font-weight: 600;
-      font-family: inherit;
-      cursor: pointer;
-      transition: all 0.25s ease;
-    }
-
-    .hud-toggle-btn.active {
-      border-color: var(--accent);
-      background: rgba(var(--accent-rgb), 0.14);
-      box-shadow: 0 0 22px rgba(var(--accent-rgb), 0.25);
-    }
-
-    .hud-dot {
-      width: 7px;
-      height: 7px;
-      border-radius: 50%;
-      background: #64748b;
-      transition: all 0.25s ease;
-    }
-
-    .hud-toggle-btn.active .hud-dot {
-      background: var(--accent);
-      box-shadow: 0 0 8px var(--accent);
-    }
-
-    .bag-btn {
-      display: flex;
-      align-items: center;
-      gap: 9px;
-      padding: 9px 20px;
-      border-radius: 100px;
-      border: none;
-      background: #ffffff;
-      color: #040507;
       font-size: 12.5px;
       font-weight: 800;
       font-family: inherit;
       cursor: pointer;
-      transition: transform 0.15s ease, background 0.3s ease;
+      backdrop-filter: blur(16px);
+      box-shadow: 0 0 24px rgba(var(--accent-rgb), 0.2);
+      transition: all 0.25s ease;
     }
 
-    .bag-btn:hover {
-      transform: scale(1.03);
+    .explode-master-btn:hover {
+      transform: scale(1.04);
+      background: rgba(var(--accent-rgb), 0.24);
     }
 
-    /* ==========================================================================
-       SECTION 1: HERO 3D PRODUCT STAGE
-       ========================================================================== */
-    .hero-section {
-      position: relative;
-      min-height: 100vh;
-      width: 100%;
-      padding: 96px 48px 36px;
-      display: grid;
-      grid-template-columns: 350px 1fr 350px;
-      align-items: center;
-      z-index: 10;
+    .explode-master-btn.exploded {
+      background: var(--accent);
+      color: #040508;
+      box-shadow: 0 0 30px rgba(var(--accent-rgb), 0.6);
     }
 
-    /* Giant Kinetic Background Typography */
-    .bg-kinetic-wrap {
-      position: absolute;
-      top: 46%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      pointer-events: none;
-      z-index: 1;
-      text-align: center;
-      width: 100%;
+    .bag-pill-btn {
+      padding: 10px 20px;
+      border-radius: 100px;
+      border: none;
+      background: #ffffff;
+      color: #040508;
+      font-size: 12.5px;
+      font-weight: 800;
+      font-family: inherit;
+      cursor: pointer;
+      transition: transform 0.15s ease;
     }
 
-    .bg-kinetic-sub {
-      font-size: 13px;
-      font-weight: 700;
-      letter-spacing: 8px;
-      text-transform: uppercase;
-      color: rgba(var(--accent-rgb), 0.5);
-      margin-bottom: -14px;
-      transition: color 0.5s ease;
+    .bag-pill-btn:hover {
+      transform: scale(1.04);
     }
 
-    .bg-kinetic-title {
-      font-size: clamp(110px, 16vw, 240px);
-      font-weight: 900;
-      letter-spacing: -0.045em;
-      line-height: 0.92;
-      color: transparent;
-      -webkit-text-stroke: 1.5px rgba(255, 255, 255, 0.08);
-      background: linear-gradient(180deg, rgba(255, 255, 255, 0.09) 0%, rgba(255, 255, 255, 0.01) 100%);
-      -webkit-background-clip: text;
-      background-clip: text;
-      transition: transform 0.5s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.3s ease;
-    }
-
-    .bg-kinetic-title.morphing {
-      opacity: 0;
-      transform: scale(0.92) translateY(18px);
-    }
-
-    /* Left Column: Editorial & Live Audio Trigger */
-    .hero-left {
-      position: relative;
-      z-index: 15;
+    /* Left Floating Editorial & Spatial Audio Console */
+    .left-dock {
+      position: fixed;
+      left: 42px;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 315px;
       display: flex;
       flex-direction: column;
-      gap: 20px;
+      gap: 16px;
+      z-index: 25;
+      pointer-events: none;
     }
 
-    .series-pill {
+    .left-dock > * {
+      pointer-events: auto;
+    }
+
+    .badge-chip {
       display: inline-flex;
       align-items: center;
-      gap: 8px;
+      gap: 7px;
       width: fit-content;
-      padding: 6px 14px;
+      padding: 6px 13px;
       border-radius: 100px;
-      background: rgba(var(--accent-rgb), 0.1);
-      border: 1px solid rgba(var(--accent-rgb), 0.35);
+      background: rgba(var(--accent-rgb), 0.12);
+      border: 1px solid rgba(var(--accent-rgb), 0.38);
       color: var(--accent);
-      font-size: 11px;
-      font-weight: 700;
-      letter-spacing: 1.3px;
+      font-size: 10.5px;
+      font-weight: 800;
+      letter-spacing: 1.2px;
       text-transform: uppercase;
       transition: all 0.4s ease;
     }
 
-    .hero-headline {
-      font-size: 46px;
-      font-weight: 800;
-      line-height: 1.03;
-      letter-spacing: -1.6px;
+    .product-title {
+      font-size: 40px;
+      font-weight: 900;
+      line-height: 1.02;
+      letter-spacing: -1.4px;
       color: #ffffff;
+      text-shadow: 0 8px 28px rgba(0, 0, 0, 0.6);
     }
 
-    .hero-copy {
-      font-size: 14px;
-      line-height: 1.62;
-      color: var(--text-dim);
-      max-width: 320px;
+    .product-desc {
+      font-size: 13.5px;
+      line-height: 1.55;
+      color: var(--text-muted);
     }
 
-    /* Live Spatial Audio Synth Player Card */
-    .audio-card {
-      background: var(--glass-bg);
+    /* Interactive 3D Explode Slider Card */
+    .control-glass-card {
+      background: var(--glass);
       border: 1px solid var(--glass-border);
       backdrop-filter: blur(22px);
+      -webkit-backdrop-filter: blur(22px);
       border-radius: 22px;
       padding: 16px 18px;
       display: flex;
       flex-direction: column;
-      gap: 12px;
-      cursor: pointer;
-      transition: all 0.3s ease;
+      gap: 10px;
+      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
     }
 
-    .audio-card:hover,
-    .audio-card.playing {
-      border-color: var(--accent);
-      box-shadow: 0 12px 35px rgba(var(--accent-rgb), 0.18);
-    }
-
-    .audio-card-top {
+    .card-row-head {
       display: flex;
       align-items: center;
       justify-content: space-between;
+      font-size: 12px;
+      font-weight: 700;
     }
 
-    .audio-play-group {
+    .card-row-head span:last-child {
+      color: var(--accent);
+      font-variant-numeric: tabular-nums;
+    }
+
+    .styled-slider {
+      width: 100%;
+      -webkit-appearance: none;
+      appearance: none;
+      height: 6px;
+      border-radius: 8px;
+      background: rgba(255, 255, 255, 0.12);
+      outline: none;
+      cursor: pointer;
+    }
+
+    .styled-slider::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      background: var(--accent);
+      box-shadow: 0 0 14px var(--accent);
+      cursor: grab;
+    }
+
+    /* Live 8D Bass Reactor Player */
+    .bass-player-card {
+      background: var(--glass);
+      border: 1px solid var(--glass-border);
+      backdrop-filter: blur(22px);
+      border-radius: 22px;
+      padding: 14px 16px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      cursor: pointer;
+      transition: all 0.25s ease;
+    }
+
+    .bass-player-card:hover,
+    .bass-player-card.playing {
+      border-color: var(--accent);
+      box-shadow: 0 0 28px rgba(var(--accent-rgb), 0.25);
+    }
+
+    .bass-left {
       display: flex;
       align-items: center;
       gap: 12px;
     }
 
-    .play-orb {
-      width: 42px;
-      height: 42px;
+    .bass-play-btn {
+      width: 40px;
+      height: 40px;
       border-radius: 50%;
       background: var(--accent);
-      color: #040507;
+      color: #040508;
       display: flex;
       align-items: center;
       justify-content: center;
       font-size: 14px;
       font-weight: 900;
-      box-shadow: 0 0 20px rgba(var(--accent-rgb), 0.5);
-      transition: transform 0.2s ease, background 0.4s ease;
+      box-shadow: 0 0 18px rgba(var(--accent-rgb), 0.5);
+      transition: background 0.4s ease;
     }
 
-    .audio-card:hover .play-orb {
-      transform: scale(1.08);
-    }
-
-    .track-name {
-      font-size: 13.5px;
-      font-weight: 700;
-      color: #ffffff;
-    }
-
-    .track-sub {
-      font-size: 11.5px;
-      color: var(--text-dim);
-    }
-
-    .spatial-tag {
-      font-size: 10px;
-      font-weight: 800;
-      padding: 4px 8px;
-      border-radius: 6px;
-      background: rgba(255, 255, 255, 0.08);
-      color: var(--accent);
-      letter-spacing: 0.6px;
-    }
-
-    /* Telemetry Mini Counters */
-    .mini-stats {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 8px;
-    }
-
-    .mini-stat {
-      background: rgba(255, 255, 255, 0.03);
-      border: 1px solid var(--glass-border);
-      border-radius: 14px;
-      padding: 11px 12px;
-    }
-
-    .mini-stat-val {
-      font-size: 17px;
-      font-weight: 800;
-      color: #ffffff;
-      letter-spacing: -0.4px;
-    }
-
-    .mini-stat-lbl {
-      font-size: 10.5px;
-      color: var(--text-dim);
-      margin-top: 2px;
-    }
-
-    /* Center Column: Photorealistic 3D Headphone Stage + Circular Visualizer + Blueprint HUD */
-    .hero-center {
-      position: relative;
+    .eq-mini {
       display: flex;
       align-items: center;
-      justify-content: center;
-      height: 560px;
-      perspective: 1200px;
-      z-index: 12;
+      gap: 3px;
+      height: 18px;
     }
 
-    /* Real-Time 360° Audio Visualizer Canvas Behind Headphones */
-    #spectrumCanvas {
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      width: 560px;
-      height: 560px;
-      transform: translate(-50%, -50%);
-      pointer-events: none;
-      z-index: 1;
-    }
-
-    .product-3d-wrapper {
-      position: relative;
-      width: 540px;
-      height: 460px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      transform-style: preserve-3d;
-      transition: transform 0.16s ease-out;
-      animation: levitate 5.5s ease-in-out infinite;
-      z-index: 5;
-    }
-
-    @keyframes levitate {
-      0%, 100% { transform: translateY(0px); }
-      50% { transform: translateY(-14px); }
-    }
-
-    /* Photorealistic Studio Headphone Render with Seamless Black Blend */
-    .headphone-render {
-      width: 100%;
-      height: 100%;
-      object-fit: contain;
-      mix-blend-mode: lighten;
-      -webkit-mask-image: radial-gradient(ellipse 48% 48% at 50% 50%, #000 72%, transparent 100%);
-      mask-image: radial-gradient(ellipse 48% 48% at 50% 50%, #000 72%, transparent 100%);
-      filter: var(--hp-filter);
-      transition:
-        filter 0.65s cubic-bezier(0.22, 1, 0.36, 1),
-        transform 0.5s cubic-bezier(0.22, 1.3, 0.36, 1);
-      pointer-events: none;
-    }
-
-    .headphone-render.pop-switch {
-      transform: scale(0.91) rotate(-3deg);
-    }
-
-    /* Interactive Engineering Callout Pins & Animated Leader Cards */
-    .callout-pin {
-      position: absolute;
-      width: 32px;
-      height: 32px;
-      border-radius: 50%;
-      background: rgba(4, 5, 7, 0.85);
-      border: 1.5px solid var(--accent);
-      color: #ffffff;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 14px;
-      font-weight: 700;
-      cursor: pointer;
-      box-shadow: 0 0 20px rgba(var(--accent-rgb), 0.6);
-      z-index: 20;
-      transition: transform 0.2s ease, background 0.25s ease;
-    }
-
-    .callout-pin::after {
-      content: "";
-      position: absolute;
-      inset: -6px;
-      border-radius: 50%;
-      border: 1px solid var(--accent);
-      opacity: 0.55;
-      animation: pinPulse 1.8s ease-out infinite;
-    }
-
-    @keyframes pinPulse {
-      0% { transform: scale(0.85); opacity: 0.8; }
-      100% { transform: scale(1.6); opacity: 0; }
-    }
-
-    .callout-pin:hover,
-    .callout-pin.active {
+    .eq-mini span {
+      width: 3px;
+      height: 5px;
+      border-radius: 2px;
       background: var(--accent);
-      color: #040507;
-      transform: scale(1.15);
+      transition: height 0.12s ease;
     }
 
-    .callout-card {
-      position: absolute;
-      width: 205px;
-      background: rgba(8, 11, 18, 0.92);
-      border: 1px solid rgba(var(--accent-rgb), 0.45);
-      backdrop-filter: blur(16px);
-      border-radius: 14px;
-      padding: 10px 13px;
-      pointer-events: none;
-      opacity: 0;
-      transform: translateY(6px) scale(0.94);
-      transition: all 0.28s cubic-bezier(0.22, 1, 0.36, 1);
-      box-shadow: 0 14px 32px rgba(0, 0, 0, 0.65);
+    .bass-player-card.playing .eq-mini span {
+      animation: eqJump 0.45s ease-in-out infinite alternate;
+    }
+    .bass-player-card.playing .eq-mini span:nth-child(2) { animation-delay: 0.12s; }
+    .bass-player-card.playing .eq-mini span:nth-child(3) { animation-delay: 0.24s; }
+    .bass-player-card.playing .eq-mini span:nth-child(4) { animation-delay: 0.08s; }
+
+    @keyframes eqJump {
+      0% { height: 4px; }
+      100% { height: 18px; }
     }
 
-    .callout-pin:hover .callout-card,
-    .callout-pin.active .callout-card,
-    .hud-visible .callout-card {
-      opacity: 1;
-      transform: translateY(0) scale(1);
-    }
-
-    .callout-code {
-      font-size: 9.5px;
-      font-weight: 800;
-      color: var(--accent);
-      letter-spacing: 1px;
-      text-transform: uppercase;
-      margin-bottom: 2px;
-    }
-
-    .callout-title {
-      font-size: 12.5px;
-      font-weight: 700;
-      color: #ffffff;
-      margin-bottom: 2px;
-    }
-
-    .callout-desc {
-      font-size: 11px;
-      color: var(--text-dim);
-      line-height: 1.35;
-    }
-
-    /* Right Column: Studio Configurator Card */
-    .hero-right {
-      position: relative;
-      z-index: 15;
-      background: var(--glass-bg);
+    /* Right Floating 3D Material Customizer & Purchase Dock */
+    .right-dock {
+      position: fixed;
+      right: 42px;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 320px;
+      background: var(--glass);
       border: 1px solid var(--glass-border);
       backdrop-filter: blur(26px);
       -webkit-backdrop-filter: blur(26px);
       border-radius: 28px;
-      padding: 26px;
+      padding: 24px;
       display: flex;
       flex-direction: column;
-      gap: 20px;
-      box-shadow: 0 28px 65px rgba(0, 0, 0, 0.6);
+      gap: 18px;
+      z-index: 25;
+      box-shadow: 0 28px 65px rgba(0, 0, 0, 0.65);
     }
 
-    .cfg-row-top {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-    }
-
-    .cfg-label {
-      font-size: 11.5px;
-      font-weight: 700;
-      letter-spacing: 1.1px;
-      text-transform: uppercase;
-      color: var(--text-dim);
-    }
-
-    .cfg-val {
-      font-size: 13.5px;
-      font-weight: 700;
-      color: #ffffff;
-    }
-
-    /* 4 Anodized Finish Swatches */
-    .finish-grid {
+    .swatch-grid {
       display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      gap: 10px;
-      margin-top: 10px;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 8px;
+      margin-top: 8px;
     }
 
-    .finish-btn {
-      height: 52px;
-      border-radius: 16px;
+    .swatch-item {
+      height: 46px;
+      border-radius: 14px;
       border: 1.5px solid rgba(255, 255, 255, 0.1);
       background: rgba(255, 255, 255, 0.03);
       cursor: pointer;
       display: flex;
-      flex-direction: column;
       align-items: center;
       justify-content: center;
-      gap: 4px;
-      transition: all 0.22s ease;
+      transition: all 0.2s ease;
     }
 
-    .finish-btn.active {
+    .swatch-item.active {
       border-color: var(--accent);
-      background: rgba(var(--accent-rgb), 0.12);
-      transform: translateY(-2px);
-      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.45);
+      transform: translateY(-3px);
+      box-shadow: 0 8px 18px rgba(0, 0, 0, 0.5);
     }
 
-    .finish-dot {
-      width: 24px;
-      height: 24px;
+    .swatch-orb {
+      width: 22px;
+      height: 22px;
       border-radius: 50%;
-      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.5) inset;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.5) inset;
     }
 
-    /* Acoustic Mode Selector inside Configurator */
-    .mode-pills {
+    /* Spin Speed / Auto-Orbit Toggle */
+    .quick-toggles {
       display: grid;
       grid-template-columns: 1fr 1fr;
       gap: 8px;
-      background: rgba(255, 255, 255, 0.03);
-      padding: 5px;
-      border-radius: 14px;
-      border: 1px solid var(--glass-border);
     }
 
-    .mode-pill-btn {
+    .quick-toggle-btn {
       padding: 10px;
-      border-radius: 10px;
-      border: none;
-      background: transparent;
-      color: var(--text-dim);
-      font-size: 12px;
+      border-radius: 12px;
+      border: 1px solid var(--glass-border);
+      background: rgba(255, 255, 255, 0.04);
+      color: var(--text-muted);
+      font-size: 11.5px;
       font-weight: 700;
       font-family: inherit;
       cursor: pointer;
       transition: all 0.2s ease;
     }
 
-    .mode-pill-btn.active {
-      background: rgba(var(--accent-rgb), 0.18);
+    .quick-toggle-btn.active {
+      border-color: var(--accent);
+      background: rgba(var(--accent-rgb), 0.15);
       color: #ffffff;
-      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.25);
     }
 
-    /* Price & CTA */
-    .price-block {
+    .price-row {
       display: flex;
       align-items: baseline;
       justify-content: space-between;
@@ -692,250 +536,57 @@
       border-top: 1px solid var(--glass-border);
     }
 
-    .price-tag {
-      font-size: 32px;
+    .price-val {
+      font-size: 30px;
       font-weight: 900;
       letter-spacing: -1px;
-      color: #ffffff;
     }
 
-    .stock-badge {
-      font-size: 11.5px;
-      font-weight: 600;
-      color: #34d399;
-    }
-
-    .cta-primary {
+    .buy-btn {
       width: 100%;
-      height: 54px;
+      height: 50px;
       border-radius: 16px;
       border: none;
       background: var(--accent);
-      color: #040507;
-      font-size: 15px;
+      color: #040508;
+      font-size: 14.5px;
       font-weight: 800;
       font-family: inherit;
       cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 10px;
-      box-shadow: 0 12px 32px rgba(var(--accent-rgb), 0.35);
+      box-shadow: 0 10px 28px rgba(var(--accent-rgb), 0.38);
       transition: transform 0.15s ease, background 0.4s ease, box-shadow 0.4s ease;
     }
 
-    .cta-primary:hover {
+    .buy-btn:hover {
       transform: translateY(-2px);
     }
 
-    .cta-primary:active {
-      transform: scale(0.97);
-    }
-
-    /* ==========================================================================
-       SECTION 2: INTERACTIVE SOUNDSTAGE & ANC WAVE ELIMINATOR LAB
-       ========================================================================== */
-    .lab-section {
-      position: relative;
-      z-index: 15;
-      padding: 60px 48px 90px;
-      max-width: 1340px;
-      margin: 0 auto;
-    }
-
-    .section-header {
-      display: flex;
-      align-items: flex-end;
-      justify-content: space-between;
-      margin-bottom: 32px;
-    }
-
-    .section-eyebrow {
-      font-size: 11.5px;
-      font-weight: 700;
-      letter-spacing: 2px;
-      text-transform: uppercase;
-      color: var(--accent);
-      margin-bottom: 8px;
-    }
-
-    .section-title {
-      font-size: 36px;
-      font-weight: 800;
-      letter-spacing: -1px;
-      color: #ffffff;
-    }
-
-    .bento-lab-grid {
-      display: grid;
-      grid-template-columns: 1.15fr 0.85fr;
-      gap: 24px;
-    }
-
-    .bento-panel {
-      background: var(--glass-bg);
+    /* Bottom Interactive Hint Pill */
+    .bottom-hint {
+      position: fixed;
+      bottom: 24px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(12, 15, 24, 0.78);
       border: 1px solid var(--glass-border);
-      backdrop-filter: blur(24px);
-      border-radius: 28px;
-      padding: 28px;
-      display: flex;
-      flex-direction: column;
-      justify-content: space-between;
-      gap: 20px;
-      transition: border-color 0.3s ease;
-    }
-
-    .bento-panel:hover {
-      border-color: rgba(var(--accent-rgb), 0.4);
-    }
-
-    .panel-top {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-    }
-
-    .panel-title {
-      font-size: 20px;
-      font-weight: 800;
-      color: #ffffff;
-    }
-
-    .panel-sub {
-      font-size: 13px;
-      color: var(--text-dim);
-      margin-top: 3px;
-    }
-
-    .db-live-pill {
-      padding: 6px 14px;
+      backdrop-filter: blur(16px);
+      padding: 9px 20px;
       border-radius: 100px;
-      background: rgba(var(--accent-rgb), 0.14);
-      border: 1px solid rgba(var(--accent-rgb), 0.4);
-      color: var(--accent);
-      font-size: 13px;
-      font-weight: 800;
-      font-variant-numeric: tabular-nums;
-    }
-
-    /* ANC Live Waveform Canvas Box */
-    .wave-canvas-box {
-      position: relative;
-      width: 100%;
-      height: 190px;
-      border-radius: 20px;
-      background: rgba(4, 5, 8, 0.75);
-      border: 1px solid rgba(255, 255, 255, 0.06);
-      overflow: hidden;
-    }
-
-    #ancWaveCanvas {
-      width: 100%;
-      height: 100%;
-      display: block;
-    }
-
-    .anc-slider-row {
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--text-muted);
       display: flex;
       align-items: center;
       gap: 16px;
+      z-index: 25;
+      pointer-events: none;
     }
 
-    .anc-range {
-      flex: 1;
-      -webkit-appearance: none;
-      appearance: none;
-      height: 8px;
-      border-radius: 10px;
-      background: rgba(255, 255, 255, 0.12);
-      outline: none;
-      cursor: pointer;
-    }
-
-    .anc-range::-webkit-slider-thumb {
-      -webkit-appearance: none;
-      width: 24px;
-      height: 24px;
-      border-radius: 50%;
-      background: var(--accent);
-      box-shadow: 0 0 16px var(--accent);
-      cursor: grab;
-    }
-
-    /* Interactive 5-Band Parametric EQ Bars */
-    .eq-preset-row {
-      display: flex;
-      gap: 8px;
-    }
-
-    .eq-preset-btn {
-      flex: 1;
-      padding: 9px 10px;
-      border-radius: 12px;
-      border: 1px solid var(--glass-border);
-      background: rgba(255, 255, 255, 0.03);
-      color: var(--text-dim);
-      font-size: 12px;
-      font-weight: 700;
-      font-family: inherit;
-      cursor: pointer;
-      transition: all 0.2s ease;
-    }
-
-    .eq-preset-btn.active {
-      background: rgba(var(--accent-rgb), 0.16);
-      border-color: var(--accent);
+    .bottom-hint strong {
       color: #ffffff;
     }
 
-    .eq-sliders-stage {
-      display: grid;
-      grid-template-columns: repeat(5, 1fr);
-      gap: 12px;
-      height: 150px;
-      align-items: flex-end;
-      padding: 16px;
-      border-radius: 20px;
-      background: rgba(4, 5, 8, 0.75);
-      border: 1px solid rgba(255, 255, 255, 0.06);
-    }
-
-    .eq-col {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      height: 100%;
-      justify-content: flex-end;
-      gap: 8px;
-    }
-
-    .eq-bar-track {
-      width: 100%;
-      max-width: 32px;
-      height: 100%;
-      background: rgba(255, 255, 255, 0.06);
-      border-radius: 10px;
-      display: flex;
-      align-items: flex-end;
-      overflow: hidden;
-      cursor: pointer;
-    }
-
-    .eq-bar-fill {
-      width: 100%;
-      height: 65%;
-      background: linear-gradient(180deg, var(--accent) 0%, rgba(var(--accent-rgb), 0.25) 100%);
-      border-radius: 10px;
-      transition: height 0.35s cubic-bezier(0.22, 1, 0.36, 1), background 0.4s ease;
-    }
-
-    .eq-freq-lbl {
-      font-size: 10.5px;
-      font-weight: 700;
-      color: var(--text-dim);
-    }
-
-    /* Slide-Over Bag Drawer */
+    /* Checkout Modal Drawer */
     .drawer-backdrop {
       position: fixed;
       inset: 0;
@@ -946,74 +597,42 @@
       transition: opacity 0.3s ease;
       z-index: 90;
     }
-
     .drawer-backdrop.open {
       opacity: 1;
       pointer-events: auto;
     }
-
     .bag-drawer {
       position: fixed;
       top: 16px;
       right: 16px;
       bottom: 16px;
-      width: 400px;
-      background: rgba(12, 15, 22, 0.96);
+      width: 380px;
+      background: rgba(10, 13, 20, 0.96);
       border: 1px solid rgba(255, 255, 255, 0.14);
       backdrop-filter: blur(30px);
       border-radius: 28px;
-      padding: 28px;
+      padding: 26px;
       display: flex;
       flex-direction: column;
       justify-content: space-between;
       transform: translateX(110%);
       transition: transform 0.45s cubic-bezier(0.22, 1, 0.36, 1);
       z-index: 95;
-      box-shadow: -24px 0 70px rgba(0, 0, 0, 0.75);
     }
-
     .bag-drawer.open {
       transform: translateX(0);
     }
-
-    .bag-product-row {
-      display: flex;
-      align-items: center;
-      gap: 14px;
-      background: rgba(255, 255, 255, 0.04);
-      border: 1px solid var(--glass-border);
-      border-radius: 18px;
-      padding: 14px;
-      margin-top: 20px;
-    }
-
-    .bag-thumb {
-      width: 68px;
-      height: 68px;
-      object-fit: contain;
-      border-radius: 12px;
-      background: #000;
-      filter: var(--hp-filter);
-    }
-
     .apple-pay-btn {
       width: 100%;
-      height: 54px;
+      height: 52px;
       border-radius: 16px;
       border: none;
       background: #ffffff;
       color: #000000;
       font-size: 16px;
       font-weight: 800;
-      font-family: inherit;
       cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 6px;
-      transition: transform 0.15s ease, background 0.25s ease;
     }
-
     .apple-pay-btn.success {
       background: #34d399;
       color: #052e16;
@@ -1022,284 +641,202 @@
 </head>
 <body>
 
-  <div class="cursor-ring" id="cursorRing"></div>
-  <div class="ambient-stage-glow"></div>
-  <div class="anc-shockwave" id="ancShockwave"></div>
+  <div class="ambient-glow"></div>
 
-  <!-- Top Sticky Navigation -->
-  <header class="navbar">
-    <div class="brand">
-      <span class="brand-orb"></span>
+  <!-- Giant Kinetic Backdrop Text -->
+  <div class="kinetic-backdrop">
+    <div class="kinetic-eyebrow">360° INTERACTIVE WEBGL CAD</div>
+    <div class="kinetic-word" id="kineticWord">TITANIUM</div>
+  </div>
+
+  <!-- Full-Screen 3D WebGL Viewport -->
+  <div id="webglContainer"></div>
+
+  <!-- 3D Projected Part Callout Labels (Automatically track 3D parts during Explode Mode!) -->
+  <div class="hud-labels-layer" id="hudLabelsLayer">
+    <div class="part-label" id="lblShell">
+      <span class="part-dot"></span>
+      <div class="part-label-code">01 // CNC HOUSING</div>
+      <div class="part-label-name">Anodized Grade-5 Shell</div>
+    </div>
+    <div class="part-label" id="lblCoil">
+      <span class="part-dot"></span>
+      <div class="part-label-code">02 // TRANSDUCER</div>
+      <div class="part-label-name">Pure Copper Voice Coil & N52 Magnet</div>
+    </div>
+    <div class="part-label" id="lblDriver">
+      <span class="part-dot"></span>
+      <div class="part-label-code">03 // ACOUSTIC CORE</div>
+      <div class="part-label-name">50mm Beryllium Dome Diaphragm</div>
+    </div>
+    <div class="part-label" id="lblCushion">
+      <span class="part-dot"></span>
+      <div class="part-label-code">04 // ISOLATION</div>
+      <div class="part-label-name">Magnetic Memory-Foam Cushion</div>
+    </div>
+  </div>
+
+  <!-- Top Navigation & Camera Switcher -->
+  <header class="topbar">
+    <div class="brand-logo">
+      <span class="brand-dot"></span>
       <span>AURA H100</span>
     </div>
 
-    <nav class="nav-pills">
-      <a href="#heroStage" class="nav-pill active">3D Studio</a>
-      <button class="nav-pill" id="navSpecsBtn">Engineering HUD</button>
-      <a href="#acousticLab" class="nav-pill">Acoustic Lab</a>
-    </nav>
+    <div class="camera-Switcher">
+      <button class="cam-btn active" data-cam="hero">360° Free Orbit</button>
+      <button class="cam-btn" data-cam="exploded">Internal Cutaway</button>
+      <button class="cam-btn" data-cam="crown">Macro Crown Dial</button>
+      <button class="cam-btn" data-cam="top">Top Arch View</button>
+    </div>
 
-    <div class="nav-right">
-      <button class="hud-toggle-btn active" id="ancMasterBtn">
-        <span class="hud-dot"></span>
-        <span id="ancMasterText">ANC • -48 dB Silence</span>
+    <div class="top-right-actions">
+      <button class="explode-master-btn" id="explodeMasterBtn">
+        <span>💥 Explode 3D Parts</span>
       </button>
-
-      <button class="bag-btn" id="navBagBtn">
-        <span>Bag (1)</span>
-      </button>
+      <button class="bag-pill-btn" id="openBagBtn">Bag (1)</button>
     </div>
   </header>
 
-  <!-- SECTION 1: INTERACTIVE 3D PRODUCT STAGE -->
-  <section class="hero-section" id="heroStage">
-    <div class="bg-kinetic-wrap">
-      <div class="bg-kinetic-sub" id="kineticSub">REFERENCE ACOUSTIC ARCHITECTURE</div>
-      <div class="bg-kinetic-title" id="kineticTitle">TITANIUM</div>
+  <!-- Left Dock: Info, Explode Slider & 8D Spatial Bass Reactor -->
+  <aside class="left-dock">
+    <div class="badge-chip" id="editionChip">01 // Grade-5 Brushed Titanium</div>
+    <h1 class="product-title">Sculpted in 3D Space.</h1>
+    <p class="product-desc">
+      Grab and drag anywhere to spin 360°. Explode the 14-part acoustic assembly to inspect the 50mm Beryllium drivers and copper voice coils in real time.
+    </p>
+
+    <div class="control-glass-card">
+      <div class="card-row-head">
+        <span>Exploded Assembly View</span>
+        <span id="explodeValText">0%</span>
+      </div>
+      <input type="range" min="0" max="100" value="0" class="styled-slider" id="explodeSlider" />
     </div>
 
-    <!-- Left Editorial Column -->
-    <div class="hero-left">
-      <div class="series-pill" id="editionPill">01 // Brushed Grade-5 Titanium</div>
-      <h1 class="hero-headline">Sound You Can Physically Feel.</h1>
-      <p class="hero-copy">
-        Precision-milled from a single block of aerospace titanium with 50mm custom Beryllium drivers and real-time spatial head tracking.
-      </p>
-
-      <!-- Live Spatial Synth Player -->
-      <div class="audio-card" id="spatialPlayerCard">
-        <div class="audio-card-top">
-          <div class="audio-play-group">
-            <div class="play-orb" id="playOrbIcon">▶</div>
-            <div>
-              <div class="track-name" id="trackTitle">Play 360° Spatial Demo</div>
-              <div class="track-sub">Live Web-Audio Visualizer + Synth</div>
-            </div>
-          </div>
-          <span class="spatial-tag">DOLBY ATMOS</span>
-        </div>
-      </div>
-
-      <div class="mini-stats">
-        <div class="mini-stat">
-          <div class="mini-stat-val" id="statDb">-48 dB</div>
-          <div class="mini-stat-lbl">Active ANC</div>
-        </div>
-        <div class="mini-stat">
-          <div class="mini-stat-val">5–48k</div>
-          <div class="mini-stat-lbl">Hz Response</div>
-        </div>
-        <div class="mini-stat">
-          <div class="mini-stat-val">62 hrs</div>
-          <div class="mini-stat-lbl">Battery</div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Center Photorealistic 3D Render + Circular Spectrum Canvas + Callout Hotspots -->
-    <div class="hero-center" id="centerStage">
-      <canvas id="spectrumCanvas" width="560" height="560"></canvas>
-
-      <div class="product-3d-wrapper" id="product3dWrapper">
-        <img
-          src="aura-headphones.jpg"
-          alt="AURA H100 Studio Headphones"
-          class="headphone-render"
-          id="headphoneRender"
-        />
-
-        <!-- Pin 1: Knurled Haptic Dial on Right Earcup -->
-        <div class="callout-pin" id="pinDial" style="top: 66%; left: 61%;">
-          <span>+</span>
-          <div class="callout-card" style="left: 42px; top: -18px;">
-            <div class="callout-code">01 // HAPTIC CROWN</div>
-            <div class="callout-title">Knurled Acoustic Dial</div>
-            <div class="callout-desc">Precision CNC ring controls volume & neural ANC depth.</div>
-          </div>
-        </div>
-
-        <!-- Pin 2: CNC Titanium Yoke Hinge -->
-        <div class="callout-pin" id="pinYoke" style="top: 34%; left: 74%;">
-          <span>+</span>
-          <div class="callout-card" style="right: 42px; top: -24px;">
-            <div class="callout-code">02 // CHASSIS</div>
-            <div class="callout-title">Grade-5 Titanium Yoke</div>
-            <div class="callout-desc">Frictionless dual-axis suspension balances cranial pressure.</div>
-          </div>
-        </div>
-
-        <!-- Pin 3: Memory Foam Acoustic Cushion -->
-        <div class="callout-pin" id="pinCushion" style="top: 56%; left: 32%;">
-          <span>+</span>
-          <div class="callout-card" style="right: 42px; top: -10px;">
-            <div class="callout-code">03 // ACOUSTIC SEAL</div>
-            <div class="callout-title">lambskin & Knit Mesh</div>
-            <div class="callout-desc">Magnetic snap-on ear cushions with acoustic bass trap.</div>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Right Studio Configurator -->
-    <aside class="hero-right">
-      <div>
-        <div class="cfg-row-top">
-          <span class="cfg-label">Anodized Finish</span>
-          <span class="cfg-val" id="finishNameLabel">Raw Titanium</span>
-        </div>
-
-        <div class="finish-grid">
-          <button
-            class="finish-btn active"
-            data-name="Raw Titanium"
-            data-word="TITANIUM"
-            data-series="01 // Brushed Grade-5 Titanium"
-            data-accent="#38bdf8"
-            data-rgb="56, 189, 248"
-            data-glow="rgba(56, 189, 248, 0.24)"
-            data-filter="brightness(1.04) contrast(1.08) saturate(1.05) hue-rotate(0deg)"
-          >
-            <span class="finish-dot" style="background: linear-gradient(135deg, #e2e8f0, #475569);"></span>
-          </button>
-
-          <button
-            class="finish-btn"
-            data-name="Solar Champagne"
-            data-word="SOLAR GOLD"
-            data-series="02 // 24K Anodized Amber"
-            data-accent="#f59e0b"
-            data-rgb="245, 158, 11"
-            data-glow="rgba(245, 158, 11, 0.24)"
-            data-filter="brightness(1.05) contrast(1.1) sepia(0.55) saturate(2.2) hue-rotate(-8deg)"
-          >
-            <span class="finish-dot" style="background: linear-gradient(135deg, #fde68a, #b45309);"></span>
-          </button>
-
-          <button
-            class="finish-btn"
-            data-name="Cyber Cobalt"
-            data-word="COBALT"
-            data-series="03 // Deep Sapphire Edition"
-            data-accent="#818cf8"
-            data-rgb="129, 140, 248"
-            data-glow="rgba(129, 140, 248, 0.28)"
-            data-filter="brightness(1.02) contrast(1.12) sepia(0.35) saturate(2.6) hue-rotate(195deg)"
-          >
-            <span class="finish-dot" style="background: linear-gradient(135deg, #818cf8, #1e1b4b);"></span>
-          </button>
-
-          <button
-            class="finish-btn"
-            data-name="Crimson Carbon"
-            data-word="CRIMSON"
-            data-series="04 // Track Reference Limited"
-            data-accent="#fb7185"
-            data-rgb="251, 113, 133"
-            data-glow="rgba(251, 113, 133, 0.26)"
-            data-filter="brightness(1.0) contrast(1.15) sepia(0.45) saturate(2.8) hue-rotate(305deg)"
-          >
-            <span class="finish-dot" style="background: linear-gradient(135deg, #fb7185, #881337);"></span>
-          </button>
-        </div>
-      </div>
-
-      <!-- Interactive View Mode Switcher -->
-      <div>
-        <div class="cfg-row-top" style="margin-bottom: 8px;">
-          <span class="cfg-label">Inspection Mode</span>
-          <span class="cfg-val" id="inspectStatus">Interactive 3D</span>
-        </div>
-        <div class="mode-pills">
-          <button class="mode-pill-btn active" id="modeCleanBtn">Studio View</button>
-          <button class="mode-pill-btn" id="modeHudBtn">Blueprint HUD</button>
-        </div>
-      </div>
-
-      <!-- Price & Express Checkout CTA -->
-      <div class="price-block">
+    <div class="bass-player-card" id="bassPlayerCard">
+      <div class="bass-left">
+        <div class="bass-play-btn" id="bassPlayIcon">▶</div>
         <div>
-          <div class="price-tag">£649</div>
-          <div class="stock-badge">● Ships Today • London Flagship</div>
+          <div style="font-size: 13px; font-weight: 800; color: #fff;" id="bassTitle">Test 3D Driver Bass Excursion</div>
+          <div style="font-size: 11px; color: var(--text-muted);">Watch the 3D cones & rings pulse</div>
         </div>
       </div>
+      <div class="eq-mini">
+        <span></span><span></span><span></span><span></span>
+      </div>
+    </div>
+  </aside>
 
-      <button class="cta-primary" id="buyNowBtn">
-        <span>Add to Bag — £649</span>
-      </button>
-    </aside>
-  </section>
+  <!-- Right Dock: Real-Time 3D PBR Material Shader Customizer -->
+  <aside class="right-dock">
+    <div>
+      <div class="card-row-head">
+        <span style="color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px; font-size: 11px;">3D Metallic Shader</span>
+        <span id="materialNameText" style="color: #fff;">Raw Titanium</span>
+      </div>
 
-  <!-- SECTION 2: INTERACTIVE ACOUSTIC LAB & NOISE CANCELLATION SIMULATOR -->
-  <section class="lab-section" id="acousticLab">
-    <div class="section-header">
+      <div class="swatch-grid">
+        <button
+          class="swatch-item active"
+          data-name="Raw Titanium"
+          data-word="TITANIUM"
+          data-chip="01 // Grade-5 Brushed Titanium"
+          data-metal="0xd8dee9"
+          data-cushion="0x1a1d26"
+          data-accent="#38bdf8"
+          data-rgb="56, 189, 248"
+          data-hex="0x38bdf8"
+        >
+          <span class="swatch-orb" style="background: linear-gradient(135deg, #f1f5f9, #475569);"></span>
+        </button>
+
+        <button
+          class="swatch-item"
+          data-name="24K Solar Gold"
+          data-word="SOLAR GOLD"
+          data-chip="02 // 24K Champagne Anodized"
+          data-metal="0xfbbf24"
+          data-cushion="0x261d14"
+          data-accent="#f59e0b"
+          data-rgb="245, 158, 11"
+          data-hex="0xf59e0b"
+        >
+          <span class="swatch-orb" style="background: linear-gradient(135deg, #fde68a, #b45309);"></span>
+        </button>
+
+        <button
+          class="swatch-item"
+          data-name="Ultra Cobalt"
+          data-word="COBALT"
+          data-chip="03 // Deep Sapphire Anodized"
+          data-metal="0x4f46e5"
+          data-cushion="0x11152c"
+          data-accent="#818cf8"
+          data-rgb="129, 140, 248"
+          data-hex="0x818cf8"
+        >
+          <span class="swatch-orb" style="background: linear-gradient(135deg, #818cf8, #1e1b4b);"></span>
+        </button>
+
+        <button
+          class="swatch-item"
+          data-name="Crimson Carbon"
+          data-word="CRIMSON"
+          data-chip="04 // Track Reference Edition"
+          data-metal="0xe11d48"
+          data-cushion="0x240b12"
+          data-accent="#fb7185"
+          data-rgb="251, 113, 133"
+          data-hex="0xfb7185"
+        >
+          <span class="swatch-orb" style="background: linear-gradient(135deg, #fb7185, #881337);"></span>
+        </button>
+
+        <button
+          class="swatch-item"
+          data-name="Stealth Obsidian"
+          data-word="OBSIDIAN"
+          data-chip="05 // Matte DLC Carbon"
+          data-metal="0x222630"
+          data-cushion="0x0d0f14"
+          data-accent="#34d399"
+          data-rgb="52, 211, 153"
+          data-hex="0x34d399"
+        >
+          <span class="swatch-orb" style="background: linear-gradient(135deg, #34d399, #090a0f);"></span>
+        </button>
+      </div>
+    </div>
+
+    <div>
+      <div class="card-row-head" style="margin-bottom: 8px;">
+        <span style="color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px; font-size: 11px;">3D Viewport Controls</span>
+      </div>
+      <div class="quick-toggles">
+        <button class="quick-toggle-btn active" id="autoSpinBtn">↻ Auto-Spin ON</button>
+        <button class="quick-toggle-btn" id="wireframeBtn">⬡ X-Ray Mesh</button>
+      </div>
+    </div>
+
+    <div class="price-row">
       <div>
-        <div class="section-eyebrow">INTERACTIVE ACOUSTIC TELEMETRY</div>
-        <h2 class="section-title">Engineered to Cancel the World.</h2>
+        <div class="price-val">£649</div>
+        <div style="font-size: 11px; color: #34d399; font-weight: 700;">● In Stock • London Studio</div>
       </div>
     </div>
 
-    <div class="bento-lab-grid">
-      <!-- Panel 1: Real-Time ANC Noise Wave Eliminator -->
-      <div class="bento-panel">
-        <div class="panel-top">
-          <div>
-            <div class="panel-title">Neural Noise Cancellation Simulator</div>
-            <div class="panel-sub">Drag slider to cancel ambient city & cabin noise in real time</div>
-          </div>
-          <div class="db-live-pill" id="ancDbPill">-48 dB Cancelled</div>
-        </div>
+    <button class="buy-btn" id="buyNowBtn">Add to Bag — £649</button>
+  </aside>
 
-        <div class="wave-canvas-box">
-          <canvas id="ancWaveCanvas" width="640" height="190"></canvas>
-        </div>
-
-        <div class="anc-slider-row">
-          <span style="font-size: 12px; color: var(--text-dim); font-weight: 600;">Transparency (0%)</span>
-          <input type="range" min="0" max="100" value="92" class="anc-range" id="ancSlider" />
-          <span style="font-size: 12px; color: #ffffff; font-weight: 700;">Max ANC (100%)</span>
-        </div>
-      </div>
-
-      <!-- Panel 2: Interactive 5-Band Beryllium Equalizer -->
-      <div class="bento-panel">
-        <div class="panel-top">
-          <div>
-            <div class="panel-title">50mm Beryllium Soundstage EQ</div>
-            <div class="panel-sub">Click a tuning profile to sculpt the acoustic curve</div>
-          </div>
-        </div>
-
-        <div class="eq-preset-row">
-          <button class="eq-preset-btn active" data-eq="85,70,55,75,90">Sub-Bass Club</button>
-          <button class="eq-preset-btn" data-eq="60,65,68,65,62">Studio Flat</button>
-          <button class="eq-preset-btn" data-eq="45,68,92,86,78">Vocal Air</button>
-        </div>
-
-        <div class="eq-sliders-stage" id="eqStage">
-          <div class="eq-col">
-            <div class="eq-bar-track"><div class="eq-bar-fill" style="height: 85%;"></div></div>
-            <span class="eq-freq-lbl">60Hz</span>
-          </div>
-          <div class="eq-col">
-            <div class="eq-bar-track"><div class="eq-bar-fill" style="height: 70%;"></div></div>
-            <span class="eq-freq-lbl">250Hz</span>
-          </div>
-          <div class="eq-col">
-            <div class="eq-bar-track"><div class="eq-bar-fill" style="height: 55%;"></div></div>
-            <span class="eq-freq-lbl">1kHz</span>
-          </div>
-          <div class="eq-col">
-            <div class="eq-bar-track"><div class="eq-bar-fill" style="height: 75%;"></div></div>
-            <span class="eq-freq-lbl">4kHz</span>
-          </div>
-          <div class="eq-col">
-            <div class="eq-bar-track"><div class="eq-bar-fill" style="height: 90%;"></div></div>
-            <span class="eq-freq-lbl">16kHz</span>
-          </div>
-        </div>
-      </div>
-    </div>
-  </section>
+  <!-- Bottom Interactive Instructions -->
+  <div class="bottom-hint">
+    <span>🖱️ <strong>Drag</strong> to Spin 360°</span>
+    <span>•</span>
+    <span>🔍 <strong>Scroll</strong> to Zoom</span>
+    <span>•</span>
+    <span>💥 Click <strong>Explode 3D Parts</strong> to Inspect Drivers</span>
+  </div>
 
   <!-- Slide-Over Checkout Drawer -->
   <div class="drawer-backdrop" id="drawerBackdrop"></div>
@@ -1309,107 +846,20 @@
         <span style="font-size: 20px; font-weight: 800;">Your Order</span>
         <button id="closeBagBtn" style="width: 32px; height: 32px; border-radius: 50%; border: 1px solid var(--glass-border); background: transparent; color: #fff; cursor: pointer;">✕</button>
       </div>
-
-      <div class="bag-product-row">
-        <img src="aura-headphones.jpg" alt="Thumb" class="bag-thumb" />
-        <div style="flex: 1;">
-          <div style="font-size: 15px; font-weight: 800;" id="bagItemName">AURA H100 — Raw Titanium</div>
-          <div style="font-size: 12px; color: var(--text-dim); margin-top: 2px;">Includes Hard Leather Travel Case & USB-C Lossless Cable</div>
-        </div>
-        <div style="font-size: 17px; font-weight: 800;">£649</div>
+      <div style="background: rgba(255,255,255,0.04); border: 1px solid var(--glass-border); border-radius: 18px; padding: 16px; margin-top: 20px;">
+        <div style="font-size: 16px; font-weight: 800;" id="bagFinishName">AURA H100 — Raw Titanium</div>
+        <div style="font-size: 12px; color: var(--text-muted); margin-top: 4px;">Custom 50mm Beryllium Reference Drivers • CNC Grade-5 Titanium</div>
+        <div style="font-size: 20px; font-weight: 900; margin-top: 12px;">£649.00</div>
       </div>
     </div>
-
-    <div style="display: flex; flex-direction: column; gap: 14px;">
-      <div style="display: flex; justify-content: space-between; font-size: 13.5px; color: var(--text-dim);">
-        <span>Same-Day London Courier</span>
-        <span style="color: #34d399; font-weight: 700;">COMPLIMENTARY</span>
-      </div>
-      <div style="display: flex; justify-content: space-between; font-size: 19px; font-weight: 900;">
-        <span>Total</span>
-        <span>£649.00</span>
-      </div>
-      <button class="apple-pay-btn" id="applePayBtn">
-        <span> Pay — £649.00</span>
-      </button>
-    </div>
+    <button class="apple-pay-btn" id="applePayBtn"> Pay — £649.00</button>
   </aside>
 
   <script>
-    const root = document.documentElement;
-    const cursorRing = document.getElementById('cursorRing');
-    const centerStage = document.getElementById('centerStage');
-    const headphoneRender = document.getElementById('headphoneRender');
-    const kineticTitle = document.getElementById('kineticTitle');
-    const editionPill = document.getElementById('editionPill');
-    const finishNameLabel = document.getElementById('finishNameLabel');
-    const bagItemName = document.getElementById('bagItemName');
-    const finishBtns = document.querySelectorAll('.finish-btn');
-
-    const modeCleanBtn = document.getElementById('modeCleanBtn');
-    const modeHudBtn = document.getElementById('modeHudBtn');
-    const navSpecsBtn = document.getElementById('navSpecsBtn');
-    const inspectStatus = document.getElementById('inspectStatus');
-
-    const ancMasterBtn = document.getElementById('ancMasterBtn');
-    const ancMasterText = document.getElementById('ancMasterText');
-    const ancShockwave = document.getElementById('ancShockwave');
-    const statDb = document.getElementById('statDb');
-    const ancSlider = document.getElementById('ancSlider');
-    const ancDbPill = document.getElementById('ancDbPill');
-
-    const spatialPlayerCard = document.getElementById('spatialPlayerCard');
-    const playOrbIcon = document.getElementById('playOrbIcon');
-    const trackTitle = document.getElementById('trackTitle');
-
-    const eqPresetBtns = document.querySelectorAll('.eq-preset-btn');
-    const eqFills = document.querySelectorAll('.eq-bar-fill');
-
-    const navBagBtn = document.getElementById('navBagBtn');
-    const buyNowBtn = document.getElementById('buyNowBtn');
-    const drawerBackdrop = document.getElementById('drawerBackdrop');
-    const bagDrawer = document.getElementById('bagDrawer');
-    const closeBagBtn = document.getElementById('closeBagBtn');
-    const applePayBtn = document.getElementById('applePayBtn');
-
-    let isSpatialPlaying = false;
-    let isAncOn = true;
-    let ancPercent = 92;
-    let currentAccentRgb = '56, 189, 248';
-    let spatialLoop = null;
-
     /* ==========================================================================
-       Magnetic Custom Cursor
+       1. SYNTHESIZED WEB AUDIO SOUND ENGINE
        ========================================================================== */
-    window.addEventListener('mousemove', (e) => {
-      cursorRing.style.left = `${e.clientX}px`;
-      cursorRing.style.top = `${e.clientY}px`;
-    });
-
-    document.querySelectorAll('button, a, .callout-pin, .audio-card').forEach((el) => {
-      el.addEventListener('mouseenter', () => cursorRing.classList.add('hovered'));
-      el.addEventListener('mouseleave', () => cursorRing.classList.remove('hovered'));
-    });
-
-    /* ==========================================================================
-       3D Perspective Tilt on the Headphone Hero Stage
-       ========================================================================== */
-    const heroSection = document.getElementById('heroStage');
-    heroSection.addEventListener('mousemove', (e) => {
-      const rect = heroSection.getBoundingClientRect();
-      const x = (e.clientX - rect.left) / rect.width - 0.5;
-      const y = (e.clientY - rect.top) / rect.height - 0.5;
-      headphoneRender.style.transform = `rotateY(${x * 24}deg) rotateX(${-y * 18}deg) scale(1.03)`;
-    });
-
-    heroSection.addEventListener('mouseleave', () => {
-      headphoneRender.style.transform = 'rotateY(0deg) rotateX(0deg) scale(1)';
-    });
-
-    /* ==========================================================================
-       Web Audio Synthesizer (Color Morph, ANC Vacuum Drop, Spatial Chord Loop)
-       ========================================================================== */
-    const AudioEngine = (() => {
+    const SoundFX = (() => {
       let ctx = null;
       function getCtx() {
         if (!ctx) ctx = new (window.AudioContext || window.webkitAudioContext)();
@@ -1417,303 +867,698 @@
         return ctx;
       }
 
-      function playShimmer(freq = 520) {
+      function playHydraulicExplode(opening = true) {
         try {
           const c = getCtx();
           const now = c.currentTime;
           const osc = c.createOscillator();
           const gain = c.createGain();
           osc.type = 'sine';
-          osc.frequency.setValueAtTime(freq * 0.5, now);
-          osc.frequency.exponentialRampToValueAtTime(freq, now + 0.18);
+          osc.frequency.setValueAtTime(opening ? 140 : 520, now);
+          osc.frequency.exponentialRampToValueAtTime(opening ? 640 : 120, now + 0.32);
           gain.gain.setValueAtTime(0.001, now);
-          gain.gain.linearRampToValueAtTime(0.09, now + 0.03);
-          gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.22);
+          gain.gain.linearRampToValueAtTime(0.12, now + 0.04);
+          gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.35);
           osc.connect(gain);
           gain.connect(c.destination);
           osc.start(now);
-          osc.stop(now + 0.24);
+          osc.stop(now + 0.36);
         } catch (e) {}
       }
 
-      function playAncDrop(engage = true) {
+      function playBassDropPulse() {
+        try {
+          const c = getCtx();
+          const now = c.currentTime;
+          // Sub-bass kick + crystalline spatial chord
+          const kick = c.createOscillator();
+          const kGain = c.createGain();
+          kick.type = 'sine';
+          kick.frequency.setValueAtTime(135, now);
+          kick.frequency.exponentialRampToValueAtTime(38, now + 0.28);
+          kGain.gain.setValueAtTime(0.28, now);
+          kGain.gain.exponentialRampToValueAtTime(0.0001, now + 0.32);
+          kick.connect(kGain);
+          kGain.connect(c.destination);
+          kick.start(now);
+          kick.stop(now + 0.34);
+
+          [261.63, 329.63, 392.0, 523.25].forEach((f, i) => {
+            const osc = c.createOscillator();
+            const g = c.createGain();
+            osc.type = 'triangle';
+            osc.frequency.setValueAtTime(f, now + 0.04 + i * 0.04);
+            g.gain.setValueAtTime(0.0001, now + 0.04);
+            g.gain.linearRampToValueAtTime(0.035, now + 0.1);
+            g.gain.exponentialRampToValueAtTime(0.0001, now + 0.85);
+            osc.connect(g);
+            g.connect(c.destination);
+            osc.start(now + 0.04 + i * 0.04);
+            osc.stop(now + 0.9);
+          });
+        } catch (e) {}
+      }
+
+      function playClick(freq = 520) {
         try {
           const c = getCtx();
           const now = c.currentTime;
           const osc = c.createOscillator();
-          const gain = c.createGain();
+          const g = c.createGain();
           osc.type = 'sine';
-          osc.frequency.setValueAtTime(engage ? 240 : 75, now);
-          osc.frequency.exponentialRampToValueAtTime(engage ? 46 : 310, now + 0.38);
-          gain.gain.setValueAtTime(0.2, now);
-          gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.4);
-          osc.connect(gain);
-          gain.connect(c.destination);
+          osc.frequency.setValueAtTime(freq, now);
+          g.gain.setValueAtTime(0.08, now);
+          g.gain.exponentialRampToValueAtTime(0.0001, now + 0.06);
+          osc.connect(g);
+          g.connect(c.destination);
           osc.start(now);
-          osc.stop(now + 0.42);
+          osc.stop(now + 0.07);
         } catch (e) {}
       }
 
-      function playSpatialPulse() {
-        if (!isSpatialPlaying) return;
-        try {
-          const c = getCtx();
-          const now = c.currentTime;
-          // Deep Sub-Bass + Lush Minor 9th Spatial Pad
-          const notes = [110, 220, 261.63, 329.63, 392.0, 493.88];
-          notes.forEach((f, idx) => {
-            const osc = c.createOscillator();
-            const gain = c.createGain();
-            osc.type = idx === 0 ? 'triangle' : 'sine';
-            const start = now + idx * 0.06;
-            osc.frequency.setValueAtTime(f, start);
-            gain.gain.setValueAtTime(0.0001, start);
-            gain.gain.linearRampToValueAtTime(idx === 0 ? 0.08 : 0.03, start + 0.1);
-            gain.gain.exponentialRampToValueAtTime(0.0001, start + 1.25);
-            osc.connect(gain);
-            gain.connect(c.destination);
-            osc.start(start);
-            osc.stop(start + 1.3);
-          });
-        } catch (e) {}
-      }
-
-      function playApplePayDing() {
-        try {
-          const c = getCtx();
-          const now = c.currentTime;
-          [
-            { f: 987.77, s: 0, d: 0.35 },
-            { f: 1318.51, s: 0.11, d: 0.75 }
-          ].forEach(({ f, s, d }) => {
-            const osc = c.createOscillator();
-            const gain = c.createGain();
-            osc.type = 'sine';
-            osc.frequency.setValueAtTime(f, now + s);
-            gain.gain.setValueAtTime(0.001, now + s);
-            gain.gain.linearRampToValueAtTime(0.16, now + s + 0.015);
-            gain.gain.exponentialRampToValueAtTime(0.0001, now + s + d);
-            osc.connect(gain);
-            gain.connect(c.destination);
-            osc.start(now + s);
-            osc.stop(now + s + d + 0.02);
-          });
-        } catch (e) {}
-      }
-
-      return { playShimmer, playAncDrop, playSpatialPulse, playApplePayDing };
+      return { playHydraulicExplode, playBassDropPulse, playClick };
     })();
 
     /* ==========================================================================
-       Real-Time 360° Circular Audio Visualizer Canvas Behind Headphones
+       2. THREE.JS 360° REAL-TIME PBR 3D HEADPHONE & EXPLODED CAD ASSEMBLY
        ========================================================================== */
-    const specCanvas = document.getElementById('spectrumCanvas');
-    const specCtx = specCanvas.getContext('2d');
-    let phase = 0;
+    const container = document.getElementById('webglContainer');
+    const scene = new THREE.Scene();
 
-    function renderCircularSpectrum() {
-      specCtx.clearRect(0, 0, 560, 560);
-      const cx = 280;
-      const cy = 280;
-      const baseRadius = 185;
-      const bars = 72;
-      phase += isSpatialPlaying ? 0.08 : 0.02;
+    const camera = new THREE.PerspectiveCamera(38, window.innerWidth / window.innerHeight, 0.1, 100);
+    camera.position.set(0.6, 0.4, 8.2);
 
-      for (let i = 0; i < bars; i++) {
-        const angle = (i / bars) * Math.PI * 2;
-        const wave =
-          Math.sin(i * 0.35 + phase) * (isSpatialPlaying ? 26 : 5) +
-          Math.cos(i * 0.2 - phase * 1.4) * (isSpatialPlaying ? 18 : 3);
-        const barLen = Math.max(4, 10 + Math.abs(wave));
+    const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true, powerPreference: 'high-performance' });
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    renderer.toneMapping = THREE.ACESFilmicToneMapping;
+    renderer.toneMappingExposure = 1.25;
+    container.appendChild(renderer.domElement);
 
-        const x1 = cx + Math.cos(angle) * baseRadius;
-        const y1 = cy + Math.sin(angle) * baseRadius;
-        const x2 = cx + Math.cos(angle) * (baseRadius + barLen);
-        const y2 = cy + Math.sin(angle) * (baseRadius + barLen);
-
-        specCtx.beginPath();
-        specCtx.moveTo(x1, y1);
-        specCtx.lineTo(x2, y2);
-        specCtx.strokeStyle = `rgba(${currentAccentRgb}, ${isSpatialPlaying ? 0.65 : 0.2})`;
-        specCtx.lineWidth = 2.5;
-        specCtx.lineCap = 'round';
-        specCtx.stroke();
+    // Procedural Brushed Metal Bump Map Texture
+    function createBrushedMetalTexture() {
+      const canvas = document.createElement('canvas');
+      canvas.width = 512;
+      canvas.height = 512;
+      const ctx = canvas.getContext('2d');
+      ctx.fillStyle = '#808080';
+      ctx.fillRect(0, 0, 512, 512);
+      for (let i = 0; i < 4000; i++) {
+        const v = 100 + Math.floor(Math.random() * 55);
+        ctx.fillStyle = `rgb(${v},${v},${v})`;
+        ctx.fillRect(Math.random() * 512, Math.random() * 512, Math.random() * 45 + 10, 1.5);
       }
-      requestAnimationFrame(renderCircularSpectrum);
+      const tex = new THREE.CanvasTexture(canvas);
+      tex.wrapS = THREE.RepeatWrapping;
+      tex.wrapT = THREE.RepeatWrapping;
+      tex.repeat.set(2, 2);
+      return tex;
     }
-    renderCircularSpectrum();
+
+    const brushedBump = createBrushedMetalTexture();
+
+    // Studio Lighting Rig
+    const ambientLight = new THREE.AmbientLight(0xffffff, 0.65);
+    scene.add(ambientLight);
+
+    const keyLight = new THREE.DirectionalLight(0xffffff, 2.4);
+    keyLight.position.set(5, 7, 6);
+    scene.add(keyLight);
+
+    const rimLightLeft = new THREE.PointLight(0x38bdf8, 3.8, 18);
+    rimLightLeft.position.set(-5, 2, -3);
+    scene.add(rimLightLeft);
+
+    const rimLightRight = new THREE.PointLight(0x38bdf8, 3.2, 18);
+    rimLightRight.position.set(5, -3, 4);
+    scene.add(rimLightRight);
+
+    const topFillLight = new THREE.DirectionalLight(0xe2e8f0, 1.4);
+    topFillLight.position.set(0, 8, -4);
+    scene.add(topFillLight);
+
+    // Shared PBR Materials (Dynamically updated on swatch click)
+    const metalMaterial = new THREE.MeshPhysicalMaterial({
+      color: 0xd8dee9,
+      metalness: 0.9,
+      roughness: 0.2,
+      clearcoat: 0.6,
+      clearcoatRoughness: 0.15,
+      bumpMap: brushedBump,
+      bumpScale: 0.008
+    });
+
+    const chromeMaterial = new THREE.MeshPhysicalMaterial({
+      color: 0xf8fafc,
+      metalness: 0.98,
+      roughness: 0.08,
+      clearcoat: 1.0
+    });
+
+    const cushionMaterial = new THREE.MeshStandardMaterial({
+      color: 0x1a1d26,
+      metalness: 0.08,
+      roughness: 0.82,
+      bumpMap: brushedBump,
+      bumpScale: 0.015
+    });
+
+    const accentGlowMaterial = new THREE.MeshStandardMaterial({
+      color: 0x38bdf8,
+      emissive: 0x38bdf8,
+      emissiveIntensity: 0.85,
+      metalness: 0.5,
+      roughness: 0.2
+    });
+
+    const copperCoilMaterial = new THREE.MeshPhysicalMaterial({
+      color: 0xd97706,
+      metalness: 0.95,
+      roughness: 0.16,
+      clearcoat: 0.8
+    });
+
+    const berylliumConeMaterial = new THREE.MeshPhysicalMaterial({
+      color: 0x94a3b8,
+      metalness: 0.85,
+      roughness: 0.12,
+      clearcoat: 1.0
+    });
+
+    const pcbBoardMaterial = new THREE.MeshStandardMaterial({
+      color: 0x064e3b,
+      metalness: 0.5,
+      roughness: 0.35
+    });
+
+    // Root 3D Headphone Group
+    const headphoneGroup = new THREE.Group();
+    scene.add(headphoneGroup);
+
+    // 1. Sculpted Curved Headband Arch
+    const archCurve = new THREE.CatmullRomCurve3([
+      new THREE.Vector3(-1.62, 0.25, 0),
+      new THREE.Vector3(-1.55, 1.35, 0),
+      new THREE.Vector3(-0.95, 2.15, 0),
+      new THREE.Vector3(0, 2.38, 0),
+      new THREE.Vector3(0.95, 2.15, 0),
+      new THREE.Vector3(1.55, 1.35, 0),
+      new THREE.Vector3(1.62, 0.25, 0)
+    ]);
+    const archGeo = new THREE.TubeGeometry(archCurve, 64, 0.15, 24, false);
+    archGeo.scale(1, 1, 1.65);
+    const headbandMesh = new THREE.Mesh(archGeo, cushionMaterial);
+    headphoneGroup.add(headbandMesh);
+
+    // Inner Accent Canopy Strip under Headband
+    const canopyCurve = new THREE.CatmullRomCurve3([
+      new THREE.Vector3(-1.42, 0.65, 0),
+      new THREE.Vector3(-0.88, 1.95, 0),
+      new THREE.Vector3(0, 2.18, 0),
+      new THREE.Vector3(0.88, 1.95, 0),
+      new THREE.Vector3(1.42, 0.65, 0)
+    ]);
+    const canopyGeo = new THREE.TubeGeometry(canopyCurve, 48, 0.045, 16, false);
+    canopyGeo.scale(1, 1, 3.2);
+    const canopyMesh = new THREE.Mesh(canopyGeo, accentGlowMaterial);
+    headphoneGroup.add(canopyMesh);
+
+    // 2. Telescoping Stainless Arms & Yokes (Left & Right)
+    function createYokeSide(side) {
+      const yokeGroup = new THREE.Group();
+      const stemGeo = new THREE.CylinderGeometry(0.075, 0.075, 0.95, 24);
+      const stem = new THREE.Mesh(stemGeo, chromeMaterial);
+      stem.position.set(side * 1.62, -0.15, 0);
+      stem.rotation.z = side * 0.08;
+      yokeGroup.add(stem);
+
+      // Hinge Collar
+      const collarGeo = new THREE.CylinderGeometry(0.14, 0.14, 0.28, 24);
+      const collar = new THREE.Mesh(collarGeo, metalMaterial);
+      collar.position.set(side * 1.62, 0.22, 0);
+      yokeGroup.add(collar);
+
+      // Fork Ring Holding Ear Cup
+      const forkGeo = new THREE.TorusGeometry(0.92, 0.065, 16, 48, Math.PI * 1.15);
+      const fork = new THREE.Mesh(forkGeo, chromeMaterial);
+      fork.position.set(side * 1.66, -0.95, 0);
+      fork.rotation.y = Math.PI / 2;
+      fork.rotation.x = Math.PI * 0.42;
+      yokeGroup.add(fork);
+
+      return yokeGroup;
+    }
+
+    headphoneGroup.add(createYokeSide(-1));
+    headphoneGroup.add(createYokeSide(1));
+
+    // 3. Multi-Layer Explodable Ear Cup Assemblies (Left = -1, Right = +1)
+    const explodableParts = [];
+    const driverCones = [];
+
+    function createEarCupAssembly(side) {
+      const cupRoot = new THREE.Group();
+      cupRoot.position.set(side * 1.55, -0.95, 0);
+      // Slight ergonomic inward tilt
+      cupRoot.rotation.z = side * -0.12;
+      cupRoot.rotation.y = side * 0.08;
+      headphoneGroup.add(cupRoot);
+
+      // LAYER A: Outer Sculpted Anodized Aluminum Shell + Knurled Dial
+      const shellGroup = new THREE.Group();
+      const shellGeo = new THREE.CylinderGeometry(0.84, 0.92, 0.48, 64);
+      shellGeo.rotateZ(Math.PI / 2);
+      shellGeo.scale(1, 1.22, 0.96);
+      const shellMesh = new THREE.Mesh(shellGeo, metalMaterial);
+      shellGroup.add(shellMesh);
+
+      // Outer Beveled Metallic Cap
+      const capGeo = new THREE.CylinderGeometry(0.62, 0.82, 0.14, 64);
+      capGeo.rotateZ(Math.PI / 2);
+      capGeo.scale(1, 1.22, 0.96);
+      capGeo.translate(side * 0.28, 0, 0);
+      const capMesh = new THREE.Mesh(capGeo, metalMaterial);
+      shellGroup.add(capMesh);
+
+      // Center Knurled Acoustic Dial Ring (like B&O H100)
+      const dialRingGeo = new THREE.TorusGeometry(0.42, 0.045, 20, 48);
+      dialRingGeo.rotateY(Math.PI / 2);
+      dialRingGeo.translate(side * 0.35, 0, 0);
+      const dialRingMesh = new THREE.Mesh(dialRingGeo, chromeMaterial);
+      shellGroup.add(dialRingMesh);
+
+      // Glowing Accent Halo Ring around Dial
+      const haloGeo = new THREE.TorusGeometry(0.48, 0.016, 16, 48);
+      haloGeo.rotateY(Math.PI / 2);
+      haloGeo.translate(side * 0.34, 0, 0);
+      const haloMesh = new THREE.Mesh(haloGeo, accentGlowMaterial);
+      shellGroup.add(haloMesh);
+
+      // Digital Crown Knob on Top Edge of Right Cup
+      if (side === 1) {
+        const crownGeo = new THREE.CylinderGeometry(0.11, 0.11, 0.22, 32);
+        const crown = new THREE.Mesh(crownGeo, chromeMaterial);
+        crown.position.set(0.12, 1.05, 0.25);
+        crown.rotation.z = -0.25;
+        shellGroup.add(crown);
+      }
+
+      cupRoot.add(shellGroup);
+      explodableParts.push({ mesh: shellGroup, baseX: 0, explodeOffset: side * 1.55, tag: side === 1 ? 'lblShell' : null });
+
+      // LAYER B: Internal Neural ANC PCB & Copper Voice Coil + N52 Magnet
+      const coilGroup = new THREE.Group();
+      const pcbGeo = new THREE.CylinderGeometry(0.72, 0.72, 0.06, 48);
+      pcbGeo.rotateZ(Math.PI / 2);
+      const pcbMesh = new THREE.Mesh(pcbGeo, pcbBoardMaterial);
+      coilGroup.add(pcbMesh);
+
+      const magnetGeo = new THREE.TorusGeometry(0.46, 0.1, 20, 48);
+      magnetGeo.rotateY(Math.PI / 2);
+      const magnetMesh = new THREE.Mesh(magnetGeo, chromeMaterial);
+      coilGroup.add(magnetMesh);
+
+      const copperGeo = new THREE.CylinderGeometry(0.38, 0.38, 0.24, 48);
+      copperGeo.rotateZ(Math.PI / 2);
+      const copperMesh = new THREE.Mesh(copperGeo, copperCoilMaterial);
+      coilGroup.add(copperMesh);
+
+      cupRoot.add(coilGroup);
+      explodableParts.push({ mesh: coilGroup, baseX: 0, explodeOffset: side * 0.92, tag: side === 1 ? 'lblCoil' : null });
+
+      // LAYER C: 50mm Beryllium Acoustic Dome Diaphragm (Vibrates with Bass!)
+      const driverGroup = new THREE.Group();
+      const coneGeo = new THREE.CylinderGeometry(0.22, 0.65, 0.16, 48, 1, true);
+      coneGeo.rotateZ(side === 1 ? Math.PI / 2 : -Math.PI / 2);
+      const coneMesh = new THREE.Mesh(coneGeo, berylliumConeMaterial);
+      driverGroup.add(coneMesh);
+
+      const domeGeo = new THREE.SphereGeometry(0.24, 32, 16, 0, Math.PI * 2, 0, Math.PI / 2);
+      domeGeo.rotateZ(side === 1 ? -Math.PI / 2 : Math.PI / 2);
+      const domeMesh = new THREE.Mesh(domeGeo, accentGlowMaterial);
+      driverGroup.add(domeMesh);
+
+      cupRoot.add(driverGroup);
+      driverCones.push({ mesh: driverGroup, side });
+      explodableParts.push({ mesh: driverGroup, baseX: 0, explodeOffset: side * 0.32, tag: side === 1 ? 'lblDriver' : null });
+
+      // LAYER D: Plush Memory-Foam Ear Cushion
+      const cushionGroup = new THREE.Group();
+      const padGeo = new THREE.TorusGeometry(0.68, 0.24, 28, 64);
+      padGeo.rotateY(Math.PI / 2);
+      padGeo.scale(1, 1.24, 0.96);
+      padGeo.translate(side * -0.26, 0, 0);
+      const padMesh = new THREE.Mesh(padGeo, cushionMaterial);
+      cushionGroup.add(padMesh);
+
+      cupRoot.add(cushionGroup);
+      explodableParts.push({ mesh: cushionGroup, baseX: 0, explodeOffset: side * -0.35, tag: side === 1 ? 'lblCushion' : null });
+    }
+
+    createEarCupAssembly(-1);
+    createEarCupAssembly(1);
+
+    // 4. 3D Concentric Sonic Bass Rings & Floating Particle Field
+    const sonicRingsGroup = new THREE.Group();
+    scene.add(sonicRingsGroup);
+    const sonicRings = [];
+    for (let i = 0; i < 3; i++) {
+      const rGeo = new THREE.TorusGeometry(2.5 + i * 0.65, 0.012, 16, 100);
+      const rMat = new THREE.MeshBasicMaterial({
+        color: 0x38bdf8,
+        transparent: true,
+        opacity: 0.22 - i * 0.05
+      });
+      const ring = new THREE.Mesh(rGeo, rMat);
+      ring.rotation.x = Math.PI / 2.3;
+      sonicRingsGroup.add(ring);
+      sonicRings.push(ring);
+    }
+
+    // 3D Floating Dust / Acoustic Particles
+    const particleCount = 320;
+    const pGeo = new THREE.BufferGeometry();
+    const pPositions = new Float32Array(particleCount * 3);
+    for (let i = 0; i < particleCount * 3; i++) {
+      pPositions[i] = (Math.random() - 0.5) * 14;
+    }
+    pGeo.setAttribute('position', new THREE.BufferAttribute(pPositions, 3));
+    const pMat = new THREE.PointsMaterial({
+      color: 0x38bdf8,
+      size: 0.045,
+      transparent: true,
+      opacity: 0.55
+    });
+    const particleSystem = new THREE.Points(pGeo, pMat);
+    scene.add(particleSystem);
 
     /* ==========================================================================
-       Real-Time ANC Dual-Waveform Simulator Canvas
+       3. SMOOTH 360° DRAG-TO-SPIN ORBIT + ZOOM + CAMERA PRESETS
        ========================================================================== */
-    const ancCanvas = document.getElementById('ancWaveCanvas');
-    const ancCtx = ancCanvas.getContext('2d');
-    let waveTick = 0;
+    let isDragging = false;
+    let prevX = 0;
+    let prevY = 0;
+    let targetRotY = -0.45;
+    let targetRotX = 0.14;
+    let curRotY = -0.45;
+    let curRotX = 0.14;
+    let velY = 0;
+    let velX = 0;
+    let targetZoom = 8.2;
+    let curZoom = 8.2;
+    let autoSpin = true;
 
-    function renderAncWaveform() {
-      const w = ancCanvas.width;
-      const h = ancCanvas.height;
-      ancCtx.clearRect(0, 0, w, h);
-      waveTick += 0.07;
+    let targetExplode = 0; // 0.0 to 1.0
+    let curExplode = 0;
+    let isBassPlaying = false;
+    let bassLoopTimer = null;
 
-      // Red Ambient City Noise Wave (fades in background)
-      ancCtx.beginPath();
-      for (let x = 0; x < w; x += 4) {
-        const noiseAmp = 42;
-        const y =
-          h / 2 +
-          Math.sin(x * 0.03 + waveTick) * (noiseAmp * 0.6) +
-          Math.cos(x * 0.08 - waveTick * 1.7) * (noiseAmp * 0.4);
-        if (x === 0) ancCtx.moveTo(x, y);
-        else ancCtx.lineTo(x, y);
-      }
-      ancCtx.strokeStyle = 'rgba(248, 113, 113, 0.25)';
-      ancCtx.lineWidth = 2;
-      ancCtx.stroke();
+    container.addEventListener('pointerdown', (e) => {
+      isDragging = true;
+      prevX = e.clientX;
+      prevY = e.clientY;
+    });
 
-      // Active Cancelled Output Wave (flatlines as ancPercent approaches 100%)
-      const residualFactor = (100 - ancPercent) / 100;
-      ancCtx.beginPath();
-      for (let x = 0; x < w; x += 3) {
-        const y =
-          h / 2 +
-          (Math.sin(x * 0.03 + waveTick) * 32 + Math.cos(x * 0.11 - waveTick * 2) * 20) *
-            residualFactor;
-        if (x === 0) ancCtx.moveTo(x, y);
-        else ancCtx.lineTo(x, y);
-      }
-      ancCtx.strokeStyle = `rgba(${currentAccentRgb}, 0.95)`;
-      ancCtx.lineWidth = 3;
-      ancCtx.stroke();
+    window.addEventListener('pointermove', (e) => {
+      if (!isDragging) return;
+      const dx = e.clientX - prevX;
+      const dy = e.clientY - prevY;
+      prevX = e.clientX;
+      prevY = e.clientY;
 
-      requestAnimationFrame(renderAncWaveform);
-    }
-    renderAncWaveform();
+      velY = dx * 0.0085;
+      velX = dy * 0.0085;
+      targetRotY += velY;
+      targetRotX = Math.max(-1.2, Math.min(1.2, targetRotX + velX));
+    });
 
-    ancSlider.addEventListener('input', () => {
-      ancPercent = Number(ancSlider.value);
-      const db = Math.round((ancPercent / 100) * 48);
-      ancDbPill.textContent = db > 0 ? `-${db} dB Cancelled` : '0 dB (Ambient Pass-Through)';
-      statDb.textContent = db > 0 ? `-${db} dB` : '0 dB';
+    window.addEventListener('pointerup', () => {
+      isDragging = false;
+    });
+
+    window.addEventListener('wheel', (e) => {
+      targetZoom = Math.max(4.6, Math.min(11.5, targetZoom + e.deltaY * 0.004));
     });
 
     /* ==========================================================================
-       4 Anodized Finish Morphing
+       4. UI CONTROLS: EXPLODE PARTS, CAMERA PRESETS, PBR SHADERS, 8D BASS
        ========================================================================== */
-    finishBtns.forEach((btn) => {
+    const explodeSlider = document.getElementById('explodeSlider');
+    const explodeValText = document.getElementById('explodeValText');
+    const explodeMasterBtn = document.getElementById('explodeMasterBtn');
+    const hudLabelsLayer = document.getElementById('hudLabelsLayer');
+    const camBtns = document.querySelectorAll('.cam-btn');
+
+    function setExplodeAmount(val0to100, playSound = true) {
+      targetExplode = val0to100 / 100;
+      explodeSlider.value = val0to100;
+      explodeValText.textContent = `${Math.round(val0to100)}%`;
+      const isExp = val0to100 > 25;
+      explodeMasterBtn.classList.toggle('exploded', isExp);
+      explodeMasterBtn.innerHTML = isExp ? '<span>🔒 Assemble 3D Parts</span>' : '<span>💥 Explode 3D Parts</span>';
+      hudLabelsLayer.classList.toggle('visible', val0to100 > 35);
+      if (playSound) SoundFX.playHydraulicExplode(isExp);
+    }
+
+    explodeSlider.addEventListener('input', (e) => {
+      setExplodeAmount(Number(e.target.value), false);
+    });
+
+    explodeMasterBtn.addEventListener('click', () => {
+      const next = targetExplode > 0.3 ? 0 : 90;
+      setExplodeAmount(next, true);
+      if (next > 50) {
+        targetRotY = 0.35;
+        targetRotX = 0.12;
+        targetZoom = 8.6;
+      }
+    });
+
+    // Camera Presets
+    camBtns.forEach((btn) => {
       btn.addEventListener('click', () => {
-        finishBtns.forEach((b) => b.classList.remove('active'));
+        camBtns.forEach((b) => b.classList.remove('active'));
         btn.classList.add('active');
-        AudioEngine.playShimmer(580);
+        SoundFX.playClick(640);
+        const mode = btn.dataset.cam;
+        if (mode === 'hero') {
+          setExplodeAmount(0, false);
+          targetRotY = -0.45;
+          targetRotX = 0.15;
+          targetZoom = 8.2;
+          autoSpin = true;
+        } else if (mode === 'exploded') {
+          setExplodeAmount(92, true);
+          targetRotY = 0.32;
+          targetRotX = 0.1;
+          targetZoom = 8.7;
+          autoSpin = false;
+        } else if (mode === 'crown') {
+          setExplodeAmount(0, false);
+          targetRotY = -1.25;
+          targetRotX = 0.25;
+          targetZoom = 5.4;
+          autoSpin = false;
+        } else if (mode === 'top') {
+          setExplodeAmount(20, false);
+          targetRotY = 0.0;
+          targetRotX = 1.05;
+          targetZoom = 7.6;
+          autoSpin = true;
+        }
+        document.getElementById('autoSpinBtn').classList.toggle('active', autoSpin);
+      });
+    });
 
-        currentAccentRgb = btn.dataset.rgb;
-        root.style.setProperty('--accent', btn.dataset.accent);
-        root.style.setProperty('--accent-rgb', btn.dataset.rgb);
-        root.style.setProperty('--bg-Glow', btn.dataset.glow);
-        root.style.setProperty('--hp-filter', btn.dataset.filter);
+    // Swatch PBR Material Switcher
+    const swatchItems = document.querySelectorAll('.swatch-item');
+    const kineticWord = document.getElementById('kineticWord');
+    const editionChip = document.getElementById('editionChip');
+    const materialNameText = document.getElementById('materialNameText');
+    const bagFinishName = document.getElementById('bagFinishName');
 
-        finishNameLabel.textContent = btn.dataset.name;
-        editionPill.textContent = btn.dataset.series;
-        bagItemName.textContent = `AURA H100 — ${btn.dataset.name}`;
+    swatchItems.forEach((item) => {
+      item.addEventListener('click', () => {
+        swatchItems.forEach((s) => s.classList.remove('active'));
+        item.classList.add('active');
+        SoundFX.playClick(580);
 
-        kineticTitle.classList.add('morphing');
-        headphoneRender.classList.add('pop-switch');
+        // Update Three.js PBR Shaders & Lights
+        metalMaterial.color.setHex(Number(item.dataset.metal));
+        cushionMaterial.color.setHex(Number(item.dataset.cushion));
+        const hexAccent = Number(item.dataset.hex);
+        accentGlowMaterial.color.setHex(hexAccent);
+        accentGlowMaterial.emissive.setHex(hexAccent);
+        rimLightLeft.color.setHex(hexAccent);
+        rimLightRight.color.setHex(hexAccent);
+        pMat.color.setHex(hexAccent);
+        sonicRings.forEach((r) => r.material.color.setHex(hexAccent));
+
+        // Update CSS Theme Variables
+        document.documentElement.style.setProperty('--accent', item.dataset.accent);
+        document.documentElement.style.setProperty('--accent-rgb', item.dataset.rgb);
+
+        materialNameText.textContent = item.dataset.name;
+        editionChip.textContent = item.dataset.chip;
+        bagFinishName.textContent = `AURA H100 — ${item.dataset.name}`;
+
+        // Kinetic spin impulse on color change
+        velY = 0.09;
+        kineticWord.classList.add('switching');
         setTimeout(() => {
-          kineticTitle.textContent = btn.dataset.word;
-          kineticTitle.classList.remove('morphing');
-          headphoneRender.classList.remove('pop-switch');
-        }, 220);
+          kineticWord.textContent = item.dataset.word;
+          kineticWord.classList.remove('switching');
+        }, 200);
       });
     });
 
-    /* ==========================================================================
-       Engineering Blueprint HUD Toggle & Spatial Player
-       ========================================================================== */
-    function setHudMode(showHud) {
-      AudioEngine.playShimmer(showHud ? 720 : 440);
-      centerStage.classList.toggle('hud-visible', showHud);
-      modeHudBtn.classList.toggle('active', showHud);
-      modeCleanBtn.classList.toggle('active', !showHud);
-      navSpecsBtn.classList.toggle('active', showHud);
-      inspectStatus.textContent = showHud ? 'Blueprint Callouts' : 'Interactive 3D';
-    }
+    // Auto-Spin & X-Ray Wireframe Toggles
+    const autoSpinBtn = document.getElementById('autoSpinBtn');
+    const wireframeBtn = document.getElementById('wireframeBtn');
 
-    modeHudBtn.addEventListener('click', () => setHudMode(true));
-    modeCleanBtn.addEventListener('click', () => setHudMode(false));
-    navSpecsBtn.addEventListener('click', () => {
-      const next = !centerStage.classList.contains('hud-visible');
-      setHudMode(next);
+    autoSpinBtn.addEventListener('click', () => {
+      autoSpin = !autoSpin;
+      SoundFX.playClick(480);
+      autoSpinBtn.classList.toggle('active', autoSpin);
+      autoSpinBtn.textContent = autoSpin ? '↻ Auto-Spin ON' : '↻ Auto-Spin OFF';
     });
 
-    // ANC Master Shockwave Button
-    ancMasterBtn.addEventListener('click', () => {
-      isAncOn = !isAncOn;
-      AudioEngine.playAncDrop(isAncOn);
-      ancMasterBtn.classList.toggle('active', isAncOn);
-      ancMasterText.textContent = isAncOn ? 'ANC • -48 dB Silence' : 'Transparency Mode';
-      ancPercent = isAncOn ? 95 : 0;
-      ancSlider.value = ancPercent;
-      ancDbPill.textContent = isAncOn ? '-48 dB Cancelled' : '0 dB (Ambient Pass-Through)';
-      statDb.textContent = isAncOn ? '-48 dB' : '0 dB';
-
-      ancShockwave.classList.remove('fire');
-      void ancShockwave.offsetWidth;
-      ancShockwave.classList.add('fire');
+    wireframeBtn.addEventListener('click', () => {
+      const wf = !metalMaterial.wireframe;
+      SoundFX.playClick(720);
+      metalMaterial.wireframe = wf;
+      cushionMaterial.wireframe = wf;
+      wireframeBtn.classList.toggle('active', wf);
     });
 
-    // Spatial Audio Player
-    spatialPlayerCard.addEventListener('click', () => {
-      isSpatialPlaying = !isSpatialPlaying;
-      spatialPlayerCard.classList.toggle('playing', isSpatialPlaying);
-      if (isSpatialPlaying) {
-        playOrbIcon.textContent = '❚❚';
-        trackTitle.textContent = '360° Spatial Reference Active';
-        AudioEngine.playSpatialPulse();
-        spatialLoop = setInterval(() => AudioEngine.playSpatialPulse(), 1400);
+    // 8D Bass Driver Excursion Player
+    const bassPlayerCard = document.getElementById('bassPlayerCard');
+    const bassPlayIcon = document.getElementById('bassPlayIcon');
+    const bassTitle = document.getElementById('bassTitle');
+
+    bassPlayerCard.addEventListener('click', () => {
+      isBassPlaying = !isBassPlaying;
+      bassPlayerCard.classList.toggle('playing', isBassPlaying);
+      if (isBassPlaying) {
+        bassPlayIcon.textContent = '❚❚';
+        bassTitle.textContent = '8D Sub-Bass Excursion Active';
+        if (targetExplode < 0.4) setExplodeAmount(65, true);
+        SoundFX.playBassDropPulse();
+        bassLoopTimer = setInterval(SoundFX.playBassDropPulse, 950);
       } else {
-        playOrbIcon.textContent = '▶';
-        trackTitle.textContent = 'Play 360° Spatial Demo';
-        if (spatialLoop) clearInterval(spatialLoop);
+        bassPlayIcon.textContent = '▶';
+        bassTitle.textContent = 'Test 3D Driver Bass Excursion';
+        if (bassLoopTimer) clearInterval(bassLoopTimer);
       }
     });
 
-    // Parametric EQ Presets
-    eqPresetBtns.forEach((btn) => {
-      btn.addEventListener('click', () => {
-        eqPresetBtns.forEach((b) => b.classList.remove('active'));
-        btn.classList.add('active');
-        AudioEngine.playShimmer(640);
-        const vals = btn.dataset.eq.split(',');
-        eqFills.forEach((fill, idx) => {
-          fill.style.height = `${vals[idx]}%`;
-        });
-      });
-    });
+    // Bag Drawer
+    const openBagBtn = document.getElementById('openBagBtn');
+    const buyNowBtn = document.getElementById('buyNowBtn');
+    const drawerBackdrop = document.getElementById('drawerBackdrop');
+    const bagDrawer = document.getElementById('bagDrawer');
+    const closeBagBtn = document.getElementById('closeBagBtn');
+    const applePayBtn = document.getElementById('applePayBtn');
 
-    // Slide-Over Bag Drawer
     function openBag() {
-      AudioEngine.playShimmer(540);
+      SoundFX.playClick(540);
       drawerBackdrop.classList.add('open');
       bagDrawer.classList.add('open');
       applePayBtn.classList.remove('success');
-      applePayBtn.innerHTML = '<span> Pay — £649.00</span>';
+      applePayBtn.textContent = ' Pay — £649.00';
     }
-
     function closeBag() {
       drawerBackdrop.classList.remove('open');
       bagDrawer.classList.remove('open');
     }
-
-    navBagBtn.addEventListener('click', openBag);
+    openBagBtn.addEventListener('click', openBag);
     buyNowBtn.addEventListener('click', openBag);
     closeBagBtn.addEventListener('click', closeBag);
     drawerBackdrop.addEventListener('click', closeBag);
-
     applePayBtn.addEventListener('click', () => {
-      AudioEngine.playApplePayDing();
+      SoundFX.playBassDropPulse();
       applePayBtn.classList.add('success');
-      applePayBtn.innerHTML = '<span>✓ Order Confirmed — Dispatching Today</span>';
-      setTimeout(closeBag, 1600);
+      applePayBtn.textContent = '✓ Order Confirmed — Dispatching Today';
+      setTimeout(closeBag, 1500);
+    });
+
+    /* ==========================================================================
+       5. 60FPS ANIMATION LOOP & 3D-TO-2D CALLOUT PROJECTION
+       ========================================================================== */
+    const tempVec = new THREE.Vector3();
+    let clockTime = 0;
+
+    function animate() {
+      requestAnimationFrame(animate);
+      clockTime += 0.025;
+
+      // Apply momentum & auto-spin
+      if (!isDragging) {
+        targetRotY += velY;
+        targetRotX = Math.max(-1.2, Math.min(1.2, targetRotX + velX));
+        velY *= 0.92;
+        velX *= 0.92;
+        if (autoSpin) {
+          targetRotY += 0.0045;
+        }
+      }
+
+      curRotY += (targetRotY - curRotY) * 0.1;
+      curRotX += (targetRotX - curRotX) * 0.1;
+      curZoom += (targetZoom - curZoom) * 0.1;
+      curExplode += (targetExplode - curExplode) * 0.09;
+
+      camera.position.z = curZoom;
+      headphoneGroup.rotation.y = curRotY;
+      headphoneGroup.rotation.x = curRotX;
+      headphoneGroup.position.y = Math.sin(clockTime * 1.1) * 0.08 + 0.15;
+
+      // Update Exploded 3D Layer Offsets & Project Callout Labels to 2D Screen Coordinates
+      explodableParts.forEach((part) => {
+        part.mesh.position.x = part.baseX + part.explodeOffset * curExplode;
+
+        if (part.tag && curExplode > 0.3) {
+          const domEl = document.getElementById(part.tag);
+          if (domEl) {
+            part.mesh.getWorldPosition(tempVec);
+            tempVec.y -= 0.72; // Place label cleanly beneath each 3D part
+            tempVec.project(camera);
+            const sx = (tempVec.x * 0.5 + 0.5) * window.innerWidth;
+            const sy = (-(tempVec.y * 0.5) + 0.5) * window.innerHeight;
+            domEl.style.transform = `translate(${sx}px, ${sy}px) translate(-50%, -50%)`;
+          }
+        }
+      });
+
+      // Physical 3D Speaker Cone Bass Excursion & Sonic Rings
+      driverCones.forEach(({ mesh, side }) => {
+        if (isBassPlaying) {
+          const excursion = Math.sin(clockTime * 14) * 0.09;
+          mesh.position.x += side * excursion;
+          const s = 1 + Math.abs(excursion) * 1.4;
+          mesh.scale.set(s, s, s);
+        } else {
+          mesh.scale.set(1, 1, 1);
+        }
+      });
+
+      sonicRings.forEach((ring, idx) => {
+        ring.rotation.z = clockTime * (0.3 + idx * 0.15);
+        const pulse = isBassPlaying ? 1 + Math.sin(clockTime * 10 - idx) * 0.14 : 1;
+        ring.scale.set(pulse, pulse, pulse);
+      });
+
+      particleSystem.rotation.y = clockTime * 0.08;
+
+      renderer.render(scene, camera);
+    }
+
+    animate();
+
+    window.addEventListener('resize', () => {
+      camera.aspect = window.innerWidth / window.innerHeight;
+      camera.updateProjectionMatrix();
+      renderer.setSize(window.innerWidth, window.innerHeight);
     });
   </script>
 </body>
