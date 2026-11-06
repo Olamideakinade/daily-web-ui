@@ -3,31 +3,28 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>VOYAGER AIR — 3D Interactive Flight Globe & Scroll Journey</title>
+  <title>HALO — Interactive 3D Planetary Fly-Through & Earth Odyssey</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;700&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
   <style>
     :root {
-      --bg-deep: #030711;
-      --accent: #38bdf8;
-      --accent-rgb: 56, 189, 248;
-      --gold: #f59e0b;
-      --emerald: #34d399;
-      --glass: rgba(8, 15, 30, 0.72);
-      --glass-strong: rgba(10, 18, 36, 0.88);
-      --glass-border: rgba(255, 255, 255, 0.11);
-      --text-main: #f8fafc;
-      --text-muted: #94a3b8;
+      --bg: #020306;
+      --text-primary: #ffffff;
+      --text-secondary: rgba(255, 255, 255, 0.66);
+      --text-muted: rgba(255, 255, 255, 0.42);
+      --surface-glass: rgba(255, 255, 255, 0.06);
+      --surface-border: rgba(255, 255, 255, 0.12);
+      --surface-hover: rgba(255, 255, 255, 0.11);
     }
 
     * {
       box-sizing: border-box;
       margin: 0;
       padding: 0;
-      user-select: none;
       -webkit-font-smoothing: antialiased;
+      user-select: none;
     }
 
     html {
@@ -35,632 +32,362 @@
     }
 
     body {
-      background-color: var(--bg-deep);
-      color: var(--text-main);
-      font-family: 'Plus Jakarta Sans', sans-serif;
+      background-color: var(--bg);
+      color: var(--text-primary);
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
       overflow-x: hidden;
-      min-height: 520vh;
+      min-height: 600vh;
     }
 
-    /* Fixed 3D WebGL Earth & Flight Viewport */
-    #webglCanvasContainer {
+    /* Fixed Full-Viewport 3D Canvas */
+    #canvasHost {
       position: fixed;
       inset: 0;
       width: 100vw;
       height: 100vh;
       z-index: 1;
       cursor: grab;
-      background: radial-gradient(circle at 60% 50%, rgba(14, 35, 78, 0.45) 0%, rgba(3, 7, 17, 0.98) 72%);
     }
 
-    #webglCanvasContainer:active {
+    #canvasHost:active {
       cursor: grabbing;
     }
 
-    /* Atmospheric Vignette */
-    .vignette-overlay {
+    /* Soft Cinematic Film Gradient so White Editorial Typography Pops Effortlessly */
+    .editorial-vignette {
       position: fixed;
       inset: 0;
       pointer-events: none;
       z-index: 2;
       background:
-        linear-gradient(90deg, rgba(3, 7, 17, 0.82) 0%, rgba(3, 7, 17, 0.25) 42%, rgba(3, 7, 17, 0.05) 70%, rgba(3, 7, 17, 0.55) 100%),
-        linear-gradient(180deg, rgba(3, 7, 17, 0.65) 0%, transparent 18%, transparent 82%, rgba(3, 7, 17, 0.8) 100%);
+        radial-gradient(circle at 65% 50%, transparent 25%, rgba(2, 3, 6, 0.55) 85%),
+        linear-gradient(90deg, rgba(2, 3, 6, 0.72) 0%, rgba(2, 3, 6, 0.22) 45%, transparent 75%),
+        linear-gradient(180deg, rgba(2, 3, 6, 0.55) 0%, transparent 18%, transparent 82%, rgba(2, 3, 6, 0.75) 100%);
     }
 
-    /* 3D Projected Airport Callout Pins on the Globe */
-    .globe-pins-layer {
+    /* Minimal Apple / Awwwards Top Navigation */
+    .nav-header {
       position: fixed;
-      inset: 0;
-      pointer-events: none;
-      z-index: 12;
-    }
-
-    .city-pin {
-      position: absolute;
-      top: 0;
-      left: 0;
-      transform: translate(-50%, -50%);
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      padding: 6px 12px;
-      border-radius: 100px;
-      background: rgba(6, 12, 26, 0.84);
-      border: 1px solid rgba(255, 255, 255, 0.16);
-      backdrop-filter: blur(12px);
-      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.55);
-      transition: opacity 0.25s ease, border-color 0.3s ease, box-shadow 0.3s ease;
-      pointer-events: auto;
-      cursor: pointer;
-    }
-
-    .city-pin:hover,
-    .city-pin.active-pin {
-      border-color: var(--accent);
-      box-shadow: 0 0 24px rgba(var(--accent-rgb), 0.45);
-      background: rgba(10, 22, 44, 0.94);
-    }
-
-    .pin-pulse {
-      width: 8px;
-      height: 8px;
-      border-radius: 50%;
-      background: var(--accent);
-      box-shadow: 0 0 10px var(--accent);
-      position: relative;
-    }
-
-    .city-pin.hub .pin-pulse {
-      background: var(--emerald);
-      box-shadow: 0 0 12px var(--emerald);
-    }
-
-    .pin-code {
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 11px;
-      font-weight: 700;
-      color: #ffffff;
-      letter-spacing: 0.5px;
-    }
-
-    .pin-name {
-      font-size: 11px;
-      font-weight: 600;
-      color: var(--text-muted);
-    }
-
-    /* Projected Live Aircraft Telemetry Tag Following the 3D Jet */
-    .jet-tracker-pill {
-      position: absolute;
-      top: 0;
-      left: 0;
-      transform: translate(-50%, -145%);
-      background: rgba(56, 189, 248, 0.16);
-      border: 1px solid rgba(56, 189, 248, 0.65);
-      backdrop-filter: blur(12px);
-      padding: 5px 11px;
-      border-radius: 9px;
-      display: flex;
-      align-items: center;
-      gap: 7px;
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 10px;
-      font-weight: 700;
-      color: #e0f2fe;
-      box-shadow: 0 8px 24px rgba(56, 189, 248, 0.28);
-      pointer-events: none;
-      white-space: nowrap;
-    }
-
-    .jet-tracker-pill .live-dot {
-      width: 6px;
-      height: 6px;
-      border-radius: 50%;
-      background: #38bdf8;
-      box-shadow: 0 0 8px #38bdf8;
-      animation: blink 1.1s infinite alternate;
-    }
-
-    @keyframes blink {
-      from { opacity: 0.35; }
-      to { opacity: 1; }
-    }
-
-    /* Sticky Top Navigation Header */
-    .topbar {
-      position: fixed;
-      top: 20px;
-      left: 32px;
-      right: 32px;
+      top: 28px;
+      left: 48px;
+      right: 48px;
       display: flex;
       align-items: center;
       justify-content: space-between;
-      z-index: 50;
+      z-index: 40;
       pointer-events: none;
     }
 
-    .topbar > * {
+    .nav-header > * {
       pointer-events: auto;
     }
 
-    .brand-pill {
-      display: flex;
-      align-items: center;
-      gap: 11px;
-      background: var(--glass);
-      border: 1px solid var(--glass-border);
-      backdrop-filter: blur(20px);
-      padding: 10px 20px;
-      border-radius: 100px;
-      font-family: 'Space Grotesk', sans-serif;
-      font-weight: 700;
-      font-size: 15px;
-      letter-spacing: 2px;
-    }
-
-    .brand-icon {
-      width: 24px;
-      height: 24px;
-      border-radius: 50%;
-      background: linear-gradient(135deg, #38bdf8, #2563eb);
-      display: grid;
-      place-items: center;
-      font-size: 12px;
-      box-shadow: 0 0 14px rgba(56, 189, 248, 0.6);
-    }
-
-    /* Route Quick-Jump Switcher in Navbar */
-    .route-nav {
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      background: var(--glass);
-      border: 1px solid var(--glass-border);
-      backdrop-filter: blur(20px);
-      padding: 6px;
-      border-radius: 100px;
-    }
-
-    .route-tab {
-      background: transparent;
-      border: none;
-      color: var(--text-muted);
-      font-family: 'Plus Jakarta Sans', sans-serif;
-      font-size: 12px;
-      font-weight: 700;
-      padding: 8px 15px;
-      border-radius: 100px;
-      cursor: pointer;
-      transition: all 0.25s ease;
-      display: flex;
-      align-items: center;
-      gap: 6px;
-    }
-
-    .route-tab:hover {
-      color: #fff;
-    }
-
-    .route-tab.active {
-      background: rgba(56, 189, 248, 0.18);
-      color: #fff;
-      border: 1px solid rgba(56, 189, 248, 0.5);
-      box-shadow: 0 0 18px rgba(56, 189, 248, 0.25);
-    }
-
-    .nav-actions {
+    .brand-wordmark {
+      font-family: 'Instrument Serif', serif;
+      font-size: 28px;
+      font-weight: 400;
+      letter-spacing: 0.5px;
+      color: #ffffff;
+      text-decoration: none;
       display: flex;
       align-items: center;
       gap: 10px;
     }
 
-    .mode-btn {
-      background: var(--glass);
-      border: 1px solid var(--glass-border);
-      backdrop-filter: blur(20px);
-      color: #fff;
-      font-size: 12px;
-      font-weight: 700;
-      padding: 10px 16px;
-      border-radius: 100px;
-      cursor: pointer;
-      transition: all 0.25s ease;
-    }
-
-    .mode-btn:hover,
-    .mode-btn.active {
-      border-color: var(--accent);
-      background: rgba(56, 189, 248, 0.16);
-    }
-
-    .book-cta-top {
+    .brand-wordmark span.dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
       background: #ffffff;
-      color: #030711;
-      border: none;
+      display: inline-block;
+    }
+
+    .nav-right {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .glass-btn {
+      background: var(--surface-glass);
+      border: 1px solid var(--surface-border);
+      backdrop-filter: blur(24px);
+      -webkit-backdrop-filter: blur(24px);
+      color: #ffffff;
+      font-family: 'Inter', sans-serif;
+      font-size: 13px;
+      font-weight: 500;
       padding: 10px 20px;
       border-radius: 100px;
-      font-weight: 800;
-      font-size: 13px;
       cursor: pointer;
-      transition: transform 0.2s ease, box-shadow 0.2s ease;
+      transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
     }
 
-    .book-cta-top:hover {
+    .glass-btn:hover {
+      background: var(--surface-hover);
+      border-color: rgba(255, 255, 255, 0.28);
       transform: translateY(-1px);
-      box-shadow: 0 8px 25px rgba(255, 255, 255, 0.3);
     }
 
-    /* Right-Side Scroll Progress Altitude Telemetry Bar */
-    .altitude-hud {
+    .glass-btn.solid {
+      background: #ffffff;
+      color: #05060a;
+      font-weight: 600;
+      border-color: #ffffff;
+    }
+
+    .glass-btn.solid:hover {
+      background: rgba(255, 255, 255, 0.9);
+      box-shadow: 0 12px 30px rgba(255, 255, 255, 0.2);
+    }
+
+    /* Bottom Floating Apple-Style Chapter & Planet Dock */
+    .planet-dock {
       position: fixed;
-      right: 32px;
+      bottom: 28px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 40;
+      background: rgba(12, 14, 22, 0.65);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      backdrop-filter: blur(28px);
+      -webkit-backdrop-filter: blur(28px);
+      padding: 6px;
+      border-radius: 100px;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6);
+    }
+
+    .dock-item {
+      background: transparent;
+      border: none;
+      color: var(--text-secondary);
+      font-family: 'Inter', sans-serif;
+      font-size: 13px;
+      font-weight: 500;
+      padding: 10px 20px;
+      border-radius: 100px;
+      cursor: pointer;
+      transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+      white-space: nowrap;
+    }
+
+    .dock-item:hover {
+      color: #ffffff;
+    }
+
+    .dock-item.active {
+      background: #ffffff;
+      color: #05060a;
+      font-weight: 600;
+      box-shadow: 0 4px 18px rgba(255, 255, 255, 0.25);
+    }
+
+    /* Minimal Scroll Progress Line on Right Edge */
+    .scroll-line-wrap {
+      position: fixed;
+      right: 48px;
       top: 50%;
       transform: translateY(-50%);
-      z-index: 40;
-      background: var(--glass);
-      border: 1px solid var(--glass-border);
-      backdrop-filter: blur(20px);
-      border-radius: 22px;
-      padding: 18px 14px;
+      z-index: 35;
       display: flex;
       flex-direction: column;
       align-items: center;
-      gap: 14px;
-      width: 68px;
+      gap: 12px;
+      pointer-events: none;
     }
 
-    .hud-label-vert {
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 9px;
-      font-weight: 700;
-      color: var(--text-muted);
-      text-transform: uppercase;
-      letter-spacing: 1px;
-      text-align: center;
-    }
-
-    .scroll-track {
-      width: 4px;
-      height: 170px;
-      background: rgba(255, 255, 255, 0.1);
-      border-radius: 10px;
+    .scroll-line-track {
+      width: 1.5px;
+      height: 140px;
+      background: rgba(255, 255, 255, 0.14);
       position: relative;
       overflow: hidden;
     }
 
-    .scroll-fill {
+    .scroll-line-fill {
       position: absolute;
       top: 0;
       left: 0;
       width: 100%;
-      height: 10%;
-      background: linear-gradient(180deg, #38bdf8, #34d399);
-      border-radius: 10px;
-      box-shadow: 0 0 12px #38bdf8;
+      height: 0%;
+      background: #ffffff;
     }
 
-    .hud-metric {
-      font-family: 'JetBrains Mono', monospace;
+    .scroll-chapter-num {
       font-size: 11px;
-      font-weight: 700;
-      color: #ffffff;
+      font-weight: 500;
+      letter-spacing: 1px;
+      color: var(--text-secondary);
     }
 
-    /* Scrollable Story Container Over the 3D Globe */
-    .scroll-story {
+    /* Editorial Scroll Story Overlay */
+    .story-wrapper {
       position: relative;
       z-index: 20;
       pointer-events: none;
     }
 
-    .story-section {
-      min-height: 100vh;
+    .chapter-section {
+      height: 120vh;
       width: 100%;
       display: flex;
       align-items: center;
-      padding: 100px 64px;
-      position: relative;
+      padding: 0 8vw;
     }
 
-    .story-card {
+    .editorial-block {
+      max-width: 500px;
       pointer-events: auto;
-      width: 460px;
-      background: var(--glass-strong);
-      border: 1px solid var(--glass-border);
-      backdrop-filter: blur(28px);
-      -webkit-backdrop-filter: blur(28px);
-      border-radius: 28px;
-      padding: 32px;
-      box-shadow: 0 30px 60px -15px rgba(0, 0, 0, 0.75);
-      transition: transform 0.35s ease, border-color 0.35s ease;
+      opacity: 0.25;
+      transform: translateY(24px);
+      transition: opacity 0.6s ease, transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
     }
 
-    .story-card:hover {
-      border-color: rgba(56, 189, 248, 0.4);
+    .editorial-block.in-view {
+      opacity: 1;
+      transform: translateY(0);
     }
 
-    .eyebrow-tag {
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      padding: 5px 12px;
-      border-radius: 100px;
-      background: rgba(56, 189, 248, 0.12);
-      border: 1px solid rgba(56, 189, 248, 0.35);
-      color: var(--accent);
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 11px;
-      font-weight: 700;
+    .chapter-kicker {
+      font-size: 12px;
+      font-weight: 500;
+      letter-spacing: 2.5px;
       text-transform: uppercase;
-      letter-spacing: 1px;
+      color: var(--text-secondary);
       margin-bottom: 16px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
     }
 
-    .section-title {
-      font-family: 'Space Grotesk', sans-serif;
-      font-size: 40px;
-      font-weight: 700;
-      line-height: 1.06;
-      letter-spacing: -1.2px;
-      margin-bottom: 14px;
+    .chapter-kicker::before {
+      content: '';
+      width: 28px;
+      height: 1px;
+      background: rgba(255, 255, 255, 0.45);
     }
 
-    .section-desc {
-      font-size: 14px;
-      line-height: 1.65;
-      color: var(--text-muted);
+    .chapter-headline {
+      font-family: 'Instrument Serif', serif;
+      font-size: clamp(54px, 6vw, 84px);
+      font-weight: 400;
+      line-height: 0.98;
+      letter-spacing: -1.5px;
+      color: #ffffff;
       margin-bottom: 22px;
     }
 
-    /* Interactive Search Widget Inside Section 1 */
-    .flight-search-grid {
+    .chapter-headline em {
+      font-style: italic;
+      font-weight: 400;
+      color: rgba(255, 255, 255, 0.85);
+    }
+
+    .chapter-copy {
+      font-size: 16px;
+      font-weight: 400;
+      line-height: 1.7;
+      color: var(--text-secondary);
+      margin-bottom: 30px;
+      max-width: 430px;
+    }
+
+    /* Clean Minimal Stat Strip (No sci-fi boxes) */
+    .minimal-stats {
+      display: flex;
+      gap: 36px;
+      padding-top: 22px;
+      border-top: 1px solid rgba(255, 255, 255, 0.12);
+      margin-bottom: 28px;
+    }
+
+    .stat-col {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .stat-val {
+      font-family: 'Instrument Serif', serif;
+      font-size: 28px;
+      color: #ffffff;
+    }
+
+    .stat-lbl {
+      font-size: 11px;
+      font-weight: 500;
+      color: var(--text-muted);
+      letter-spacing: 0.5px;
+    }
+
+    .action-row {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    /* Clean Modern Reservation Modal Sheet */
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(2, 3, 6, 0.65);
+      backdrop-filter: blur(16px);
+      z-index: 80;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.35s ease;
+      display: grid;
+      place-items: center;
+    }
+
+    .modal-backdrop.open {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .reservation-card {
+      width: 480px;
+      background: rgba(16, 19, 28, 0.88);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      border-radius: 32px;
+      padding: 36px;
+      box-shadow: 0 40px 90px rgba(0, 0, 0, 0.8);
+      transform: translateY(20px) scale(0.97);
+      transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .modal-backdrop.open .reservation-card {
+      transform: translateY(0) scale(1);
+    }
+
+    .suite-grid {
       display: grid;
       grid-template-columns: 1fr 1fr;
       gap: 10px;
-      margin-bottom: 14px;
+      margin: 22px 0;
     }
 
-    .search-box {
+    .suite-option {
       background: rgba(255, 255, 255, 0.04);
-      border: 1px solid rgba(255, 255, 255, 0.09);
-      border-radius: 14px;
-      padding: 10px 14px;
-      cursor: pointer;
-      transition: border-color 0.2s ease;
-    }
-
-    .search-box:hover {
-      border-color: rgba(56, 189, 248, 0.5);
-    }
-
-    .search-label {
-      font-size: 10px;
-      text-transform: uppercase;
-      letter-spacing: 0.8px;
-      color: var(--text-muted);
-      font-weight: 700;
-    }
-
-    .search-val {
-      font-size: 14px;
-      font-weight: 800;
-      color: #ffffff;
-      margin-top: 3px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-    }
-
-    .search-select {
-      width: 100%;
-      background: transparent;
-      border: none;
-      color: #ffffff;
-      font-family: 'Plus Jakarta Sans', sans-serif;
-      font-size: 14px;
-      font-weight: 800;
-      outline: none;
-      cursor: pointer;
-      margin-top: 3px;
-    }
-
-    .search-select option {
-      background: #0a1224;
-      color: #fff;
-    }
-
-    /* Route Telemetry Strip Inside Cards */
-    .telemetry-grid {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 10px;
-      padding: 14px;
+      border: 1px solid rgba(255, 255, 255, 0.1);
       border-radius: 18px;
-      background: rgba(255, 255, 255, 0.035);
-      border: 1px solid rgba(255, 255, 255, 0.08);
-      margin-bottom: 18px;
-    }
-
-    .tele-item {
-      display: flex;
-      flex-direction: column;
-      gap: 3px;
-    }
-
-    .tele-label {
-      font-size: 10px;
-      font-weight: 700;
-      text-transform: uppercase;
-      color: var(--text-muted);
-    }
-
-    .tele-val {
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 14px;
-      font-weight: 700;
-      color: #fff;
-    }
-
-    .card-footer-row {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 12px;
-      padding-top: 6px;
-    }
-
-    .price-block .from-lbl {
-      font-size: 11px;
-      color: var(--text-muted);
-      font-weight: 600;
-    }
-
-    .price-block .price-num {
-      font-family: 'Space Grotesk', sans-serif;
-      font-size: 28px;
-      font-weight: 700;
-      color: #ffffff;
-    }
-
-    .primary-action-btn {
-      flex: 1;
-      height: 48px;
-      border-radius: 14px;
-      border: none;
-      background: linear-gradient(135deg, #38bdf8, #0284c7);
-      color: #030711;
-      font-family: 'Plus Jakarta Sans', sans-serif;
-      font-size: 14px;
-      font-weight: 800;
+      padding: 16px;
       cursor: pointer;
-      box-shadow: 0 10px 25px rgba(56, 189, 248, 0.35);
-      transition: transform 0.2s ease, box-shadow 0.2s ease;
+      transition: all 0.25s ease;
     }
 
-    .primary-action-btn:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 14px 32px rgba(56, 189, 248, 0.5);
+    .suite-option.selected {
+      background: rgba(255, 255, 255, 0.12);
+      border-color: #ffffff;
     }
 
-    /* Interactive Boarding Pass Card in Final Section */
-    .boarding-pass {
-      width: 520px;
-      background: linear-gradient(165deg, rgba(13, 23, 46, 0.92), rgba(7, 13, 28, 0.95));
-      border: 1px solid rgba(56, 189, 248, 0.35);
-      backdrop-filter: blur(28px);
-      border-radius: 28px;
-      overflow: hidden;
-      box-shadow: 0 30px 70px rgba(0, 0, 0, 0.8);
-      pointer-events: auto;
-    }
-
-    .bp-header {
-      background: linear-gradient(90deg, rgba(56, 189, 248, 0.2), rgba(52, 211, 153, 0.15));
-      padding: 18px 28px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      border-bottom: 1px dashed rgba(255, 255, 255, 0.15);
-    }
-
-    .bp-body {
-      padding: 26px 28px;
-    }
-
-    .bp-cities {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      margin-bottom: 22px;
-    }
-
-    .bp-iata {
-      font-family: 'Space Grotesk', sans-serif;
-      font-size: 42px;
-      font-weight: 700;
-      letter-spacing: -1px;
-    }
-
-    .bp-city-sub {
-      font-size: 12px;
-      color: var(--text-muted);
-      font-weight: 600;
-    }
-
-    .bp-plane-line {
-      flex: 1;
-      margin: 0 20px;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 6px;
-    }
-
-    .bp-line-graphic {
-      width: 100%;
-      height: 2px;
-      background: linear-gradient(90deg, transparent, var(--accent), transparent);
-      position: relative;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-
-    .seat-selector-row {
-      display: flex;
-      gap: 8px;
-      margin-bottom: 20px;
-    }
-
-    .seat-chip {
-      flex: 1;
-      padding: 10px;
-      border-radius: 12px;
-      background: rgba(255, 255, 255, 0.04);
-      border: 1px solid var(--glass-border);
-      color: var(--text-muted);
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 12px;
-      font-weight: 700;
-      cursor: pointer;
-      text-align: center;
-      transition: all 0.2s ease;
-    }
-
-    .seat-chip.active {
-      background: rgba(56, 189, 248, 0.18);
-      border-color: var(--accent);
-      color: #ffffff;
-      box-shadow: 0 0 16px rgba(56, 189, 248, 0.25);
-    }
-
-    /* Bottom Floating Helper Pill */
-    .bottom-bar-hint {
-      position: fixed;
-      bottom: 20px;
-      left: 50%;
-      transform: translateX(-50%);
-      z-index: 40;
-      background: var(--glass);
-      border: 1px solid var(--glass-border);
-      backdrop-filter: blur(18px);
-      padding: 9px 22px;
-      border-radius: 100px;
-      font-size: 12px;
-      font-weight: 600;
-      color: var(--text-muted);
-      display: flex;
-      align-items: center;
-      gap: 16px;
-      pointer-events: none;
-    }
-
-    .bottom-bar-hint strong {
-      color: #ffffff;
-    }
-
-    /* Simulated Demo Cursor & Ripple for Video Choreography */
+    /* Simulated Pointer & Ripple for Video Recording */
     .demo-cursor {
       position: fixed;
       top: 50%;
@@ -671,7 +398,7 @@
       z-index: 9999;
       opacity: 0;
       transform: translate(-4px, -4px);
-      filter: drop-shadow(0 6px 14px rgba(0, 0, 0, 0.85));
+      filter: drop-shadow(0 6px 16px rgba(0, 0, 0, 0.75));
     }
     .demo-cursor.visible {
       opacity: 1;
@@ -681,8 +408,8 @@
       width: 48px;
       height: 48px;
       border-radius: 50%;
-      border: 2.5px solid var(--accent);
-      box-shadow: 0 0 24px var(--accent);
+      border: 2px solid rgba(255, 255, 255, 0.9);
+      box-shadow: 0 0 25px rgba(255, 255, 255, 0.6);
       pointer-events: none;
       z-index: 9998;
       transform: translate(-50%, -50%) scale(0.2);
@@ -692,288 +419,210 @@
 </head>
 <body>
 
-  <!-- Fixed 3D WebGL Globe & Supersonic Flight Path Viewport -->
-  <div id="webglCanvasContainer"></div>
-  <div class="vignette-overlay"></div>
+  <!-- Full-Screen 3D Solar System & Earth Fly-Through Canvas -->
+  <div id="canvasHost"></div>
+  <div class="editorial-vignette"></div>
 
-  <!-- 3D-to-2D Projected Airport Pins & Live Aircraft Telemetry Tag -->
-  <div class="globe-pins-layer" id="globePinsLayer">
-    <div class="city-pin hub" id="pin-LHR" data-route="0">
-      <span class="pin-pulse"></span>
-      <span class="pin-code">LHR</span>
-      <span class="pin-name">London Hub</span>
-    </div>
-    <div class="city-pin" id="pin-HND" data-route="1">
-      <span class="pin-pulse"></span>
-      <span class="pin-code">HND</span>
-      <span class="pin-name">Tokyo</span>
-    </div>
-    <div class="city-pin" id="pin-JFK" data-route="2">
-      <span class="pin-pulse"></span>
-      <span class="pin-code">JFK</span>
-      <span class="pin-name">New York</span>
-    </div>
-    <div class="city-pin" id="pin-DXB" data-route="3">
-      <span class="pin-pulse"></span>
-      <span class="pin-code">DXB</span>
-      <span class="pin-name">Dubai</span>
-    </div>
-    <div class="city-pin" id="pin-SIN" data-route="3">
-      <span class="pin-pulse"></span>
-      <span class="pin-code">SIN</span>
-      <span class="pin-name">Singapore</span>
-    </div>
+  <!-- Minimal Modern Editorial Header -->
+  <header class="nav-header">
+    <a href="#ch-0" class="brand-wordmark">
+      <span class="dot"></span>
+      <span>Atmosphere</span>
+    </a>
 
-    <div class="jet-tracker-pill" id="jetTrackerPill">
-      <span class="live-dot"></span>
-      <span id="jetCallsign">VYG-01 // 39,000 FT • MACH 0.88</span>
-    </div>
-  </div>
-
-  <!-- Top Navigation & Direct Flight Route Switcher -->
-  <header class="topbar">
-    <div class="brand-pill">
-      <div class="brand-icon">✈</div>
-      <span>VOYAGER AIR</span>
-    </div>
-
-    <nav class="route-nav">
-      <button class="route-tab active" data-sec="0">🌍 Global Hub (LHR)</button>
-      <button class="route-tab" data-sec="1">🇬🇧 LHR → 🇯🇵 Tokyo</button>
-      <button class="route-tab" data-sec="2">🇬🇧 LHR → 🇺🇸 New York</button>
-      <button class="route-tab" data-sec="3">🇬🇧 LHR → 🇦🇪 Dubai</button>
-      <button class="route-tab" data-sec="4">🎫 Boarding Pass</button>
-    </nav>
-
-    <div class="nav-actions">
-      <button class="mode-btn" id="dayNightBtn">🌙 Night City Lights</button>
-      <button class="mode-btn" id="cabinAudioBtn">🔊 Jet Audio</button>
-      <button class="book-cta-top" id="quickBookBtn">Book Flight</button>
+    <div class="nav-right">
+      <button class="glass-btn" id="soundToggleBtn">♪ Spatial Audio</button>
+      <button class="glass-btn" id="lightingToggleBtn">☀ Daylight / Eclipse</button>
+      <button class="glass-btn solid" id="openReserveBtn">Reserve Passage</button>
     </div>
   </header>
 
-  <!-- Right-Side Scroll Progress & Flight Telemetry Bar -->
-  <aside class="altitude-hud">
-    <div class="hud-label-vert">FLIGHT<br>SCROLL</div>
-    <div class="scroll-track">
-      <div class="scroll-fill" id="scrollFillBar"></div>
+  <!-- Minimal Scroll Indicator -->
+  <div class="scroll-line-wrap">
+    <div class="scroll-chapter-num" id="chapterIndicator">01</div>
+    <div class="scroll-line-track">
+      <div class="scroll-line-fill" id="scrollLineFill"></div>
     </div>
-    <div class="hud-metric" id="scrollPctText">0%</div>
-    <div class="hud-label-vert" id="hudSpeedText">584 KT</div>
-  </aside>
+    <div class="scroll-chapter-num" style="opacity: 0.4;">05</div>
+  </div>
 
-  <!-- Scrollable Story Sections Driving the 3D Globe & Aircraft -->
-  <main class="scroll-story">
+  <!-- Bottom Apple-Style Planet Fly-To Dock -->
+  <nav class="planet-dock">
+    <button class="dock-item active" data-ch="0">I. Deep Space</button>
+    <button class="dock-item" data-ch="1">II. Saturn Rings</button>
+    <button class="dock-item" data-ch="2">III. Mars Horizon</button>
+    <button class="dock-item" data-ch="3">IV. Lunar Orbit</button>
+    <button class="dock-item" data-ch="4">V. Earth Entry</button>
+  </nav>
 
-    <!-- SECTION 0: GLOBAL DEPARTURE HUB (LONDON LHR) -->
-    <section class="story-section" id="sec-0">
-      <div class="story-card">
-        <div class="eyebrow-tag">● LIVE 3D FLIGHT TELEMETRY • LONDON HUB</div>
-        <h1 class="section-title">Scroll to Fly Across the Planet.</h1>
-        <p class="section-desc">
-          Scroll down to pilot our flagship aircraft along real Great-Circle flight corridors from London Heathrow, or drag the 3D Earth to inspect live global routes.
+  <!-- Clean Editorial Story Sections Driving the 3D Camera Fly-Through -->
+  <main class="story-wrapper">
+
+    <!-- CHAPTER 0: SOLAR ODYSSEY OVERVIEW -->
+    <section class="chapter-section" id="ch-0">
+      <div class="editorial-block in-view">
+        <div class="chapter-kicker">Chapter I — Beyond the Horizon</div>
+        <h1 class="chapter-headline">A journey across <em>living worlds.</em></h1>
+        <p class="chapter-copy">
+          Scroll down to fly past the ice rings of Saturn, skim the crimson canyons of Mars, and dive through the clouds into our Blue Marble Earth. Drag anywhere to orbit 360°.
         </p>
-
-        <div class="flight-search-grid">
-          <div class="search-box">
-            <div class="search-label">Departure Hub</div>
-            <div class="search-val"><span>🇬🇧 London (LHR)</span> <span style="color: var(--emerald); font-size: 11px;">● T5</span></div>
-          </div>
-          <div class="search-box">
-            <div class="search-label">Destination</div>
-            <select class="search-select" id="destSelect">
-              <option value="1">🇯🇵 Tokyo Haneda (HND)</option>
-              <option value="2">🇺🇸 New York (JFK)</option>
-              <option value="3">🇦🇪 Dubai Intl (DXB)</option>
-            </select>
-          </div>
-          <div class="search-box">
-            <div class="search-label">Cabin Class</div>
-            <div class="search-val"><span>First SkySuite™</span></div>
-          </div>
-          <div class="search-box">
-            <div class="search-label">Departure Date</div>
-            <div class="search-val"><span>Fri, 14 Nov</span></div>
-          </div>
-        </div>
-
-        <div class="card-footer-row">
-          <button class="primary-action-btn" id="launchFlightBtn">✈ Launch 3D Flight Path ↓</button>
+        <div class="action-row">
+          <button class="glass-btn solid" id="startFlightBtn">Begin Fly-Through ↓</button>
+          <button class="glass-btn" id="jumpEarthBtn">Fly Straight to Earth</button>
         </div>
       </div>
     </section>
 
-    <!-- SECTION 1: LONDON (LHR) -> TOKYO (HND) -->
-    <section class="story-section" id="sec-1">
-      <div class="story-card">
-        <div class="eyebrow-tag">01 // POLAR GREAT-CIRCLE CORRIDOR</div>
-        <h2 class="section-title">London LHR ✈ Tokyo HND</h2>
-        <p class="section-desc">
-          Cruising at 41,000 ft over the Arctic circle aboard the Airbus A350-1000 Ultra-Long Range. Zero-jetlag cabin pressurization with panoramic starlight ceiling.
+    <!-- CHAPTER 1: SATURN & THE ICE RINGS -->
+    <section class="chapter-section" id="ch-1">
+      <div class="editorial-block">
+        <div class="chapter-kicker">Chapter II — 1.4 Billion Kilometers</div>
+        <h2 class="chapter-headline">The Cathedral of <em>Saturn.</em></h2>
+        <p class="chapter-copy">
+          Suspended inside a 282,000-kilometer halo of crystalline water ice and golden silicate dust. Drag to tilt the ring plane against the sun.
         </p>
-
-        <div class="telemetry-grid">
-          <div class="tele-item">
-            <span class="tele-label">Distance</span>
-            <span class="tele-val">6,214 MI</span>
+        <div class="minimal-stats">
+          <div class="stat-col">
+            <span class="stat-val">282,000 km</span>
+            <span class="stat-lbl">Ring Span</span>
           </div>
-          <div class="tele-item">
-            <span class="tele-label">Flight Time</span>
-            <span class="tele-val">11H 45M</span>
+          <div class="stat-col">
+            <span class="stat-val">10.7 hrs</span>
+            <span class="stat-lbl">Solar Day</span>
           </div>
-          <div class="tele-item">
-            <span class="tele-label">Aircraft</span>
-            <span class="tele-val">A350-1000</span>
+          <div class="stat-col">
+            <span class="stat-val">146</span>
+            <span class="stat-lbl">Known Moons</span>
           </div>
-        </div>
-
-        <div class="card-footer-row">
-          <div class="price-block">
-            <div class="from-lbl">Return SkySuite</div>
-            <div class="price-num">£840</div>
-          </div>
-          <button class="primary-action-btn select-route-btn" data-iata="HND" data-city="Tokyo Haneda" data-price="£840" data-gate="B24">Select Tokyo Flight →</button>
         </div>
       </div>
     </section>
 
-    <!-- SECTION 2: LONDON (LHR) -> NEW YORK (JFK) -->
-    <section class="story-section" id="sec-2">
-      <div class="story-card">
-        <div class="eyebrow-tag">02 // NORTH ATLANTIC JET STREAM</div>
-        <h2 class="section-title">London LHR ✈ New York JFK</h2>
-        <p class="section-desc">
-          Our flagship transatlantic sprint between London and Manhattan. Depart Heathrow at 09:00 GMT and touch down at JFK before noon local time.
+    <!-- CHAPTER 2: MARS FLYBY -->
+    <section class="chapter-section" id="ch-2">
+      <div class="editorial-block">
+        <div class="chapter-kicker">Chapter III — The Red Neighbor</div>
+        <h2 class="chapter-headline">Dawn over <em>Valles Marineris.</em></h2>
+        <p class="chapter-copy">
+          Iron-oxide dunes swept by high-altitude dust plumes and a delicate amber twilight. The first interplanetary harbor on our flight path home.
         </p>
-
-        <div class="telemetry-grid">
-          <div class="tele-item">
-            <span class="tele-label">Distance</span>
-            <span class="tele-val">3,451 MI</span>
+        <div class="minimal-stats">
+          <div class="stat-col">
+            <span class="stat-val">225M km</span>
+            <span class="stat-lbl">From Earth</span>
           </div>
-          <div class="tele-item">
-            <span class="tele-label">Flight Time</span>
-            <span class="tele-val">07H 15M</span>
+          <div class="stat-col">
+            <span class="stat-val">24h 37m</span>
+            <span class="stat-lbl">Martian Sol</span>
           </div>
-          <div class="tele-item">
-            <span class="tele-label">Aircraft</span>
-            <span class="tele-val">B787-10</span>
+          <div class="stat-col">
+            <span class="stat-val">21.9 km</span>
+            <span class="stat-lbl">Olympus Mons</span>
           </div>
-        </div>
-
-        <div class="card-footer-row">
-          <div class="price-block">
-            <div class="from-lbl">Return SkySuite</div>
-            <div class="price-num">£520</div>
-          </div>
-          <button class="primary-action-btn select-route-btn" data-iata="JFK" data-city="New York JFK" data-price="£520" data-gate="A12">Select New York Flight →</button>
         </div>
       </div>
     </section>
 
-    <!-- SECTION 3: LONDON (LHR) -> DUBAI (DXB) -->
-    <section class="story-section" id="sec-3">
-      <div class="story-card">
-        <div class="eyebrow-tag">03 // ARABIAN GULF NIGHT EXPRESS</div>
-        <h2 class="section-title">London LHR ✈ Dubai DXB</h2>
-        <p class="section-desc">
-          Glide across Europe and the Mediterranean into the illuminated skyline of Dubai. Includes private chauffeur transfer upon arrival at Terminal 3.
+    <!-- CHAPTER 3: THE MOON & EARTHRISE -->
+    <section class="chapter-section" id="ch-3">
+      <div class="editorial-block">
+        <div class="chapter-kicker">Chapter IV — 384,400 Kilometers</div>
+        <h2 class="chapter-headline">Silence of the <em>Lunar Sea.</em></h2>
+        <p class="chapter-copy">
+          Skimming low over ancient basaltic maria and sunlit crater rims as our vibrant blue home rises above the lunar horizon.
         </p>
-
-        <div class="telemetry-grid">
-          <div class="tele-item">
-            <span class="tele-label">Distance</span>
-            <span class="tele-val">3,414 MI</span>
+        <div class="minimal-stats">
+          <div class="stat-col">
+            <span class="stat-val">384,400 km</span>
+            <span class="stat-lbl">Perigee</span>
           </div>
-          <div class="tele-item">
-            <span class="tele-label">Flight Time</span>
-            <span class="tele-val">06H 50M</span>
+          <div class="stat-col">
+            <span class="stat-val">1.62 m/s²</span>
+            <span class="stat-lbl">Surface Gravity</span>
           </div>
-          <div class="tele-item">
-            <span class="tele-label">Aircraft</span>
-            <span class="tele-val">A380NEO</span>
+          <div class="stat-col">
+            <span class="stat-val">27.3 days</span>
+            <span class="stat-lbl">Orbital Period</span>
           </div>
-        </div>
-
-        <div class="card-footer-row">
-          <div class="price-block">
-            <div class="from-lbl">Return SkySuite</div>
-            <div class="price-num">£610</div>
-          </div>
-          <button class="primary-action-btn select-route-btn" data-iata="DXB" data-city="Dubai Intl" data-price="£610" data-gate="C08">Select Dubai Flight →</button>
         </div>
       </div>
     </section>
 
-    <!-- SECTION 4: INTERACTIVE BOARDING PASS & INSTANT CHECKOUT -->
-    <section class="story-section" id="sec-4">
-      <div class="boarding-pass">
-        <div class="bp-header">
-          <div style="display: flex; align-items: center; gap: 10px;">
-            <span style="font-family: 'Space Grotesk', sans-serif; font-weight: 800; letter-spacing: 1.5px;">✈ VOYAGER SKYSUITE PASS</span>
+    <!-- CHAPTER 4: EARTH ATMOSPHERIC ENTRY -->
+    <section class="chapter-section" id="ch-4">
+      <div class="editorial-block">
+        <div class="chapter-kicker">Chapter V — Home Orbit</div>
+        <h2 class="chapter-headline">The Pale <em>Blue Dot.</em></h2>
+        <p class="chapter-copy">
+          Wrapped in a paper-thin sapphire atmosphere, swirling trade-wind clouds, and sunlit oceans. Drag to explore the globe in 360° or reserve your stratospheric capsule flight.
+        </p>
+        <div class="minimal-stats">
+          <div class="stat-col">
+            <span class="stat-val">12,742 km</span>
+            <span class="stat-lbl">Diameter</span>
           </div>
-          <span style="font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--emerald); font-weight: 700;">● CONFIRMED GATE <span id="bpGate">B24</span></span>
+          <div class="stat-col">
+            <span class="stat-val">71%</span>
+            <span class="stat-lbl">Ocean Surface</span>
+          </div>
+          <div class="stat-col">
+            <span class="stat-val">100 km</span>
+            <span class="stat-lbl">Kármán Line</span>
+          </div>
         </div>
-
-        <div class="bp-body">
-          <div class="bp-cities">
-            <div>
-              <div class="bp-iata">LHR</div>
-              <div class="bp-city-sub">London Heathrow</div>
-            </div>
-            <div class="bp-plane-line">
-              <div style="font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--accent);">NON-STOP SUPERSONIC</div>
-              <div class="bp-line-graphic">✈</div>
-              <div style="font-size: 11px; color: var(--text-muted);">Seat <strong style="color: #fff;" id="bpSeatLabel">01A Window</strong></div>
-            </div>
-            <div style="text-align: right;">
-              <div class="bp-iata" id="bpDestIata">HND</div>
-              <div class="bp-city-sub" id="bpDestCity">Tokyo Haneda</div>
-            </div>
-          </div>
-
-          <div style="font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; color: var(--text-muted); margin-bottom: 8px;">Select Cabin Suite Seat</div>
-          <div class="seat-selector-row">
-            <button class="seat-chip active" data-seat="01A Window">01A Window</button>
-            <button class="seat-chip" data-seat="02A Panorama">02A Panorama</button>
-            <button class="seat-chip" data-seat="01K Private Suite">01K Suite</button>
-          </div>
-
-          <div class="card-footer-row" style="margin-top: 8px;">
-            <div class="price-block">
-              <div class="from-lbl">Total Return Fare</div>
-              <div class="price-num" id="bpPrice">£840</div>
-            </div>
-            <button class="primary-action-btn" id="issueTicketBtn"> Pay & Issue Boarding Pass</button>
-          </div>
+        <div class="action-row">
+          <button class="glass-btn solid" id="earthReserveBtn">Reserve Stratosphere Flight</button>
+          <button class="glass-btn" id="backToSpaceBtn">↑ Fly Back to Outer Space</button>
         </div>
       </div>
     </section>
 
   </main>
 
-  <!-- Bottom Floating Helper Pill -->
-  <div class="bottom-bar-hint">
-    <span>🖱️ <strong>Scroll</strong> to Fly Along Routes</span>
-    <span>•</span>
-    <span>🌍 <strong>Drag Globe</strong> to Orbit 360°</span>
-    <span>•</span>
-    <span>📍 <strong>Click Airport Pins</strong> to Switch Flight</span>
+  <!-- Clean Modern Reservation Modal -->
+  <div class="modal-backdrop" id="modalBackdrop">
+    <div class="reservation-card">
+      <div style="display: flex; justify-content: space-between; align-items: center;">
+        <span style="font-size: 11px; letter-spacing: 2px; text-transform: uppercase; color: var(--text-secondary);"> Capsule Reservation</span>
+        <button class="glass-btn" id="closeModalBtn" style="padding: 6px 12px;">✕</button>
+      </div>
+      <h3 style="font-family: 'Instrument Serif', serif; font-size: 42px; font-weight: 400; margin-top: 8px;">Stratosphere Lounge</h3>
+      <p style="font-size: 14px; color: var(--text-secondary); margin-top: 6px; line-height: 1.6;">
+        Ascend 32 kilometers above Earth in a pressurized panoramic glass sphere. Six-hour dawn curvature flight with private observatory dining.
+      </p>
+
+      <div class="suite-grid">
+        <div class="suite-option selected" data-price="£4,200">
+          <div style="font-size: 12px; color: var(--text-secondary);">Window Lounger</div>
+          <div style="font-family: 'Instrument Serif', serif; font-size: 28px; margin-top: 4px;">£4,200</div>
+          <div style="font-size: 11px; color: var(--text-muted); margin-top: 4px;">Autumn 2027 Departure</div>
+        </div>
+        <div class="suite-option" data-price="£14,500">
+          <div style="font-size: 12px; color: var(--text-secondary);">Private Capsule (4 Guests)</div>
+          <div style="font-family: 'Instrument Serif', serif; font-size: 28px; margin-top: 4px;">£14,500</div>
+          <div style="font-size: 11px; color: var(--text-muted); margin-top: 4px;">Custom Launch Window</div>
+        </div>
+      </div>
+
+      <button class="glass-btn solid" id="confirmBookingBtn" style="width: 100%; justify-content: center; padding: 15px; font-size: 14px;">
+        Confirm Reservation — £4,200
+      </button>
+    </div>
   </div>
 
-  <!-- Simulated Pointer & Click Ripple for Video Choreography -->
+  <!-- Simulated Pointer & Ripple for Choreography -->
   <div class="demo-cursor" id="demoCursor">
     <svg viewBox="0 0 28 28" width="28" height="28" fill="none">
-      <path d="M5 3L23 13.5L14.5 16L10.5 24.5L5 3Z" fill="#ffffff" stroke="#030711" stroke-width="2.2" stroke-linejoin="round"/>
+      <path d="M5 3L23 13.5L14.5 16L10.5 24.5L5 3Z" fill="#ffffff" stroke="#05060a" stroke-width="2" stroke-linejoin="round"/>
     </svg>
   </div>
   <div class="click-ripple" id="clickRipple"></div>
 
   <script>
     /* ==========================================================================
-       1. WEB AUDIO SYNTHESIZER: CABIN CHIME, JET TURBINE WHOOSH & UI RADAR TICKS
+       1. CINEMATIC AMBIENT SPACE SOUND ENGINE (Hans Zimmer / Interstellar Warmth)
        ========================================================================== */
-    const FlightAudio = (() => {
+    const SpaceAudio = (() => {
       let ctx = null;
       function getCtx() {
         if (!ctx) ctx = new (window.AudioContext || window.webkitAudioContext)();
@@ -981,49 +630,29 @@
         return ctx;
       }
 
-      // Iconic Two-Tone Cabin "Ding-Dong" Altitude Chime
-      function playCabinChime() {
+      function playWarpWhoosh(pitch = 1.0) {
         try {
           const c = getCtx();
           const now = c.currentTime;
-          [587.33, 440.0].forEach((freq, idx) => {
+          // Warm sub-harmonic swell + celestial chime
+          [110 * pitch, 164.81 * pitch, 220 * pitch, 329.63 * pitch].forEach((freq, i) => {
             const osc = c.createOscillator();
             const g = c.createGain();
-            osc.type = 'sine';
-            osc.frequency.setValueAtTime(freq, now + idx * 0.28);
-            g.gain.setValueAtTime(0.001, now + idx * 0.28);
-            g.gain.linearRampToValueAtTime(0.14, now + idx * 0.28 + 0.02);
-            g.gain.exponentialRampToValueAtTime(0.0001, now + idx * 0.28 + 0.85);
+            osc.type = i === 0 ? 'sine' : 'triangle';
+            osc.frequency.setValueAtTime(freq * 0.92, now);
+            osc.frequency.exponentialRampToValueAtTime(freq, now + 0.45);
+            g.gain.setValueAtTime(0.0001, now);
+            g.gain.linearRampToValueAtTime(i === 0 ? 0.12 : 0.035, now + 0.15);
+            g.gain.exponentialRampToValueAtTime(0.0001, now + 1.25);
             osc.connect(g);
             g.connect(c.destination);
-            osc.start(now + idx * 0.28);
-            osc.stop(now + idx * 0.28 + 0.9);
+            osc.start(now);
+            osc.stop(now + 1.3);
           });
         } catch (e) {}
       }
 
-      // Aerodynamic Jet Flyby Whoosh
-      function playJetWhoosh() {
-        try {
-          const c = getCtx();
-          const now = c.currentTime;
-          const osc = c.createOscillator();
-          const g = c.createGain();
-          osc.type = 'triangle';
-          osc.frequency.setValueAtTime(110, now);
-          osc.frequency.exponentialRampToValueAtTime(340, now + 0.22);
-          osc.frequency.exponentialRampToValueAtTime(95, now + 0.55);
-          g.gain.setValueAtTime(0.001, now);
-          g.gain.linearRampToValueAtTime(0.11, now + 0.12);
-          g.gain.exponentialRampToValueAtTime(0.0001, now + 0.58);
-          osc.connect(g);
-          g.connect(c.destination);
-          osc.start(now);
-          osc.stop(now + 0.6);
-        } catch (e) {}
-      }
-
-      function playRadarTick(freq = 780) {
+      function playSoftClick(freq = 520) {
         try {
           const c = getCtx();
           const now = c.currentTime;
@@ -1031,401 +660,451 @@
           const g = c.createGain();
           osc.type = 'sine';
           osc.frequency.setValueAtTime(freq, now);
-          g.gain.setValueAtTime(0.07, now);
-          g.gain.exponentialRampToValueAtTime(0.0001, now + 0.055);
+          g.gain.setValueAtTime(0.06, now);
+          g.gain.exponentialRampToValueAtTime(0.0001, now + 0.08);
           osc.connect(g);
           g.connect(c.destination);
           osc.start(now);
-          osc.stop(now + 0.06);
+          osc.stop(now + 0.09);
         } catch (e) {}
       }
 
-      return { playCabinChime, playJetWhoosh, playRadarTick };
+      return { playWarpWhoosh, playSoftClick };
     })();
 
     /* ==========================================================================
-       2. THREE.JS 3D GLOBE, PROCEDURAL SATELLITE TEXTURE, FLIGHT ARCS & 3D JET
+       2. PHOTOREALISTIC 3D SOLAR SYSTEM & EARTH FLY-THROUGH (THREE.JS + GLSL)
        ========================================================================== */
-    const container = document.getElementById('webglCanvasContainer');
+    const host = document.getElementById('canvasHost');
     const scene = new THREE.Scene();
 
-    const camera = new THREE.PerspectiveCamera(40, window.innerWidth / window.innerHeight, 0.1, 100);
-    // Position globe slightly to the right so left-side glass story cards never block the Earth!
-    camera.position.set(0, 0.2, 6.2);
-
-    const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true, powerPreference: 'high-performance' });
+    const camera = new THREE.PerspectiveCamera(38, window.innerWidth / window.innerHeight, 0.1, 400);
+    const renderer = new THREE.WebGLRenderer({ antialias: true, powerPreference: 'high-performance' });
     renderer.setSize(window.innerWidth, window.innerHeight);
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
     renderer.toneMapping = THREE.ACESFilmicToneMapping;
-    renderer.toneMappingExposure = 1.25;
-    container.appendChild(renderer.domElement);
+    renderer.toneMappingExposure = 1.2;
+    host.appendChild(renderer.domElement);
 
-    // Master World Pivot (shifted right on desktop for clean editorial framing)
-    const worldPivot = new THREE.Group();
-    worldPivot.position.set(1.15, -0.05, 0);
-    scene.add(worldPivot);
+    const textureLoader = new THREE.TextureLoader();
+    textureLoader.crossOrigin = 'anonymous';
 
-    const globeGroup = new THREE.Group();
-    worldPivot.add(globeGroup);
-
-    const GLOBE_RADIUS = 1.95;
-
-    // Convert (lat, lon) in degrees to 3D Cartesian Vector3 on sphere of radius R
-    function latLonToVec3(lat, lon, radius = GLOBE_RADIUS) {
-      const phi = (90 - lat) * (Math.PI / 180);
-      const theta = (lon + 180) * (Math.PI / 180);
-      const x = -(radius * Math.sin(phi) * Math.cos(theta));
-      const z = radius * Math.sin(phi) * Math.sin(theta);
-      const y = radius * Math.cos(phi);
-      return new THREE.Vector3(x, y, z);
+    // Custom GLSL Atmospheric Rayleigh Halo Shader (Gives Planets a Real Volumetric Horizon Glow!)
+    function createAtmosphereHalo(radius, colorHex, intensity = 1.0) {
+      const mat = new THREE.ShaderMaterial({
+        uniforms: {
+          glowColor: { value: new THREE.Color(colorHex) },
+          intensity: { value: intensity }
+        },
+        vertexShader: `
+          varying vec3 vNormal;
+          varying vec3 vPositionNormal;
+          void main() {
+            vNormal = normalize(normalMatrix * normal);
+            vPositionNormal = normalize((modelViewMatrix * vec4(position, 1.0)).xyz);
+            gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+          }
+        `,
+        fragmentShader: `
+          uniform vec3 glowColor;
+          uniform float intensity;
+          varying vec3 vNormal;
+          varying vec3 vPositionNormal;
+          void main() {
+            float rim = 1.0 + dot(vNormal, vPositionNormal);
+            rim = clamp(rim, 0.0, 1.0);
+            float factor = pow(rim, 2.8) * intensity;
+            gl_FragColor = vec4(glowColor, factor);
+          }
+        `,
+        side: THREE.BackSide,
+        blending: THREE.AdditiveBlending,
+        transparent: true,
+        depthWrite: false
+      });
+      return new THREE.Mesh(new THREE.SphereGeometry(radius * 1.14, 64, 64), mat);
     }
 
-    // Generate High-Resolution Procedural Earth Texture (Continents + Grid + Night City Lights)
-    function createEarthTextures() {
-      const canvas = document.createElement('canvas');
-      canvas.width = 2048;
-      canvas.height = 1024;
-      const ctx = canvas.getContext('2d');
-
-      // Deep ocean gradient
-      const oceanGrad = ctx.createLinearGradient(0, 0, 0, 1024);
-      oceanGrad.addColorStop(0, '#040b1a');
-      oceanGrad.addColorStop(0.5, '#071630');
-      oceanGrad.addColorStop(1, '#040b1a');
-      ctx.fillStyle = oceanGrad;
+    // High-Resolution Procedural Planetary Surface Generators (Instant + Photorealistic)
+    function createSaturnSurfaceTexture() {
+      const c = document.createElement('canvas');
+      c.width = 2048;
+      c.height = 1024;
+      const ctx = c.getContext('2d');
+      const g = ctx.createLinearGradient(0, 0, 0, 1024);
+      const stops = [
+        [0.0, '#786754'], [0.12, '#b99d78'], [0.24, '#d8be98'],
+        [0.36, '#c7a77b'], [0.48, '#f1dfc0'], [0.54, '#e5cba3'],
+        [0.68, '#b8986f'], [0.82, '#cfaea0'], [0.92, '#9c8268'], [1.0, '#695847']
+      ];
+      stops.forEach(([p, col]) => g.addColorStop(p, col));
+      ctx.fillStyle = g;
       ctx.fillRect(0, 0, 2048, 1024);
 
-      // Subtle latitude / longitude navigational graticule grid
-      ctx.strokeStyle = 'rgba(56, 189, 248, 0.08)';
-      ctx.lineWidth = 1;
-      for (let x = 0; x <= 2048; x += 64) {
-        ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, 1024); ctx.stroke();
+      // Subtle atmospheric storm bands
+      for (let y = 0; y < 1024; y += 2) {
+        const alpha = (Math.sin(y * 0.08) * 0.5 + 0.5) * 0.06;
+        ctx.fillStyle = y % 4 === 0 ? `rgba(255,248,230,${alpha})` : `rgba(60,40,20,${alpha})`;
+        ctx.fillRect(0, y, 2048, 2);
       }
-      for (let y = 0; y <= 1024; y += 64) {
-        ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(2048, y); ctx.stroke();
+      return new THREE.CanvasTexture(c);
+    }
+
+    function createSaturnRingTexture() {
+      const c = document.createElement('canvas');
+      c.width = 1024;
+      c.height = 64;
+      const ctx = c.getContext('2d');
+      // Radial-mapped 1D strip from inner radius (x=0) to outer radius (x=1024)
+      for (let x = 0; x < 1024; x++) {
+        const u = x / 1024;
+        let alpha = 0;
+        let r = 225, g = 202, b = 172;
+        if (u > 0.08 && u < 0.25) {
+          // C Ring (faint inner)
+          alpha = 0.22 + Math.sin(u * 190) * 0.08;
+        } else if (u >= 0.25 && u < 0.62) {
+          // B Ring (bright dense main ring)
+          alpha = 0.85 + Math.sin(u * 320) * 0.12;
+          r = 244; g = 226; b = 198;
+        } else if (u >= 0.62 && u < 0.68) {
+          // Cassini Division (dark gap!)
+          alpha = 0.03;
+        } else if (u >= 0.68 && u < 0.94) {
+          // A Ring (outer ring with Encke gap at 0.86)
+          alpha = (u > 0.85 && u < 0.87) ? 0.05 : 0.68 + Math.cos(u * 260) * 0.1;
+          r = 215; g = 196; b = 170;
+        }
+        ctx.fillStyle = `rgba(${r},${g},${b},${Math.max(0, Math.min(1, alpha))})`;
+        ctx.fillRect(x, 0, 1, 64);
       }
+      return new THREE.CanvasTexture(c);
+    }
 
-      // Helper to project (lat, lon) onto 2048x1024 equirectangular canvas
-      function toXY(lat, lon) {
-        const x = ((lon + 180) / 360) * 2048;
-        const y = ((90 - lat) / 180) * 1024;
-        return [x, y];
-      }
+    function createMarsSurfaceTexture() {
+      const c = document.createElement('canvas');
+      c.width = 2048;
+      c.height = 1024;
+      const ctx = c.getContext('2d');
+      const g = ctx.createLinearGradient(0, 0, 0, 1024);
+      g.addColorStop(0.0, '#e2dcd5'); // North Polar Ice Cap
+      g.addColorStop(0.06, '#a84c2c');
+      g.addColorStop(0.35, '#c85a32');
+      g.addColorStop(0.55, '#9e3f22');
+      g.addColorStop(0.75, '#b8502b');
+      g.addColorStop(0.95, '#8c391e');
+      g.addColorStop(1.0, '#dcd6cf'); // South Polar Cap
+      ctx.fillStyle = g;
+      ctx.fillRect(0, 0, 2048, 1024);
 
-      // Accurate Stylized Continent Polygons (lat, lon pairs)
-      const continents = [
-        // UK & Ireland
-        [[50, -5], [58.5, -6], [58, -2], [51, 1.5], [50, -5]],
-        // Europe
-        [[36, -9], [43, -9], [48, -4], [54, 8], [60, 5], [70, 20], [68, 40], [55, 60], [45, 40], [38, 24], [37, 15], [44, 8], [36, -5]],
-        // Africa
-        [[35, -6], [37, 10], [32, 32], [12, 51], [-2, 41], [-25, 33], [-34, 18], [-15, 12], [4, 9], [5, -8], [15, -17], [35, -6]],
-        // Asia & Middle East & Japan
-        [[32, 35], [13, 45], [24, 56], [28, 65], [8, 77], [22, 88], [7, 100], [22, 114], [40, 122], [62, 165], [68, 178], [72, 110], [68, 60], [45, 40]],
-        // Japan Archipelago
-        [[31, 130], [35, 136], [41, 141], [44, 145], [36, 140], [31, 130]],
-        // North America
-        [[70, -165], [72, -95], [60, -64], [45, -60], [40, -74], [25, -80], [20, -105], [32, -117], [48, -124], [60, -145]],
-        // Greenland
-        [[60, -44], [76, -18], [82, -35], [76, -68], [60, -44]],
-        // South America
-        [[11, -75], [8, -60], [-5, -35], [-23, -43], [-54, -68], [-42, -74], [-18, -71], [-4, -81]],
-        // Australia
-        [[-12, 131], [-12, 142], [-28, 153], [-38, 145], [-34, 115], [-21, 114]]
-      ];
-
-      ctx.fillStyle = '#0f294a';
-      ctx.strokeStyle = 'rgba(56, 189, 248, 0.55)';
-      ctx.lineWidth = 2.2;
-
-      continents.forEach((poly) => {
+      // Basaltic dark regions (Syrtis Major, Valles Marineris, craters)
+      for (let i = 0; i < 600; i++) {
+        const x = Math.random() * 2048;
+        const y = 90 + Math.random() * 840;
+        const rad = 8 + Math.random() * 95;
+        const rg = ctx.createRadialGradient(x, y, 1, x, y, rad);
+        const dark = Math.random() > 0.45;
+        rg.addColorStop(0, dark ? 'rgba(62, 22, 12, 0.32)' : 'rgba(235, 138, 88, 0.25)');
+        rg.addColorStop(1, 'rgba(0,0,0,0)');
+        ctx.fillStyle = rg;
         ctx.beginPath();
-        poly.forEach(([lat, lon], idx) => {
+        ctx.arc(x, y, rad, 0, Math.PI * 2);
+        ctx.fill();
+      }
+      return new THREE.CanvasTexture(c);
+    }
+
+    function createMoonSurfaceTexture() {
+      const c = document.createElement('canvas');
+      c.width = 2048;
+      c.height = 1024;
+      const ctx = c.getContext('2d');
+      ctx.fillStyle = '#9ca3af';
+      ctx.fillRect(0, 0, 2048, 1024);
+
+      // Dark Lunar Maria & Bright Ray Craters
+      for (let i = 0; i < 450; i++) {
+        const x = Math.random() * 2048;
+        const y = Math.random() * 1024;
+        const rad = 5 + Math.random() * 110;
+        const rg = ctx.createRadialGradient(x, y, rad * 0.1, x, y, rad);
+        if (rad > 55) {
+          rg.addColorStop(0, 'rgba(55, 60, 68, 0.42)');
+          rg.addColorStop(1, 'rgba(55, 60, 68, 0)');
+        } else {
+          rg.addColorStop(0, 'rgba(70, 74, 82, 0.5)');
+          rg.addColorStop(0.82, 'rgba(225, 230, 238, 0.45)');
+          rg.addColorStop(1, 'rgba(0,0,0,0)');
+        }
+        ctx.fillStyle = rg;
+        ctx.beginPath();
+        ctx.arc(x, y, rad, 0, Math.PI * 2);
+        ctx.fill();
+      }
+      return new THREE.CanvasTexture(c);
+    }
+
+    function createFallbackEarthTexture() {
+      const c = document.createElement('canvas');
+      c.width = 2048;
+      c.height = 1024;
+      const ctx = c.getContext('2d');
+      const g = ctx.createLinearGradient(0, 0, 0, 1024);
+      g.addColorStop(0, '#dbeafe');
+      g.addColorStop(0.06, '#0a2547');
+      g.addColorStop(0.5, '#061a38');
+      g.addColorStop(0.94, '#0a2547');
+      g.addColorStop(1, '#e2e8f0');
+      ctx.fillStyle = g;
+      ctx.fillRect(0, 0, 2048, 1024);
+
+      function toXY(lat, lon) {
+        return [((lon + 180) / 360) * 2048, ((90 - lat) / 180) * 1024];
+      }
+      const lands = [
+        { col: '#2d5a3c', pts: [[50, -5], [58.5, -6], [58, -2], [51, 1.5]] },
+        { col: '#345e40', pts: [[36, -9], [48, -4], [60, 5], [70, 22], [66, 50], [45, 40], [38, 22], [37, 12]] },
+        { col: '#9a7b4f', pts: [[35, -6], [37, 11], [31, 33], [11, 51], [-4, 40], [-34, 19], [-16, 12], [5, -8], [16, -17]] },
+        { col: '#3b6647', pts: [[32, 35], [24, 56], [8, 77], [22, 88], [7, 101], [23, 114], [42, 124], [64, 168], [71, 110], [67, 55]] },
+        { col: '#315c3e', pts: [[70, -162], [71, -92], [58, -62], [41, -72], [25, -81], [19, -104], [34, -118], [52, -130]] },
+        { col: '#295738', pts: [[11, -75], [7, -58], [-6, -35], [-24, -43], [-54, -68], [-40, -73], [-16, -72]] },
+        { col: '#8c5e3c', pts: [[-12, 130], [-13, 143], [-28, 153], [-38, 145], [-33, 115], [-21, 114]] }
+      ];
+      lands.forEach(({ col, pts }) => {
+        ctx.fillStyle = col;
+        ctx.beginPath();
+        pts.forEach(([lat, lon], idx) => {
           const [x, y] = toXY(lat, lon);
           if (idx === 0) ctx.moveTo(x, y);
           else ctx.lineTo(x, y);
         });
         ctx.closePath();
         ctx.fill();
-        ctx.stroke();
       });
-
-      // Add high-density glowing tactical dot matrix & city light clusters over land
-      const cityClusters = [
-        [51.5, -0.1, 45],   // London & UK
-        [48.8, 2.3, 38],    // Paris / Western Europe
-        [50.1, 8.6, 35],    // Frankfurt / Central Europe
-        [40.7, -74.0, 48],  // New York / East Coast
-        [34.0, -118.2, 32], // Los Angeles
-        [35.6, 139.7, 50],  // Tokyo
-        [25.2, 55.3, 36],   // Dubai
-        [1.35, 103.8, 34],  // Singapore
-        [22.3, 114.1, 38],  // Hong Kong
-        [-33.8, 151.2, 26], // Sydney
-        [6.5, 3.3, 28],     // Lagos
-        [-23.5, -46.6, 32], // Sao Paulo
-        [30.0, 31.2, 30]    // Cairo
-      ];
-
-      cityClusters.forEach(([clat, clon, count]) => {
-        const [cx, cy] = toXY(clat, clon);
-        const rad = ctx.createRadialGradient(cx, cy, 1, cx, cy, 42);
-        rad.addColorStop(0, 'rgba(251, 191, 36, 0.85)');
-        rad.addColorStop(0.35, 'rgba(56, 189, 248, 0.35)');
-        rad.addColorStop(1, 'rgba(56, 189, 248, 0)');
-        ctx.fillStyle = rad;
-        ctx.beginPath();
-        ctx.arc(cx, cy, 42, 0, Math.PI * 2);
-        ctx.fill();
-
-        for (let i = 0; i < count; i++) {
-          const px = cx + (Math.random() - 0.5) * 48;
-          const py = cy + (Math.random() - 0.5) * 32;
-          ctx.fillStyle = Math.random() > 0.35 ? '#fde68a' : '#38bdf8';
-          ctx.fillRect(px, py, 2.2, 2.2);
-        }
-      });
-
-      const tex = new THREE.CanvasTexture(canvas);
-      tex.anisotropy = 8;
-      return tex;
+      return new THREE.CanvasTexture(c);
     }
 
-    const earthTexture = createEarthTextures();
-
-    const globeGeo = new THREE.SphereGeometry(GLOBE_RADIUS, 72, 72);
-    const globeMat = new THREE.MeshPhysicalMaterial({
-      map: earthTexture,
-      roughness: 0.42,
-      metalness: 0.25,
-      clearcoat: 0.65,
-      clearcoatRoughness: 0.2
-    });
-    const globeMesh = new THREE.Mesh(globeGeo, globeMat);
-    globeGroup.add(globeMesh);
-
-    // Outer Atmospheric Fresnel Halo Ring
-    const atmosGeo = new THREE.SphereGeometry(GLOBE_RADIUS * 1.045, 64, 64);
-    const atmosMat = new THREE.MeshBasicMaterial({
-      color: 0x38bdf8,
-      transparent: true,
-      opacity: 0.13,
-      side: THREE.BackSide,
-      blending: THREE.AdditiveBlending
-    });
-    const atmosMesh = new THREE.Mesh(atmosGeo, atmosMat);
-    globeGroup.add(atmosMesh);
-
-    // Subtle Orbital Coordinate Ring Around Equator
-    const orbitRingGeo = new THREE.RingGeometry(GLOBE_RADIUS * 1.18, GLOBE_RADIUS * 1.188, 128);
-    orbitRingGeo.rotateX(Math.PI / 2.2);
-    const orbitRingMat = new THREE.MeshBasicMaterial({
-      color: 0x38bdf8,
-      transparent: true,
-      opacity: 0.22,
-      side: THREE.DoubleSide
-    });
-    const orbitRing = new THREE.Mesh(orbitRingGeo, orbitRingMat);
-    globeGroup.add(orbitRing);
-
-    // Lighting
-    const ambientLight = new THREE.AmbientLight(0xdbeafe, 0.85);
-    scene.add(ambientLight);
-
-    const sunLight = new THREE.DirectionalLight(0xffffff, 2.4);
-    sunLight.position.set(5, 4, 6);
-    scene.add(sunLight);
-
-    const rimLight = new THREE.PointLight(0x38bdf8, 3.6, 16);
-    rimLight.position.set(-4, 3, -3);
-    scene.add(rimLight);
-
-    /* ==========================================================================
-       3. AIRPORT NODES, GREAT-CIRCLE 3D FLIGHT ARCS & SCULPTED 3D JET AIRCRAFT
-       ========================================================================== */
-    const AIRPORTS = {
-      LHR: { name: 'London Heathrow', lat: 51.47, lon: -0.45, color: 0x34d399 },
-      HND: { name: 'Tokyo Haneda', lat: 35.54, lon: 139.77, color: 0x38bdf8 },
-      JFK: { name: 'New York JFK', lat: 40.64, lon: -73.77, color: 0x38bdf8 },
-      DXB: { name: 'Dubai Intl', lat: 25.25, lon: 55.36, color: 0xf59e0b },
-      SIN: { name: 'Singapore Changi', lat: 1.36, lon: 103.99, color: 0x818cf8 }
-    };
-
-    const airportMarkers = {};
-    Object.entries(AIRPORTS).forEach(([code, data]) => {
-      const pos = latLonToVec3(data.lat, data.lon, GLOBE_RADIUS * 1.005);
-      const markerGroup = new THREE.Group();
-      markerGroup.position.copy(pos);
-      markerGroup.lookAt(pos.clone().multiplyScalar(2));
-
-      const dotGeo = new THREE.CylinderGeometry(0.032, 0.032, 0.02, 20);
-      dotGeo.rotateX(Math.PI / 2);
-      const dotMat = new THREE.MeshBasicMaterial({ color: data.color });
-      markerGroup.add(new THREE.Mesh(dotGeo, dotMat));
-
-      const ringGeo = new THREE.RingGeometry(0.05, 0.068, 24);
-      const ringMat = new THREE.MeshBasicMaterial({ color: data.color, side: THREE.DoubleSide, transparent: true, opacity: 0.8 });
-      markerGroup.add(new THREE.Mesh(ringGeo, ringMat));
-
-      globeGroup.add(markerGroup);
-      airportMarkers[code] = markerGroup;
-    });
-
-    // Build Great-Circle Elevated 3D Flight Curves from London (LHR)
-    function createFlightCurve(startCode, endCode, peakAltitude = 0.42) {
-      const vStart = latLonToVec3(AIRPORTS[startCode].lat, AIRPORTS[startCode].lon, GLOBE_RADIUS);
-      const vEnd = latLonToVec3(AIRPORTS[endCode].lat, AIRPORTS[endCode].lon, GLOBE_RADIUS);
-      const points = [];
-      const segments = 64;
-      for (let i = 0; i <= segments; i++) {
-        const t = i / segments;
-        // Spherical interpolation along surface + parabolic altitude arch
-        const p = new THREE.Vector3().lerpVectors(vStart, vEnd, t).normalize();
-        const arch = Math.sin(t * Math.PI) * peakAltitude;
-        p.multiplyScalar(GLOBE_RADIUS + 0.015 + arch);
-        points.push(p);
-      }
-      return new THREE.CatmullRomCurve3(points);
-    }
-
-    const ROUTES = [
-      { id: 'HND', from: 'LHR', to: 'HND', callsign: 'VYG-01 // LHR → HND • 41,000 FT', curve: createFlightCurve('LHR', 'HND', 0.52), targetRotY: -1.95, targetRotX: 0.48 },
-      { id: 'JFK', from: 'LHR', to: 'JFK', callsign: 'VYG-02 // LHR → JFK • 38,000 FT', curve: createFlightCurve('LHR', 'JFK', 0.36), targetRotY: -0.95, targetRotX: 0.42 },
-      { id: 'DXB', from: 'LHR', to: 'DXB', callsign: 'VYG-03 // LHR → DXB • 39,000 FT', curve: createFlightCurve('LHR', 'DXB', 0.34), targetRotY: -2.05, targetRotX: 0.35 },
-      { id: 'SIN', from: 'LHR', to: 'SIN', callsign: 'VYG-04 // LHR → SIN • 40,000 FT', curve: createFlightCurve('LHR', 'SIN', 0.48), targetRotY: -2.35, targetRotX: 0.25 }
-    ];
-
-    const routeMeshes = [];
-    const routePulseOrbs = [];
-    ROUTES.forEach((route, idx) => {
-      const tubeGeo = new THREE.TubeGeometry(route.curve, 64, idx === 0 ? 0.012 : 0.008, 12, false);
-      const tubeMat = new THREE.MeshBasicMaterial({
-        color: idx === 0 ? 0x38bdf8 : 0x64748b,
-        transparent: true,
-        opacity: idx === 0 ? 0.95 : 0.38
-      });
-      const mesh = new THREE.Mesh(tubeGeo, tubeMat);
-      globeGroup.add(mesh);
-      routeMeshes.push(mesh);
-
-      // Glowing Air-Traffic Telemetry Pulse Orb racing along each route
-      const orbGeo = new THREE.SphereGeometry(0.024, 16, 16);
-      const orbMat = new THREE.MeshBasicMaterial({ color: 0xfde68a });
-      const orb = new THREE.Mesh(orbGeo, orbMat);
-      globeGroup.add(orb);
-      routePulseOrbs.push({ orb, curve: route.curve, offset: idx * 0.27 });
-    });
-
-    // Procedural Drifting Cloud Layer Sphere
-    function createCloudTexture() {
+    function createProceduralClouds() {
       const c = document.createElement('canvas');
       c.width = 1024;
       c.height = 512;
       const ctx = c.getContext('2d');
-      ctx.clearRect(0, 0, 1024, 512);
-      for (let i = 0; i < 160; i++) {
+      for (let i = 0; i < 240; i++) {
         const x = Math.random() * 1024;
-        const y = 60 + Math.random() * 390;
-        const r = 18 + Math.random() * 55;
-        const g = ctx.createRadialGradient(x, y, 2, x, y, r);
-        g.addColorStop(0, 'rgba(255, 255, 255, 0.22)');
-        g.addColorStop(1, 'rgba(255, 255, 255, 0)');
-        ctx.fillStyle = g;
+        const y = 30 + Math.random() * 452;
+        const r = 16 + Math.random() * 65;
+        const rg = ctx.createRadialGradient(x, y, 2, x, y, r);
+        rg.addColorStop(0, 'rgba(255,255,255,0.32)');
+        rg.addColorStop(1, 'rgba(255,255,255,0)');
+        ctx.fillStyle = rg;
         ctx.beginPath();
-        ctx.ellipse(x, y, r * 1.8, r * 0.65, 0, 0, Math.PI * 2);
+        ctx.ellipse(x, y, r * 2.1, r * 0.6, 0, 0, Math.PI * 2);
         ctx.fill();
       }
       return new THREE.CanvasTexture(c);
     }
 
-    const cloudGeo = new THREE.SphereGeometry(GLOBE_RADIUS * 1.016, 64, 64);
-    const cloudMat = new THREE.MeshLambertMaterial({
-      map: createCloudTexture(),
+    /* ==========================================================================
+       3. BUILD THE 3D CELESTIAL STATIONS ALONG OUR Z-AXIS FLIGHT CORRIDOR
+       ========================================================================== */
+    // Lighting Rig
+    const ambientLight = new THREE.AmbientLight(0xdbeafe, 0.42);
+    scene.add(ambientLight);
+
+    const sunLight = new THREE.DirectionalLight(0xfffbeb, 2.8);
+    sunLight.position.set(18, 8, 25);
+    scene.add(sunLight);
+
+    const fillLight = new THREE.DirectionalLight(0x60a5fa, 0.75);
+    fillLight.position.set(-15, -6, -10);
+    scene.add(fillLight);
+
+    // 4,000-Star Deep Space Field & Nebula Dust
+    const starCount = 3600;
+    const starGeo = new THREE.BufferGeometry();
+    const starPos = new Float32Array(starCount * 3);
+    for (let i = 0; i < starCount * 3; i += 3) {
+      starPos[i] = (Math.random() - 0.5) * 180;
+      starPos[i + 1] = (Math.random() - 0.5) * 120;
+      starPos[i + 2] = 30 - Math.random() * 190;
+    }
+    starGeo.setAttribute('position', new THREE.BufferAttribute(starPos, 3));
+    const starMat = new THREE.PointsMaterial({
+      color: 0xffffff,
+      size: 0.14,
       transparent: true,
-      opacity: 0.55,
+      opacity: 0.8
+    });
+    const starField = new THREE.Points(starGeo, starMat);
+    scene.add(starField);
+
+    // STATION 1: SATURN & CRYSTALLINE RINGS (Z = -28)
+    const saturnGroup = new THREE.Group();
+    saturnGroup.position.set(2.3, 0.1, -28);
+    saturnGroup.rotation.z = 0.42;
+    saturnGroup.rotation.x = 0.28;
+    scene.add(saturnGroup);
+
+    const saturnMesh = new THREE.Mesh(
+      new THREE.SphereGeometry(2.35, 72, 72),
+      new THREE.MeshStandardMaterial({
+        map: createSaturnSurfaceTexture(),
+        roughness: 0.75,
+        metalness: 0.05
+      })
+    );
+    saturnGroup.add(saturnMesh);
+    saturnGroup.add(createAtmosphereHalo(2.35, 0xfde68a, 0.65));
+
+    // Saturn Planar UV-Mapped Rings
+    const ringGeo = new THREE.RingGeometry(2.9, 5.6, 128);
+    const posAttr = ringGeo.attributes.position;
+    const uvAttr = ringGeo.attributes.uv;
+    const v3 = new THREE.Vector3();
+    for (let i = 0; i < posAttr.count; i++) {
+      v3.fromBufferAttribute(posAttr, i);
+      const u = (v3.length() - 2.9) / (5.6 - 2.9);
+      uvAttr.setXY(i, u, 0.5);
+    }
+    ringGeo.rotateX(Math.PI / 2);
+    const ringMat = new THREE.MeshStandardMaterial({
+      map: createSaturnRingTexture(),
+      side: THREE.DoubleSide,
+      transparent: true,
+      roughness: 0.5,
+      metalness: 0.1
+    });
+    const saturnRings = new THREE.Mesh(ringGeo, ringMat);
+    saturnGroup.add(saturnRings);
+
+    // STATION 2: MARS (Z = -62)
+    const marsGroup = new THREE.Group();
+    marsGroup.position.set(1.9, -0.1, -62);
+    scene.add(marsGroup);
+
+    const marsMat = new THREE.MeshStandardMaterial({
+      map: createMarsSurfaceTexture(),
+      roughness: 0.82,
+      metalness: 0.05
+    });
+    const marsMesh = new THREE.Mesh(new THREE.SphereGeometry(2.1, 72, 72), marsMat);
+    marsGroup.add(marsMesh);
+    marsGroup.add(createAtmosphereHalo(2.1, 0xf97316, 0.75));
+
+    // STATION 3: THE MOON (Z = -92)
+    const moonGroup = new THREE.Group();
+    moonGroup.position.set(1.5, 0.25, -92);
+    scene.add(moonGroup);
+
+    const moonMat = new THREE.MeshStandardMaterial({
+      map: createMoonSurfaceTexture(),
+      roughness: 0.9,
+      metalness: 0.02
+    });
+    // Also load official NASA Moon texture from Three.js CDN if available
+    textureLoader.load(
+      'https://raw.githubusercontent.com/mrdoob/three.js/master/examples/textures/planets/moon_1024.jpg',
+      (tex) => {
+        moonMat.map = tex;
+        moonMat.bumpMap = tex;
+        moonMat.bumpScale = 0.025;
+        moonMat.needsUpdate = true;
+      }
+    );
+    const moonMesh = new THREE.Mesh(new THREE.SphereGeometry(1.35, 64, 64), moonMat);
+    moonGroup.add(moonMesh);
+
+    // STATION 4: PHOTOREALISTIC BLUE MARBLE EARTH (Z = -120)
+    const earthGroup = new THREE.Group();
+    earthGroup.position.set(2.0, -0.05, -120);
+    earthGroup.rotation.z = 0.41; // 23.5 deg axial tilt
+    scene.add(earthGroup);
+
+    const earthMat = new THREE.MeshPhongMaterial({
+      map: createFallbackEarthTexture(),
+      specular: new THREE.Color(0x334155),
+      shininess: 18
+    });
+
+    // Load Official High-Res NASA Blue Marble Earth & Normal/Specular/Clouds Maps
+    textureLoader.load(
+      'https://raw.githubusercontent.com/mrdoob/three.js/master/examples/textures/planets/earth_atmos_2048.jpg',
+      (tex) => {
+        earthMat.map = tex;
+        earthMat.needsUpdate = true;
+      }
+    );
+    textureLoader.load(
+      'https://raw.githubusercontent.com/mrdoob/three.js/master/examples/textures/planets/earth_normal_2048.jpg',
+      (tex) => {
+        earthMat.normalMap = tex;
+        earthMat.normalScale.set(0.85, 0.85);
+        earthMat.needsUpdate = true;
+      }
+    );
+    textureLoader.load(
+      'https://raw.githubusercontent.com/mrdoob/three.js/master/examples/textures/planets/earth_specular_2048.jpg',
+      (tex) => {
+        earthMat.specularMap = tex;
+        earthMat.needsUpdate = true;
+      }
+    );
+
+    const earthMesh = new THREE.Mesh(new THREE.SphereGeometry(2.55, 96, 96), earthMat);
+    earthGroup.add(earthMesh);
+
+    // Volumetric Cloud Layer Sphere Above Earth
+    const earthCloudMat = new THREE.MeshLambertMaterial({
+      map: createProceduralClouds(),
+      transparent: true,
+      opacity: 0.78,
+      blending: THREE.AdditiveBlending,
       depthWrite: false
     });
-    const cloudMesh = new THREE.Mesh(cloudGeo, cloudMat);
-    globeGroup.add(cloudMesh);
+    textureLoader.load(
+      'https://raw.githubusercontent.com/mrdoob/three.js/master/examples/textures/planets/earth_clouds_1024.png',
+      (tex) => {
+        earthCloudMat.map = tex;
+        earthCloudMat.opacity = 0.82;
+        earthCloudMat.needsUpdate = true;
+      }
+    );
+    const earthClouds = new THREE.Mesh(new THREE.SphereGeometry(2.58, 96, 96), earthCloudMat);
+    earthGroup.add(earthClouds);
 
-    // Sculpted 3D Supersonic Passenger Jet Mesh (Fuselage, Swept Wings, Tail Fin, Contrails)
-    function createJetAircraftMesh() {
-      const jet = new THREE.Group();
-
-      const bodyMat = new THREE.MeshPhysicalMaterial({
-        color: 0xffffff,
-        metalness: 0.4,
-        roughness: 0.15,
-        clearcoat: 1.0
-      });
-      const glowWingMat = new THREE.MeshBasicMaterial({ color: 0x38bdf8 });
-
-      // Sleek Fuselage
-      const fuselageGeo = new THREE.ConeGeometry(0.028, 0.24, 20);
-      fuselageGeo.rotateX(Math.PI / 2);
-      const fuselage = new THREE.Mesh(fuselageGeo, bodyMat);
-      jet.add(fuselage);
-
-      // Swept Main Wings
-      const wingShape = new THREE.Shape();
-      wingShape.moveTo(0, 0.05);
-      wingShape.lineTo(0.16, -0.05);
-      wingShape.lineTo(0.16, -0.08);
-      wingShape.lineTo(0, -0.02);
-      wingShape.lineTo(-0.16, -0.08);
-      wingShape.lineTo(-0.16, -0.05);
-      wingShape.closePath();
-
-      const wingGeo = new THREE.ExtrudeGeometry(wingShape, { depth: 0.005, bevelEnabled: false });
-      wingGeo.rotateX(Math.PI / 2);
-      const wings = new THREE.Mesh(wingGeo, bodyMat);
-      jet.add(wings);
-
-      // Glowing Engine Thruster Plume
-      const plumeGeo = new THREE.SphereGeometry(0.022, 16, 16);
-      plumeGeo.scale(1, 1, 2.2);
-      const plume = new THREE.Mesh(plumeGeo, glowWingMat);
-      plume.position.set(0, 0, -0.12);
-      jet.add(plume);
-
-      return jet;
-    }
-
-    const jetMesh = createJetAircraftMesh();
-    globeGroup.add(jetMesh);
-
-    // Starfield Background
-    const starGeo = new THREE.BufferGeometry();
-    const starPositions = new Float32Array(450 * 3);
-    for (let i = 0; i < 450 * 3; i++) {
-      starPositions[i] = (Math.random() - 0.5) * 28;
-    }
-    starGeo.setAttribute('position', new THREE.BufferAttribute(starPositions, 3));
-    const starMat = new THREE.PointsMaterial({ color: 0xbae6fd, size: 0.04, transparent: true, opacity: 0.55 });
-    scene.add(new THREE.Points(starGeo, starMat));
+    // Sapphire Rayleigh Atmosphere Halo Around Earth
+    earthGroup.add(createAtmosphereHalo(2.55, 0x38bdf8, 1.15));
 
     /* ==========================================================================
-       4. SCROLL-DRIVEN FLIGHT PROGRESS + 360° DRAG-TO-ORBIT INTERACTION
+       4. SMOOTH CAMERA SPLINE FLY-THROUGH + 360° DRAG-TO-SPIN ANY PLANET
        ========================================================================== */
-    let activeRouteIdx = 0; // 0 = HND, 1 = JFK, 2 = DXB
-    let flightProgress = 0.18; // 0.0 (LHR) -> 1.0 (Destination)
-    let targetFlightProgress = 0.18;
+    // 5 Camera Keyframes corresponding to Chapters 0..4
+    const CAMERA_STOPS = [
+      // Ch 0: Deep Space Wide Overview looking down the planetary alignment toward Saturn
+      { camPos: new THREE.Vector3(0.0, 1.4, -14.5), lookAt: new THREE.Vector3(1.5, 0.0, -32.0) },
+      // Ch 1: Close-up inside Saturn's Golden Ice Rings
+      { camPos: new THREE.Vector3(0.2, 0.65, -20.2), lookAt: new THREE.Vector3(1.3, 0.05, -28.0) },
+      // Ch 2: Mars Low-Orbit Flyby
+      { camPos: new THREE.Vector3(0.1, -0.05, -55.8), lookAt: new THREE.Vector3(1.05, -0.1, -62.0) },
+      // Ch 3: Skimming the Moon with Earth rising in the background
+      { camPos: new THREE.Vector3(0.25, 0.35, -87.4), lookAt: new THREE.Vector3(1.1, 0.12, -96.0) },
+      // Ch 4: Full Orbital Arrival at Photorealistic Blue Marble Earth
+      { camPos: new THREE.Vector3(0.15, 0.0, -113.2), lookAt: new THREE.Vector3(1.05, -0.05, -120.0) }
+    ];
 
-    // Initial rotation centers London (LHR: lat 51.5, lon -0.45) facing camera
-    let targetRotY = -1.58;
-    let targetRotX = 0.46;
-    let curRotY = -1.58;
-    let curRotX = 0.46;
-    let targetZoom = 6.0;
-    let curZoom = 6.0;
+    let scrollProgress = 0; // 0.0 -> 1.0
+    let targetScrollProgress = 0;
 
+    // Interactive 360° Drag-to-Spin offset applied to all planets
     let isDragging = false;
     let prevX = 0;
     let prevY = 0;
-    let userDragOffsetRotY = 0;
-    let userDragOffsetRotX = 0;
+    let userSpinY = 0;
+    let userSpinX = 0;
+    let targetUserSpinY = 0;
+    let targetUserSpinX = 0;
 
-    container.addEventListener('pointerdown', (e) => {
+    host.addEventListener('pointerdown', (e) => {
       isDragging = true;
       prevX = e.clientX;
       prevY = e.clientY;
@@ -1437,234 +1116,153 @@
       const dy = e.clientY - prevY;
       prevX = e.clientX;
       prevY = e.clientY;
-      userDragOffsetRotY += dx * 0.0075;
-      userDragOffsetRotX = Math.max(-0.8, Math.min(0.8, userDragOffsetRotX + dy * 0.0075));
+      targetUserSpinY += dx * 0.008;
+      targetUserSpinX = Math.max(-0.65, Math.min(0.65, targetUserSpinX + dy * 0.008));
     });
 
     window.addEventListener('pointerup', () => {
       isDragging = false;
     });
 
-    function highlightActiveRoute(idx) {
-      activeRouteIdx = idx;
-      routeMeshes.forEach((m, i) => {
-        m.material.color.setHex(i === idx ? 0x38bdf8 : 0x64748b);
-        m.material.opacity = i === idx ? 0.95 : 0.3;
-      });
-      document.getElementById('jetCallsign').textContent = ROUTES[idx].callsign;
-    }
+    const dockItems = document.querySelectorAll('.dock-item');
+    const editorialBlocks = document.querySelectorAll('.editorial-block');
+    const scrollLineFill = document.getElementById('scrollLineFill');
+    const chapterIndicator = document.getElementById('chapterIndicator');
 
-    // Map Window Scroll Position (`0.0 -> 1.0`) to Active Flight Route, Jet Position & Globe Rotation
-    const routeTabs = document.querySelectorAll('.route-tab');
-    const scrollFillBar = document.getElementById('scrollFillBar');
-    const scrollPctText = document.getElementById('scrollPctText');
-    const hudSpeedText = document.getElementById('hudSpeedText');
-
-    function applyNormalizedScroll(scrollNorm) {
-      const pct = Math.round(scrollNorm * 100);
-      scrollFillBar.style.height = `${Math.max(8, pct)}%`;
-      scrollPctText.textContent = `${pct}%`;
-      hudSpeedText.textContent = `${Math.round(540 + Math.sin(scrollNorm * 12) * 48)} KT`;
-
-      // Determine active section (0..4)
-      const secIdx = Math.min(4, Math.floor(scrollNorm * 4.8));
-      routeTabs.forEach((t, i) => t.classList.toggle('active', i === secIdx));
-
-      if (scrollNorm < 0.22) {
-        // Section 0: London Hub overview -> beginning of Tokyo route
-        highlightActiveRoute(0);
-        const localT = scrollNorm / 0.22;
-        targetFlightProgress = 0.08 + localT * 0.25;
-        targetRotY = -1.58 - localT * 0.25;
-        targetRotX = 0.48;
-        targetZoom = 6.0 - localT * 0.35;
-      } else if (scrollNorm < 0.48) {
-        // Section 1: Flying LHR -> Tokyo (HND)
-        highlightActiveRoute(0);
-        const localT = (scrollNorm - 0.22) / 0.26;
-        targetFlightProgress = 0.15 + localT * 0.82;
-        // Smoothly rotate globe from London (-1.65) to Tokyo (-3.85)
-        targetRotY = -1.65 - localT * 2.2;
-        targetRotX = 0.48 - localT * 0.12;
-        targetZoom = 5.45;
-      } else if (scrollNorm < 0.72) {
-        // Section 2: Flying LHR -> New York (JFK)
-        highlightActiveRoute(1);
-        const localT = (scrollNorm - 0.48) / 0.24;
-        targetFlightProgress = 0.1 + localT * 0.88;
-        // Rotate globe from London (-1.58) across Atlantic to New York (-0.38)
-        targetRotY = -1.58 + localT * 1.18;
-        targetRotX = 0.45;
-        targetZoom = 5.35;
-      } else if (scrollNorm < 0.90) {
-        // Section 3: Flying LHR -> Dubai (DXB)
-        highlightActiveRoute(2);
-        const localT = (scrollNorm - 0.72) / 0.18;
-        targetFlightProgress = 0.12 + localT * 0.86;
-        // Rotate globe from London (-1.58) to Dubai (-2.48)
-        targetRotY = -1.58 - localT * 0.92;
-        targetRotX = 0.36;
-        targetZoom = 5.45;
-      } else {
-        // Section 4: Boarding Pass Final Overview
-        const localT = (scrollNorm - 0.90) / 0.10;
-        targetFlightProgress = 0.88;
-        targetZoom = 5.95;
-      }
+    function updateUIForProgress(norm) {
+      scrollLineFill.style.height = `${Math.round(norm * 100)}%`;
+      const activeIdx = Math.min(4, Math.round(norm * 4));
+      chapterIndicator.textContent = `0${activeIdx + 1}`;
+      dockItems.forEach((btn, i) => btn.classList.toggle('active', i === activeIdx));
+      editorialBlocks.forEach((blk, i) => blk.classList.toggle('in-view', i === activeIdx));
     }
 
     let demoModeManual = false;
     window.addEventListener('scroll', () => {
       if (demoModeManual) return;
       const maxScroll = Math.max(1, document.documentElement.scrollHeight - window.innerHeight);
-      const norm = Math.max(0, Math.min(1, window.scrollY / maxScroll));
-      applyNormalizedScroll(norm);
+      targetScrollProgress = Math.max(0, Math.min(1, window.scrollY / maxScroll));
+      updateUIForProgress(targetScrollProgress);
     });
 
-    // Navbar Route Tabs Click
-    routeTabs.forEach((tab) => {
-      tab.addEventListener('click', () => {
-        FlightAudio.playJetWhoosh();
-        const secId = `sec-${tab.dataset.sec}`;
-        const el = document.getElementById(secId);
-        if (el) el.scrollIntoView({ behavior: 'smooth' });
-      });
-    });
-
-    // Launch Flight Button & Destination Dropdown
-    document.getElementById('launchFlightBtn').addEventListener('click', () => {
-      FlightAudio.playCabinChime();
-      const destSec = document.getElementById('destSelect').value;
-      const el = document.getElementById(`sec-${destSec}`);
-      if (el) el.scrollIntoView({ behavior: 'smooth' });
-    });
-
-    document.getElementById('quickBookBtn').addEventListener('click', () => {
-      FlightAudio.playCabinChime();
-      document.getElementById('sec-4').scrollIntoView({ behavior: 'smooth' });
-    });
-
-    // Airport Pins Click on Globe
-    document.querySelectorAll('.city-pin').forEach((pin) => {
-      pin.addEventListener('click', () => {
-        FlightAudio.playRadarTick(860);
-        const r = Number(pin.dataset.route || 1);
-        const el = document.getElementById(`sec-${r}`);
-        if (el) el.scrollIntoView({ behavior: 'smooth' });
-      });
-    });
-
-    // Select Route Buttons -> Populate Boarding Pass & Scroll to Section 4
-    document.querySelectorAll('.select-route-btn').forEach((btn) => {
+    // Bottom Dock Planet Fly-To Buttons
+    dockItems.forEach((btn) => {
       btn.addEventListener('click', () => {
-        FlightAudio.playCabinChime();
-        document.getElementById('bpDestIata').textContent = btn.dataset.iata;
-        document.getElementById('bpDestCity').textContent = btn.dataset.city;
-        document.getElementById('bpPrice').textContent = btn.dataset.price;
-        document.getElementById('bpGate').textContent = btn.dataset.gate;
-        document.getElementById('sec-4').scrollIntoView({ behavior: 'smooth' });
+        SpaceAudio.playWarpWhoosh(1 + Number(btn.dataset.ch) * 0.12);
+        const secEl = document.getElementById(`ch-${btn.dataset.ch}`);
+        if (secEl) secEl.scrollIntoView({ behavior: 'smooth' });
       });
     });
 
-    // Boarding Pass Seat Chips & Issue Ticket Button
-    const seatChips = document.querySelectorAll('.seat-chip');
-    seatChips.forEach((chip) => {
-      chip.addEventListener('click', () => {
-        FlightAudio.playRadarTick(680);
-        seatChips.forEach((c) => c.classList.remove('active'));
-        chip.classList.add('active');
-        document.getElementById('bpSeatLabel').textContent = chip.dataset.seat;
+    document.getElementById('startFlightBtn').addEventListener('click', () => {
+      SpaceAudio.playWarpWhoosh(1.1);
+      document.getElementById('ch-1').scrollIntoView({ behavior: 'smooth' });
+    });
+
+    document.getElementById('jumpEarthBtn').addEventListener('click', () => {
+      SpaceAudio.playWarpWhoosh(1.35);
+      document.getElementById('ch-4').scrollIntoView({ behavior: 'smooth' });
+    });
+
+    document.getElementById('backToSpaceBtn').addEventListener('click', () => {
+      SpaceAudio.playWarpWhoosh(0.95);
+      document.getElementById('ch-0').scrollIntoView({ behavior: 'smooth' });
+    });
+
+    // Daylight / Solar Eclipse Lighting Toggle
+    let eclipseMode = false;
+    const lightingToggleBtn = document.getElementById('lightingToggleBtn');
+    lightingToggleBtn.addEventListener('click', () => {
+      eclipseMode = !eclipseMode;
+      SpaceAudio.playSoftClick(560);
+      if (eclipseMode) {
+        sunLight.position.set(-14, 3, -155);
+        sunLight.intensity = 1.6;
+        lightingToggleBtn.textContent = '🌙 Eclipse Rim Light';
+      } else {
+        sunLight.position.set(18, 8, 25);
+        sunLight.intensity = 2.8;
+        lightingToggleBtn.textContent = '☀ Daylight / Eclipse';
+      }
+    });
+
+    document.getElementById('soundToggleBtn').addEventListener('click', () => {
+      SpaceAudio.playWarpWhoosh(1.0);
+    });
+
+    // Reservation Modal Controls
+    const modalBackdrop = document.getElementById('modalBackdrop');
+    const confirmBookingBtn = document.getElementById('confirmBookingBtn');
+    const suiteOptions = document.querySelectorAll('.suite-option');
+
+    function openModal() {
+      SpaceAudio.playSoftClick(640);
+      modalBackdrop.classList.add('open');
+    }
+    function closeModal() {
+      modalBackdrop.classList.remove('open');
+    }
+
+    document.getElementById('openReserveBtn').addEventListener('click', openModal);
+    document.getElementById('earthReserveBtn').addEventListener('click', openModal);
+    document.getElementById('closeModalBtn').addEventListener('click', closeModal);
+
+    suiteOptions.forEach((opt) => {
+      opt.addEventListener('click', () => {
+        SpaceAudio.playSoftClick(580);
+        suiteOptions.forEach((o) => o.classList.remove('selected'));
+        opt.classList.add('selected');
+        confirmBookingBtn.textContent = `Confirm Reservation — ${opt.dataset.price}`;
       });
     });
 
-    const issueTicketBtn = document.getElementById('issueTicketBtn');
-    issueTicketBtn.addEventListener('click', () => {
-      FlightAudio.playCabinChime();
-      issueTicketBtn.style.background = 'linear-gradient(135deg, #34d399, #059669)';
-      issueTicketBtn.textContent = '✓ Boarding Pass Added to Apple Wallet';
-    });
-
-    // Night / Day Mode & Jet Audio Buttons
-    let nightMode = false;
-    const dayNightBtn = document.getElementById('dayNightBtn');
-    dayNightBtn.addEventListener('click', () => {
-      nightMode = !nightMode;
-      FlightAudio.playRadarTick(540);
-      dayNightBtn.classList.toggle('active', nightMode);
-      sunLight.intensity = nightMode ? 0.65 : 2.4;
-      rimLight.intensity = nightMode ? 5.2 : 3.6;
-      dayNightBtn.textContent = nightMode ? '☀️ Day Satellite View' : '🌙 Night City Lights';
-    });
-
-    document.getElementById('cabinAudioBtn').addEventListener('click', (e) => {
-      FlightAudio.playCabinChime();
-      FlightAudio.playJetWhoosh();
-      e.currentTarget.classList.toggle('active');
+    confirmBookingBtn.addEventListener('click', () => {
+      SpaceAudio.playWarpWhoosh(1.4);
+      confirmBookingBtn.textContent = '✓ Capsule Seat Reserved — Confirmation Sent';
+      setTimeout(closeModal, 1400);
     });
 
     /* ==========================================================================
-       5. 60FPS ANIMATION LOOP & 3D-TO-2D PIN PROJECTION
+       5. 60FPS RENDER LOOP & INTERPOLATED CAMERA FLIGHT
        ========================================================================== */
-    const tempVec = new THREE.Vector3();
-    const tempNormal = new THREE.Vector3();
-    const camDir = new THREE.Vector3();
-    const jetTrackerPill = document.getElementById('jetTrackerPill');
+    const curCamPos = new THREE.Vector3();
+    const curLookAt = new THREE.Vector3();
     let clockTime = 0;
 
+    function evaluateCameraAtProgress(p) {
+      const scaled = Math.max(0, Math.min(3.9999, p * 4));
+      const idx = Math.floor(scaled);
+      const frac = scaled - idx;
+      // Smoothstep easing between stops so planet arrivals feel buttery
+      const smoothFrac = frac * frac * (3 - 2 * frac);
+
+      const stopA = CAMERA_STOPS[idx];
+      const stopB = CAMERA_STOPS[idx + 1];
+
+      curCamPos.lerpVectors(stopA.camPos, stopB.camPos, smoothFrac);
+      curLookAt.lerpVectors(stopA.lookAt, stopB.lookAt, smoothFrac);
+
+      camera.position.copy(curCamPos);
+      camera.lookAt(curLookAt);
+    }
+
     function updateSceneAndRender() {
-      camera.position.z = curZoom;
-      globeGroup.rotation.y = curRotY + userDragOffsetRotY;
-      globeGroup.rotation.x = curRotX + userDragOffsetRotX;
+      evaluateCameraAtProgress(scrollProgress);
 
-      cloudMesh.rotation.y = clockTime * 0.04;
+      // Rotate all celestial bodies + apply user 360° drag spin
+      saturnMesh.rotation.y = clockTime * 0.14 + userSpinY;
+      saturnRings.rotation.z = clockTime * 0.05 + userSpinY * 0.5;
+      saturnGroup.rotation.x = 0.28 + userSpinX * 0.5;
 
-      // Animate continuous air-traffic telemetry orbs along all 4 routes
-      routePulseOrbs.forEach(({ orb, curve, offset }) => {
-        const t = (clockTime * 0.22 + offset) % 1.0;
-        orb.position.copy(curve.getPointAt(t));
-      });
+      marsMesh.rotation.y = clockTime * 0.18 + userSpinY;
+      marsMesh.rotation.x = userSpinX * 0.5;
 
-      // Position & orient the 3D Jet along the active Great-Circle flight curve
-      const route = ROUTES[activeRouteIdx];
-      const clampedT = Math.max(0.02, Math.min(0.98, flightProgress));
-      const jetPos = route.curve.getPointAt(clampedT);
-      const nextPos = route.curve.getPointAt(Math.min(0.995, clampedT + 0.015));
+      moonMesh.rotation.y = clockTime * 0.12 + userSpinY;
+      moonMesh.rotation.x = userSpinX * 0.5;
 
-      jetMesh.position.copy(jetPos);
-      // Orient jet along the tangent of the flight path while banking with the Earth's surface
-      globeGroup.updateMatrixWorld();
-      const worldNext = nextPos.clone().applyMatrix4(globeGroup.matrixWorld);
-      jetMesh.lookAt(worldNext);
-
-      // Project 3D Jet position to 2D Screen for the live telemetry tracker pill
-      jetMesh.getWorldPosition(tempVec);
-      tempVec.project(camera);
-      const jx = (tempVec.x * 0.5 + 0.5) * window.innerWidth;
-      const jy = (-(tempVec.y * 0.5) + 0.5) * window.innerHeight;
-      jetTrackerPill.style.transform = `translate(${jx}px, ${jy}px) translate(-50%, -145%)`;
-
-      // Project 3D Airport Markers to 2D Screen & Hide When on Backside of Globe
-      camera.getWorldDirection(camDir);
-      Object.entries(airportMarkers).forEach(([code, marker]) => {
-        const pinEl = document.getElementById(`pin-${code}`);
-        if (!pinEl) return;
-        marker.getWorldPosition(tempVec);
-        // Normal from globe center to marker
-        tempNormal.copy(tempVec).sub(worldPivot.position).normalize();
-        // Check if facing camera
-        const dot = tempNormal.z;
-        if (dot < 0.12) {
-          pinEl.style.opacity = '0';
-          pinEl.style.pointerEvents = 'none';
-        } else {
-          pinEl.style.opacity = '1';
-          pinEl.style.pointerEvents = 'auto';
-          tempVec.project(camera);
-          const sx = (tempVec.x * 0.5 + 0.5) * window.innerWidth;
-          const sy = (-(tempVec.y * 0.5) + 0.5) * window.innerHeight;
-          pinEl.style.transform = `translate(${sx}px, ${sy}px) translate(-50%, -50%)`;
-        }
-      });
+      earthMesh.rotation.y = -1.4 + clockTime * 0.16 + userSpinY;
+      earthClouds.rotation.y = -1.4 + clockTime * 0.21 + userSpinY * 1.05;
+      earthGroup.rotation.x = userSpinX * 0.6;
 
       renderer.render(scene, camera);
     }
@@ -1672,17 +1270,16 @@
     function animate() {
       requestAnimationFrame(animate);
       if (demoModeManual) return;
-      clockTime += 0.016;
+      clockTime += 0.012;
 
-      curRotY += (targetRotY - curRotY) * 0.08;
-      curRotX += (targetRotX - curRotX) * 0.08;
-      curZoom += (targetZoom - curZoom) * 0.08;
-      flightProgress += (targetFlightProgress - flightProgress) * 0.08;
+      scrollProgress += (targetScrollProgress - scrollProgress) * 0.065;
+      userSpinY += (targetUserSpinY - userSpinY) * 0.09;
+      userSpinX += (targetUserSpinX - userSpinX) * 0.09;
 
       updateSceneAndRender();
     }
 
-    applyNormalizedScroll(0);
+    updateUIForProgress(0);
     animate();
 
     /* ==========================================================================
@@ -1698,128 +1295,45 @@
     function lerp(a, b, t) {
       return a + (b - a) * t;
     }
-    function getCenter(el) {
-      const r = el.getBoundingClientRect();
-      return { x: r.left + r.width * 0.5, y: r.top + r.height * 0.5 };
-    }
 
     window.setDemoTime = function(sec) {
       demoModeManual = true;
-      clockTime = sec;
+      clockTime = sec * 1.4;
       demoCursor.classList.add('visible');
 
-      const W = window.innerWidth;
-      const H = window.innerHeight;
       const maxScroll = Math.max(1, document.documentElement.scrollHeight - window.innerHeight);
-      let scrollNorm = 0;
 
-      if (sec < 2.0) {
-        scrollNorm = 0;
-        userDragOffsetRotY = Math.sin(smoothstep(0.1, 1.6, sec) * Math.PI) * 0.75;
-      } else if (sec < 5.2) {
-        userDragOffsetRotY = 0;
-        scrollNorm = lerp(0.0, 0.44, smoothstep(2.0, 4.9, sec));
-      } else if (sec < 8.2) {
-        scrollNorm = lerp(0.44, 0.70, smoothstep(5.2, 7.8, sec));
-      } else if (sec < 11.8) {
-        scrollNorm = lerp(0.70, 0.99, smoothstep(8.2, 10.1, sec));
+      // 13.5-Second Planetary Fly-Through Choreography:
+      // 0.0s - 3.2s: Fly into Saturn's Crystalline Rings & spin 360°
+      // 3.2s - 6.0s: Warp-fly past Saturn to Mars Red Horizon
+      // 6.0s - 8.5s: Warp-fly past the Cratered Moon as Earth rises
+      // 8.5s - 12.2s: Dive into Photorealistic Blue Marble Earth & spin Earth 360°
+      // 12.2s - 13.5s: Smoothly warp back out to Deep Space for seamless loop
+      let norm = 0;
+      if (sec < 3.2) {
+        norm = lerp(0.0, 0.25, smoothstep(0.2, 2.0, sec));
+        userSpinY = smoothstep(1.2, 3.0, sec) * 1.4;
+      } else if (sec < 6.0) {
+        norm = lerp(0.25, 0.50, smoothstep(3.2, 5.0, sec));
+        userSpinY = 1.4 + smoothstep(3.5, 5.8, sec) * 1.2;
+      } else if (sec < 8.5) {
+        norm = lerp(0.50, 0.75, smoothstep(6.0, 7.6, sec));
+        userSpinY = 2.6 + smoothstep(6.2, 8.3, sec) * 1.1;
+      } else if (sec < 12.2) {
+        norm = lerp(0.75, 1.0, smoothstep(8.5, 9.8, sec));
+        userSpinY = 3.7 + smoothstep(9.0, 12.0, sec) * 2.8;
       } else {
-        scrollNorm = lerp(0.99, 0.0, smoothstep(11.8, 13.3, sec));
+        norm = lerp(1.0, 0.0, smoothstep(12.2, 13.4, sec));
+        userSpinY = lerp(6.5, 0.0, smoothstep(12.2, 13.4, sec));
       }
 
-      window.scrollTo(0, scrollNorm * maxScroll);
-      applyNormalizedScroll(scrollNorm);
-
-      // Directly set interpolated values for deterministic frame capture
-      curRotY = targetRotY;
-      curRotX = targetRotX;
-      curZoom = targetZoom;
-      flightProgress = targetFlightProgress;
-
-      // Night City Lights active between 6.2s and 11.8s
-      const isNight = sec >= 6.2 && sec < 11.8;
-      sunLight.intensity = isNight ? 0.65 : 2.4;
-      rimLight.intensity = isNight ? 5.2 : 3.6;
-      dayNightBtn.classList.toggle('active', isNight);
-      dayNightBtn.textContent = isNight ? '☀️ Day Satellite View' : '🌙 Night City Lights';
-
-      // Boarding pass confirmation state at 11.0s
-      if (sec >= 10.3 && sec < 12.5) {
-        seatChips.forEach((c, idx) => c.classList.toggle('active', idx === 2));
-        document.getElementById('bpSeatLabel').textContent = '01K Private Suite';
-      } else {
-        seatChips.forEach((c, idx) => c.classList.toggle('active', idx === 0));
-        document.getElementById('bpSeatLabel').textContent = '01A Window';
-      }
-
-      if (sec >= 11.1 && sec < 12.6) {
-        issueTicketBtn.style.background = 'linear-gradient(135deg, #34d399, #059669)';
-        issueTicketBtn.textContent = '✓ Boarding Pass Added to Apple Wallet';
-      } else {
-        issueTicketBtn.style.background = 'linear-gradient(135deg, #38bdf8, #0284c7)';
-        issueTicketBtn.textContent = ' Pay & Issue Boarding Pass';
-      }
-
-      // Cursor movement choreography
-      const pLaunch = getCenter(document.getElementById('launchFlightBtn'));
-      const pNight = getCenter(dayNightBtn);
-      const pSeat = getCenter(seatChips[2]);
-      const pPay = getCenter(issueTicketBtn);
-
-      let cx = W * 0.68;
-      let cy = H * 0.52;
-      if (sec < 1.5) {
-        const t = smoothstep(0.1, 1.4, sec);
-        cx = lerp(W * 0.58, W * 0.78, t);
-        cy = lerp(H * 0.52, H * 0.44, t);
-      } else if (sec < 2.3) {
-        const t = smoothstep(1.5, 2.0, sec);
-        cx = lerp(W * 0.78, pLaunch.x, t);
-        cy = lerp(H * 0.44, pLaunch.y, t);
-      } else if (sec < 6.5) {
-        const t = smoothstep(5.4, 6.2, sec);
-        cx = lerp(W * 0.62, pNight.x, t);
-        cy = lerp(H * 0.55, pNight.y, t);
-      } else if (sec < 10.6) {
-        const t = smoothstep(9.6, 10.3, sec);
-        cx = lerp(pNight.x, pSeat.x, t);
-        cy = lerp(pNight.y, pSeat.y, t);
-      } else {
-        const t = smoothstep(10.6, 11.1, sec);
-        cx = lerp(pSeat.x, pPay.x, t);
-        cy = lerp(pSeat.y, pPay.y, t);
-      }
-
-      demoCursor.style.left = `${cx}px`;
-      demoCursor.style.top = `${cy}px`;
-
-      const clicks = [
-        { t: 2.0, pos: pLaunch },
-        { t: 6.2, pos: pNight },
-        { t: 10.3, pos: pSeat },
-        { t: 11.1, pos: pPay }
-      ];
-      let activeClick = null;
-      for (const ev of clicks) {
-        if (sec >= ev.t && sec <= ev.t + 0.45) {
-          activeClick = { dt: (sec - ev.t) / 0.45, pos: ev.pos };
-          break;
-        }
-      }
-      if (activeClick) {
-        const scale = lerp(0.25, 1.7, activeClick.dt);
-        clickRipple.style.left = `${activeClick.pos.x}px`;
-        clickRipple.style.top = `${activeClick.pos.y}px`;
-        clickRipple.style.opacity = String(1 - activeClick.dt);
-        clickRipple.style.transform = `translate(-50%, -50%) scale(${scale})`;
-      } else {
-        clickRipple.style.opacity = '0';
-      }
-
+      scrollProgress = norm;
+      window.scrollTo(0, norm * maxScroll);
+      updateUIForProgress(norm);
       updateSceneAndRender();
     };
 
-    // Press "R" anytime to run the choreographed scroll flight & booking demo live!
+    // Press "R" anytime to experience the full automated planetary fly-through live!
     window.addEventListener('keydown', (e) => {
       if (e.key === 'r' || e.key === 'R') {
         let start = performance.now();
@@ -1828,12 +1342,10 @@
           const sec = (now - start) / 1000;
           if (sec <= 13.5) {
             window.setDemoTime(sec);
-            if (sec >= 2.0 && !fired.has('c1')) { fired.add('c1'); FlightAudio.playCabinChime(); FlightAudio.playJetWhoosh(); }
-            if (sec >= 5.2 && !fired.has('c2')) { fired.add('c2'); FlightAudio.playJetWhoosh(); }
-            if (sec >= 6.2 && !fired.has('c3')) { fired.add('c3'); FlightAudio.playRadarTick(620); }
-            if (sec >= 8.2 && !fired.has('c4')) { fired.add('c4'); FlightAudio.playJetWhoosh(); }
-            if (sec >= 10.3 && !fired.has('c5')) { fired.add('c5'); FlightAudio.playRadarTick(740); }
-            if (sec >= 11.1 && !fired.has('c6')) { fired.add('c6'); FlightAudio.playCabinChime(); }
+            if (sec >= 0.2 && !fired.has('w1')) { fired.add('w1'); SpaceAudio.playWarpWhoosh(1.0); }
+            if (sec >= 3.2 && !fired.has('w2')) { fired.add('w2'); SpaceAudio.playWarpWhoosh(1.15); }
+            if (sec >= 6.0 && !fired.has('w3')) { fired.add('w3'); SpaceAudio.playWarpWhoosh(1.3); }
+            if (sec >= 8.5 && !fired.has('w4')) { fired.add('w4'); SpaceAudio.playWarpWhoosh(1.45); }
             requestAnimationFrame(step);
           } else {
             demoModeManual = false;
