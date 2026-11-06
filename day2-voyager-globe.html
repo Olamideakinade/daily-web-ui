@@ -3,20 +3,21 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>HALO — Interactive 3D Planetary Fly-Through & Earth Odyssey</title>
+  <title>ATMOS — 3D Planetary Fly-Through & Tectonic Core Studio</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
   <style>
     :root {
-      --bg: #020306;
+      --bg: #010206;
       --text-primary: #ffffff;
-      --text-secondary: rgba(255, 255, 255, 0.66);
-      --text-muted: rgba(255, 255, 255, 0.42);
-      --surface-glass: rgba(255, 255, 255, 0.06);
-      --surface-border: rgba(255, 255, 255, 0.12);
-      --surface-hover: rgba(255, 255, 255, 0.11);
+      --text-secondary: rgba(255, 255, 255, 0.72);
+      --text-muted: rgba(255, 255, 255, 0.45);
+      --surface-glass: rgba(12, 16, 28, 0.62);
+      --surface-border: rgba(255, 255, 255, 0.14);
+      --surface-hover: rgba(255, 255, 255, 0.12);
+      --accent: #38bdf8;
     }
 
     * {
@@ -39,7 +40,7 @@
       min-height: 600vh;
     }
 
-    /* Fixed Full-Viewport 3D Canvas */
+    /* Fixed Full-Viewport 3D WebGL Canvas */
     #canvasHost {
       position: fixed;
       inset: 0;
@@ -53,28 +54,72 @@
       cursor: grabbing;
     }
 
-    /* Soft Cinematic Film Gradient so White Editorial Typography Pops Effortlessly */
+    /* Subtle Editorial Film Gradient */
     .editorial-vignette {
       position: fixed;
       inset: 0;
       pointer-events: none;
       z-index: 2;
       background:
-        radial-gradient(circle at 65% 50%, transparent 25%, rgba(2, 3, 6, 0.55) 85%),
-        linear-gradient(90deg, rgba(2, 3, 6, 0.72) 0%, rgba(2, 3, 6, 0.22) 45%, transparent 75%),
-        linear-gradient(180deg, rgba(2, 3, 6, 0.55) 0%, transparent 18%, transparent 82%, rgba(2, 3, 6, 0.75) 100%);
+        radial-gradient(circle at 66% 50%, transparent 28%, rgba(1, 2, 6, 0.58) 88%),
+        linear-gradient(90deg, rgba(1, 2, 6, 0.78) 0%, rgba(1, 2, 6, 0.25) 42%, transparent 72%),
+        linear-gradient(180deg, rgba(1, 2, 6, 0.55) 0%, transparent 16%, transparent 84%, rgba(1, 2, 6, 0.78) 100%);
     }
 
-    /* Minimal Apple / Awwwards Top Navigation */
+    /* 3D Projected Planetary Core Callout Labels */
+    .core-labels-layer {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 30;
+      opacity: 0;
+      transition: opacity 0.4s ease;
+    }
+
+    .core-labels-layer.visible {
+      opacity: 1;
+    }
+
+    .core-callout {
+      position: absolute;
+      top: 0;
+      left: 0;
+      transform: translate(-50%, -50%);
+      background: rgba(8, 12, 22, 0.86);
+      border: 1px solid rgba(255, 255, 255, 0.22);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      padding: 8px 14px;
+      border-radius: 14px;
+      box-shadow: 0 16px 40px rgba(0, 0, 0, 0.75);
+      white-space: nowrap;
+    }
+
+    .core-callout-tag {
+      font-size: 9px;
+      font-weight: 700;
+      letter-spacing: 1.4px;
+      text-transform: uppercase;
+      color: #fbbf24;
+      margin-bottom: 2px;
+    }
+
+    .core-callout-title {
+      font-size: 12px;
+      font-weight: 600;
+      color: #ffffff;
+    }
+
+    /* Minimal Top Navigation Bar */
     .nav-header {
       position: fixed;
-      top: 28px;
-      left: 48px;
-      right: 48px;
+      top: 26px;
+      left: 44px;
+      right: 44px;
       display: flex;
       align-items: center;
       justify-content: space-between;
-      z-index: 40;
+      z-index: 45;
       pointer-events: none;
     }
 
@@ -84,28 +129,28 @@
 
     .brand-wordmark {
       font-family: 'Instrument Serif', serif;
-      font-size: 28px;
+      font-size: 30px;
       font-weight: 400;
       letter-spacing: 0.5px;
       color: #ffffff;
       text-decoration: none;
       display: flex;
       align-items: center;
-      gap: 10px;
+      gap: 11px;
     }
 
     .brand-wordmark span.dot {
-      width: 7px;
-      height: 7px;
+      width: 8px;
+      height: 8px;
       border-radius: 50%;
       background: #ffffff;
-      display: inline-block;
+      box-shadow: 0 0 14px #ffffff;
     }
 
     .nav-right {
       display: flex;
       align-items: center;
-      gap: 12px;
+      gap: 10px;
     }
 
     .glass-btn {
@@ -117,7 +162,7 @@
       font-family: 'Inter', sans-serif;
       font-size: 13px;
       font-weight: 500;
-      padding: 10px 20px;
+      padding: 10px 18px;
       border-radius: 100px;
       cursor: pointer;
       transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
@@ -128,8 +173,14 @@
 
     .glass-btn:hover {
       background: var(--surface-hover);
-      border-color: rgba(255, 255, 255, 0.28);
+      border-color: rgba(255, 255, 255, 0.32);
       transform: translateY(-1px);
+    }
+
+    .glass-btn.active-core {
+      background: linear-gradient(135deg, rgba(245, 158, 11, 0.28), rgba(225, 29, 72, 0.28));
+      border-color: rgba(251, 191, 36, 0.75);
+      box-shadow: 0 0 28px rgba(245, 158, 11, 0.35);
     }
 
     .glass-btn.solid {
@@ -140,19 +191,43 @@
     }
 
     .glass-btn.solid:hover {
-      background: rgba(255, 255, 255, 0.9);
-      box-shadow: 0 12px 30px rgba(255, 255, 255, 0.2);
+      background: rgba(255, 255, 255, 0.92);
+      box-shadow: 0 12px 30px rgba(255, 255, 255, 0.25);
+    }
+
+    /* Animated Equalizer Bars inside Sound Button */
+    .eq-bars {
+      display: inline-flex;
+      align-items: flex-end;
+      gap: 2px;
+      height: 12px;
+    }
+
+    .eq-bars i {
+      width: 2px;
+      background: #38bdf8;
+      border-radius: 2px;
+      height: 4px;
+      animation: eqPulse 0.75s infinite ease-in-out alternate;
+    }
+    .eq-bars i:nth-child(2) { animation-delay: 0.15s; height: 10px; }
+    .eq-bars i:nth-child(3) { animation-delay: 0.3s; height: 7px; }
+    .eq-bars i:nth-child(4) { animation-delay: 0.45s; height: 12px; }
+
+    @keyframes eqPulse {
+      0% { transform: scaleY(0.35); }
+      100% { transform: scaleY(1.1); }
     }
 
     /* Bottom Floating Apple-Style Chapter & Planet Dock */
     .planet-dock {
       position: fixed;
-      bottom: 28px;
+      bottom: 26px;
       left: 50%;
       transform: translateX(-50%);
-      z-index: 40;
-      background: rgba(12, 14, 22, 0.65);
-      border: 1px solid rgba(255, 255, 255, 0.12);
+      z-index: 45;
+      background: rgba(10, 14, 24, 0.72);
+      border: 1px solid rgba(255, 255, 255, 0.14);
       backdrop-filter: blur(28px);
       -webkit-backdrop-filter: blur(28px);
       padding: 6px;
@@ -160,7 +235,7 @@
       display: flex;
       align-items: center;
       gap: 4px;
-      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6);
+      box-shadow: 0 24px 60px rgba(0, 0, 0, 0.75);
     }
 
     .dock-item {
@@ -185,13 +260,13 @@
       background: #ffffff;
       color: #05060a;
       font-weight: 600;
-      box-shadow: 0 4px 18px rgba(255, 255, 255, 0.25);
+      box-shadow: 0 4px 20px rgba(255, 255, 255, 0.3);
     }
 
     /* Minimal Scroll Progress Line on Right Edge */
     .scroll-line-wrap {
       position: fixed;
-      right: 48px;
+      right: 44px;
       top: 50%;
       transform: translateY(-50%);
       z-index: 35;
@@ -204,7 +279,7 @@
 
     .scroll-line-track {
       width: 1.5px;
-      height: 140px;
+      height: 150px;
       background: rgba(255, 255, 255, 0.14);
       position: relative;
       overflow: hidden;
@@ -238,13 +313,13 @@
       width: 100%;
       display: flex;
       align-items: center;
-      padding: 0 8vw;
+      padding: 0 7vw;
     }
 
     .editorial-block {
-      max-width: 500px;
+      max-width: 490px;
       pointer-events: auto;
-      opacity: 0.25;
+      opacity: 0.2;
       transform: translateY(24px);
       transition: opacity 0.6s ease, transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
     }
@@ -255,12 +330,12 @@
     }
 
     .chapter-kicker {
-      font-size: 12px;
-      font-weight: 500;
+      font-size: 11px;
+      font-weight: 600;
       letter-spacing: 2.5px;
       text-transform: uppercase;
       color: var(--text-secondary);
-      margin-bottom: 16px;
+      margin-bottom: 14px;
       display: flex;
       align-items: center;
       gap: 12px;
@@ -275,36 +350,35 @@
 
     .chapter-headline {
       font-family: 'Instrument Serif', serif;
-      font-size: clamp(54px, 6vw, 84px);
+      font-size: clamp(54px, 5.8vw, 82px);
       font-weight: 400;
       line-height: 0.98;
       letter-spacing: -1.5px;
       color: #ffffff;
-      margin-bottom: 22px;
+      margin-bottom: 20px;
     }
 
     .chapter-headline em {
       font-style: italic;
       font-weight: 400;
-      color: rgba(255, 255, 255, 0.85);
+      color: rgba(255, 255, 255, 0.86);
     }
 
     .chapter-copy {
-      font-size: 16px;
+      font-size: 15.5px;
       font-weight: 400;
-      line-height: 1.7;
+      line-height: 1.68;
       color: var(--text-secondary);
-      margin-bottom: 30px;
+      margin-bottom: 28px;
       max-width: 430px;
     }
 
-    /* Clean Minimal Stat Strip (No sci-fi boxes) */
     .minimal-stats {
       display: flex;
-      gap: 36px;
-      padding-top: 22px;
-      border-top: 1px solid rgba(255, 255, 255, 0.12);
-      margin-bottom: 28px;
+      gap: 34px;
+      padding-top: 20px;
+      border-top: 1px solid rgba(255, 255, 255, 0.13);
+      margin-bottom: 26px;
     }
 
     .stat-col {
@@ -328,16 +402,17 @@
 
     .action-row {
       display: flex;
+      flex-wrap: wrap;
       align-items: center;
-      gap: 12px;
+      gap: 10px;
     }
 
     /* Clean Modern Reservation Modal Sheet */
     .modal-backdrop {
       position: fixed;
       inset: 0;
-      background: rgba(2, 3, 6, 0.65);
-      backdrop-filter: blur(16px);
+      background: rgba(1, 2, 6, 0.7);
+      backdrop-filter: blur(18px);
       z-index: 80;
       opacity: 0;
       pointer-events: none;
@@ -353,11 +428,11 @@
 
     .reservation-card {
       width: 480px;
-      background: rgba(16, 19, 28, 0.88);
-      border: 1px solid rgba(255, 255, 255, 0.15);
+      background: rgba(14, 18, 28, 0.92);
+      border: 1px solid rgba(255, 255, 255, 0.16);
       border-radius: 32px;
       padding: 36px;
-      box-shadow: 0 40px 90px rgba(0, 0, 0, 0.8);
+      box-shadow: 0 40px 90px rgba(0, 0, 0, 0.85);
       transform: translateY(20px) scale(0.97);
       transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
     }
@@ -398,18 +473,18 @@
       z-index: 9999;
       opacity: 0;
       transform: translate(-4px, -4px);
-      filter: drop-shadow(0 6px 16px rgba(0, 0, 0, 0.75));
+      filter: drop-shadow(0 6px 16px rgba(0, 0, 0, 0.85));
     }
     .demo-cursor.visible {
       opacity: 1;
     }
     .click-ripple {
       position: fixed;
-      width: 48px;
-      height: 48px;
+      width: 52px;
+      height: 52px;
       border-radius: 50%;
-      border: 2px solid rgba(255, 255, 255, 0.9);
-      box-shadow: 0 0 25px rgba(255, 255, 255, 0.6);
+      border: 2.5px solid rgba(255, 255, 255, 0.95);
+      box-shadow: 0 0 28px rgba(56, 189, 248, 0.8);
       pointer-events: none;
       z-index: 9998;
       transform: translate(-50%, -50%) scale(0.2);
@@ -423,6 +498,22 @@
   <div id="canvasHost"></div>
   <div class="editorial-vignette"></div>
 
+  <!-- 3D Projected Planetary Core Labels (Visible when Cutaway Core is active) -->
+  <div class="core-labels-layer" id="coreLabelsLayer">
+    <div class="core-callout" id="lblInnerCore">
+      <div class="core-callout-tag">01 // 6,000°C CRYSTALLINE IRON</div>
+      <div class="core-callout-title">Solid Inner Core</div>
+    </div>
+    <div class="core-callout" id="lblOuterCore">
+      <div class="core-callout-tag">02 // LIQUID DYNAMO</div>
+      <div class="core-callout-title">Molten Outer Core & Mantle</div>
+    </div>
+    <div class="core-callout" id="lblCrust">
+      <div class="core-callout-tag">03 // LITHOSPHERE SHELL</div>
+      <div class="core-callout-title">Tectonic Crust & Atmosphere</div>
+    </div>
+  </div>
+
   <!-- Minimal Modern Editorial Header -->
   <header class="nav-header">
     <a href="#ch-0" class="brand-wordmark">
@@ -431,8 +522,12 @@
     </a>
 
     <div class="nav-right">
-      <button class="glass-btn" id="soundToggleBtn">♪ Spatial Audio</button>
+      <button class="glass-btn" id="coreCutawayBtn">🌋 Cutaway 3D Core</button>
       <button class="glass-btn" id="lightingToggleBtn">☀ Daylight / Eclipse</button>
+      <button class="glass-btn" id="soundToggleBtn">
+        <span class="eq-bars"><i></i><i></i><i></i><i></i></span>
+        <span>Spatial Audio ON</span>
+      </button>
       <button class="glass-btn solid" id="openReserveBtn">Reserve Passage</button>
     </div>
   </header>
@@ -464,11 +559,11 @@
         <div class="chapter-kicker">Chapter I — Beyond the Horizon</div>
         <h1 class="chapter-headline">A journey across <em>living worlds.</em></h1>
         <p class="chapter-copy">
-          Scroll down to fly past the ice rings of Saturn, skim the crimson canyons of Mars, and dive through the clouds into our Blue Marble Earth. Drag anywhere to orbit 360°.
+          Scroll down to warp past the glittering ice rings of Saturn, skim the crimson canyons of Mars, and dive through the clouds into our Blue Marble Earth.
         </p>
         <div class="action-row">
           <button class="glass-btn solid" id="startFlightBtn">Begin Fly-Through ↓</button>
-          <button class="glass-btn" id="jumpEarthBtn">Fly Straight to Earth</button>
+          <button class="glass-btn" id="jumpEarthBtn">Warp Straight to Earth</button>
         </div>
       </div>
     </section>
@@ -479,7 +574,7 @@
         <div class="chapter-kicker">Chapter II — 1.4 Billion Kilometers</div>
         <h2 class="chapter-headline">The Cathedral of <em>Saturn.</em></h2>
         <p class="chapter-copy">
-          Suspended inside a 282,000-kilometer halo of crystalline water ice and golden silicate dust. Drag to tilt the ring plane against the sun.
+          Suspended inside a 282,000-kilometer halo of 3,500 orbiting water-ice crystals and golden silicate dust. Drag anywhere to tilt the ring plane in 360°.
         </p>
         <div class="minimal-stats">
           <div class="stat-col">
@@ -504,7 +599,7 @@
         <div class="chapter-kicker">Chapter III — The Red Neighbor</div>
         <h2 class="chapter-headline">Dawn over <em>Valles Marineris.</em></h2>
         <p class="chapter-copy">
-          Iron-oxide dunes swept by high-altitude dust plumes and a delicate amber twilight. The first interplanetary harbor on our flight path home.
+          Sculpted iron-oxide canyons swept by high-altitude dust plumes and a warm amber Rayleigh twilight. The first interplanetary harbor on our flight path home.
         </p>
         <div class="minimal-stats">
           <div class="stat-col">
@@ -554,7 +649,7 @@
         <div class="chapter-kicker">Chapter V — Home Orbit</div>
         <h2 class="chapter-headline">The Pale <em>Blue Dot.</em></h2>
         <p class="chapter-copy">
-          Wrapped in a paper-thin sapphire atmosphere, swirling trade-wind clouds, and sunlit oceans. Drag to explore the globe in 360° or reserve your stratospheric capsule flight.
+          Wrapped in a sapphire Rayleigh atmosphere, swirling trade-wind clouds, and sunlit oceans. Click <strong>Cutaway 3D Core</strong> to inspect Earth’s molten interior in real time.
         </p>
         <div class="minimal-stats">
           <div class="stat-col">
@@ -562,8 +657,8 @@
             <span class="stat-lbl">Diameter</span>
           </div>
           <div class="stat-col">
-            <span class="stat-val">71%</span>
-            <span class="stat-lbl">Ocean Surface</span>
+            <span class="stat-val">6,000°C</span>
+            <span class="stat-lbl">Inner Core</span>
           </div>
           <div class="stat-col">
             <span class="stat-val">100 km</span>
@@ -571,8 +666,8 @@
           </div>
         </div>
         <div class="action-row">
-          <button class="glass-btn solid" id="earthReserveBtn">Reserve Stratosphere Flight</button>
-          <button class="glass-btn" id="backToSpaceBtn">↑ Fly Back to Outer Space</button>
+          <button class="glass-btn solid" id="earthCoreActionBtn">🌋 Cutaway Earth’s Core</button>
+          <button class="glass-btn" id="earthReserveBtn">Reserve Stratosphere Flight</button>
         </div>
       </div>
     </section>
@@ -583,7 +678,7 @@
   <div class="modal-backdrop" id="modalBackdrop">
     <div class="reservation-card">
       <div style="display: flex; justify-content: space-between; align-items: center;">
-        <span style="font-size: 11px; letter-spacing: 2px; text-transform: uppercase; color: var(--text-secondary);"> Capsule Reservation</span>
+        <span style="font-size: 11px; letter-spacing: 2px; text-transform: uppercase; color: var(--text-secondary);">Capsule Reservation</span>
         <button class="glass-btn" id="closeModalBtn" style="padding: 6px 12px;">✕</button>
       </div>
       <h3 style="font-family: 'Instrument Serif', serif; font-size: 42px; font-weight: 400; margin-top: 8px;">Stratosphere Lounge</h3>
@@ -620,60 +715,144 @@
 
   <script>
     /* ==========================================================================
-       1. CINEMATIC AMBIENT SPACE SOUND ENGINE (Hans Zimmer / Interstellar Warmth)
+       1. FULL REACTIVE SPACE & TECTONIC SOUND ENGINE (Triggers on Scroll, Drag & Click!)
        ========================================================================== */
     const SpaceAudio = (() => {
       let ctx = null;
+      let ambientStarted = false;
+
       function getCtx() {
         if (!ctx) ctx = new (window.AudioContext || window.webkitAudioContext)();
         if (ctx.state === 'suspended') ctx.resume();
+        if (!ambientStarted && ctx.state === 'running') {
+          ambientStarted = true;
+          startAmbientDrone(ctx);
+        }
         return ctx;
       }
 
-      function playWarpWhoosh(pitch = 1.0) {
+      // Subtle continuous Interstellar warm organ drone once unlocked
+      function startAmbientDrone(c) {
         try {
-          const c = getCtx();
-          const now = c.currentTime;
-          // Warm sub-harmonic swell + celestial chime
-          [110 * pitch, 164.81 * pitch, 220 * pitch, 329.63 * pitch].forEach((freq, i) => {
+          [55.0, 82.41, 110.0].forEach((freq) => {
             const osc = c.createOscillator();
             const g = c.createGain();
-            osc.type = i === 0 ? 'sine' : 'triangle';
-            osc.frequency.setValueAtTime(freq * 0.92, now);
-            osc.frequency.exponentialRampToValueAtTime(freq, now + 0.45);
-            g.gain.setValueAtTime(0.0001, now);
-            g.gain.linearRampToValueAtTime(i === 0 ? 0.12 : 0.035, now + 0.15);
-            g.gain.exponentialRampToValueAtTime(0.0001, now + 1.25);
+            osc.type = 'sine';
+            osc.frequency.value = freq;
+            g.gain.value = 0.012;
             osc.connect(g);
             g.connect(c.destination);
-            osc.start(now);
-            osc.stop(now + 1.3);
+            osc.start();
           });
         } catch (e) {}
       }
 
-      function playSoftClick(freq = 520) {
+      // Deep Sub-Bass Planetary Flyby Whoosh + Celestial Chord
+      function playPlanetFlyby(chapterIdx = 1) {
+        try {
+          const c = getCtx();
+          const now = c.currentTime;
+          // Sub-bass gravitational drop
+          const sub = c.createOscillator();
+          const sGain = c.createGain();
+          sub.type = 'sine';
+          sub.frequency.setValueAtTime(125, now);
+          sub.frequency.exponentialRampToValueAtTime(38, now + 0.55);
+          sGain.gain.setValueAtTime(0.001, now);
+          sGain.gain.linearRampToValueAtTime(0.24, now + 0.06);
+          sGain.gain.exponentialRampToValueAtTime(0.0001, now + 0.65);
+          sub.connect(sGain);
+          sGain.connect(c.destination);
+          sub.start(now);
+          sub.stop(now + 0.68);
+
+          // Harmonic chord unique to each planet
+          const chords = [
+            [130.81, 196.0, 261.63, 329.63],
+            [146.83, 220.0, 293.66, 369.99], // Saturn Gold
+            [164.81, 246.94, 329.63, 415.30], // Mars Amber
+            [174.61, 261.63, 349.23, 440.00], // Moon Silver
+            [196.00, 293.66, 392.00, 493.88]  // Earth Sapphire
+          ];
+          const notes = chords[chapterIdx % chords.length];
+          notes.forEach((f, i) => {
+            const osc = c.createOscillator();
+            const g = c.createGain();
+            osc.type = 'triangle';
+            osc.frequency.setValueAtTime(f * 0.98, now + i * 0.03);
+            osc.frequency.exponentialRampToValueAtTime(f, now + 0.45);
+            g.gain.setValueAtTime(0.0001, now);
+            g.gain.linearRampToValueAtTime(0.04, now + 0.12);
+            g.gain.exponentialRampToValueAtTime(0.0001, now + 1.15);
+            osc.connect(g);
+            g.connect(c.destination);
+            osc.start(now + i * 0.03);
+            osc.stop(now + 1.2);
+          });
+        } catch (e) {}
+      }
+
+      // Tectonic Core Cutaway Rumble + Crystalline Magma Lock
+      function playTectonicCore(opening = true) {
         try {
           const c = getCtx();
           const now = c.currentTime;
           const osc = c.createOscillator();
           const g = c.createGain();
           osc.type = 'sine';
-          osc.frequency.setValueAtTime(freq, now);
-          g.gain.setValueAtTime(0.06, now);
-          g.gain.exponentialRampToValueAtTime(0.0001, now + 0.08);
+          osc.frequency.setValueAtTime(opening ? 65 : 240, now);
+          osc.frequency.exponentialRampToValueAtTime(opening ? 280 : 48, now + 0.48);
+          g.gain.setValueAtTime(0.001, now);
+          g.gain.linearRampToValueAtTime(0.28, now + 0.05);
+          g.gain.exponentialRampToValueAtTime(0.0001, now + 0.52);
           osc.connect(g);
           g.connect(c.destination);
           osc.start(now);
-          osc.stop(now + 0.09);
+          osc.stop(now + 0.55);
+
+          // High crystalline harmonic ping
+          [523.25, 659.25, 783.99, 1046.5].forEach((f, idx) => {
+            const p = c.createOscillator();
+            const pg = c.createGain();
+            p.type = 'triangle';
+            p.frequency.setValueAtTime(f, now + 0.06 + idx * 0.05);
+            pg.gain.setValueAtTime(0.045, now + 0.06 + idx * 0.05);
+            pg.gain.exponentialRampToValueAtTime(0.0001, now + 0.55);
+            p.connect(pg);
+            pg.connect(c.destination);
+            p.start(now + 0.06 + idx * 0.05);
+            p.stop(now + 0.6);
+          });
         } catch (e) {}
       }
 
-      return { playWarpWhoosh, playSoftClick };
+      function playSpinPulse(speed = 1.0) {
+        try {
+          const c = getCtx();
+          const now = c.currentTime;
+          const osc = c.createOscillator();
+          const g = c.createGain();
+          osc.type = 'sine';
+          osc.frequency.setValueAtTime(Math.min(420, 120 + speed * 180), now);
+          g.gain.setValueAtTime(0.025, now);
+          g.gain.exponentialRampToValueAtTime(0.0001, now + 0.09);
+          osc.connect(g);
+          g.connect(c.destination);
+          osc.start(now);
+          osc.stop(now + 0.1);
+        } catch (e) {}
+      }
+
+      // Unlock AudioContext on first user interaction anywhere
+      ['pointerdown', 'wheel', 'keydown', 'touchstart'].forEach((evt) => {
+        window.addEventListener(evt, () => getCtx(), { once: true, passive: true });
+      });
+
+      return { playPlanetFlyby, playTectonicCore, playSpinPulse };
     })();
 
     /* ==========================================================================
-       2. PHOTOREALISTIC 3D SOLAR SYSTEM & EARTH FLY-THROUGH (THREE.JS + GLSL)
+       2. GPU GLSL FRACTAL SHADERS & HIGH-RES NASA SATELLITE PLANETS
        ========================================================================== */
     const host = document.getElementById('canvasHost');
     const scene = new THREE.Scene();
@@ -683,14 +862,43 @@
     renderer.setSize(window.innerWidth, window.innerHeight);
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
     renderer.toneMapping = THREE.ACESFilmicToneMapping;
-    renderer.toneMappingExposure = 1.2;
+    renderer.toneMappingExposure = 1.25;
     host.appendChild(renderer.domElement);
 
     const textureLoader = new THREE.TextureLoader();
     textureLoader.crossOrigin = 'anonymous';
 
-    // Custom GLSL Atmospheric Rayleigh Halo Shader (Gives Planets a Real Volumetric Horizon Glow!)
-    function createAtmosphereHalo(radius, colorHex, intensity = 1.0) {
+    // Shared 3D GLSL Simplex / Value FBM Noise Snippet for Hyper-Detailed Planetary Shaders
+    const GLSL_NOISE_SNIPPET = `
+      float hash(vec3 p) {
+        p = fract(p * 0.3183099 + .1);
+        p *= 17.0;
+        return fract(p.x * p.y * p.z * (p.x + p.y + p.z));
+      }
+      float noise(vec3 x) {
+        vec3 i = floor(x);
+        vec3 f = fract(x);
+        f = f * f * (3.0 - 2.0 * f);
+        return mix(
+          mix(mix(hash(i + vec3(0,0,0)), hash(i + vec3(1,0,0)), f.x),
+              mix(hash(i + vec3(0,1,0)), hash(i + vec3(1,1,0)), f.x), f.y),
+          mix(mix(hash(i + vec3(0,0,1)), hash(i + vec3(1,0,1)), f.x),
+              mix(hash(i + vec3(0,1,1)), hash(i + vec3(1,1,1)), f.x), f.y), f.z);
+      }
+      float fbm(vec3 p) {
+        float v = 0.0;
+        float a = 0.5;
+        for (int i = 0; i < 6; i++) {
+          v += a * noise(p);
+          p = p * 2.04 + vec3(13.1, 7.7, 5.3);
+          a *= 0.5;
+        }
+        return v;
+      }
+    `;
+
+    // Volumetric Rayleigh Atmosphere Rim Halo
+    function createAtmosphereHalo(radius, colorHex, intensity = 1.1) {
       const mat = new THREE.ShaderMaterial({
         uniforms: {
           glowColor: { value: new THREE.Color(colorHex) },
@@ -713,7 +921,7 @@
           void main() {
             float rim = 1.0 + dot(vNormal, vPositionNormal);
             rim = clamp(rim, 0.0, 1.0);
-            float factor = pow(rim, 2.8) * intensity;
+            float factor = pow(rim, 2.7) * intensity;
             gl_FragColor = vec4(glowColor, factor);
           }
         `,
@@ -722,58 +930,119 @@
         transparent: true,
         depthWrite: false
       });
-      return new THREE.Mesh(new THREE.SphereGeometry(radius * 1.14, 64, 64), mat);
+      return new THREE.Mesh(new THREE.SphereGeometry(radius * 1.13, 64, 64), mat);
     }
 
-    // High-Resolution Procedural Planetary Surface Generators (Instant + Photorealistic)
-    function createSaturnSurfaceTexture() {
-      const c = document.createElement('canvas');
-      c.width = 2048;
-      c.height = 1024;
-      const ctx = c.getContext('2d');
-      const g = ctx.createLinearGradient(0, 0, 0, 1024);
-      const stops = [
-        [0.0, '#786754'], [0.12, '#b99d78'], [0.24, '#d8be98'],
-        [0.36, '#c7a77b'], [0.48, '#f1dfc0'], [0.54, '#e5cba3'],
-        [0.68, '#b8986f'], [0.82, '#cfaea0'], [0.92, '#9c8268'], [1.0, '#695847']
-      ];
-      stops.forEach(([p, col]) => g.addColorStop(p, col));
-      ctx.fillStyle = g;
-      ctx.fillRect(0, 0, 2048, 1024);
+    // Lighting
+    const ambientLight = new THREE.AmbientLight(0xdbeafe, 0.38);
+    scene.add(ambientLight);
 
-      // Subtle atmospheric storm bands
-      for (let y = 0; y < 1024; y += 2) {
-        const alpha = (Math.sin(y * 0.08) * 0.5 + 0.5) * 0.06;
-        ctx.fillStyle = y % 4 === 0 ? `rgba(255,248,230,${alpha})` : `rgba(60,40,20,${alpha})`;
-        ctx.fillRect(0, y, 2048, 2);
-      }
-      return new THREE.CanvasTexture(c);
+    const sunLight = new THREE.DirectionalLight(0xfffbeb, 2.9);
+    sunLight.position.set(20, 8, 28);
+    scene.add(sunLight);
+
+    const rimLight = new THREE.DirectionalLight(0x38bdf8, 0.9);
+    rimLight.position.set(-16, -5, -18);
+    scene.add(rimLight);
+
+    // 4,500-Star Deep Space Warp Field
+    const starCount = 4500;
+    const starGeo = new THREE.BufferGeometry();
+    const starPos = new Float32Array(starCount * 3);
+    for (let i = 0; i < starCount * 3; i += 3) {
+      starPos[i] = (Math.random() - 0.5) * 190;
+      starPos[i + 1] = (Math.random() - 0.5) * 130;
+      starPos[i + 2] = 25 - Math.random() * 195;
     }
+    starGeo.setAttribute('position', new THREE.BufferAttribute(starPos, 3));
+    const starMat = new THREE.PointsMaterial({
+      color: 0xffffff,
+      size: 0.14,
+      transparent: true,
+      opacity: 0.85
+    });
+    const starField = new THREE.Points(starGeo, starMat);
+    scene.add(starField);
 
+    /* ==========================================================================
+       STATION 1: SATURN WITH GPU TURBULENT FLUID BANDS & 3,500 3D ICE CRYSTALS
+       ========================================================================== */
+    const saturnGroup = new THREE.Group();
+    saturnGroup.position.set(2.2, 0.1, -28);
+    saturnGroup.rotation.z = 0.42;
+    saturnGroup.rotation.x = 0.28;
+    scene.add(saturnGroup);
+
+    const saturnShaderMat = new THREE.ShaderMaterial({
+      uniforms: {
+        sunDir: { value: new THREE.Vector3(0.75, 0.3, 0.6).normalize() },
+        time: { value: 0 }
+      },
+      vertexShader: `
+        varying vec3 vPos;
+        varying vec3 vWorldNormal;
+        varying vec3 vViewPos;
+        void main() {
+          vPos = position;
+          vWorldNormal = normalize(mat3(modelMatrix) * normal);
+          vec4 mvPos = modelViewMatrix * vec4(position, 1.0);
+          vViewPos = -mvPos.xyz;
+          gl_Position = projectionMatrix * mvPos;
+        }
+      `,
+      fragmentShader: `
+        uniform vec3 sunDir;
+        uniform float time;
+        varying vec3 vPos;
+        varying vec3 vWorldNormal;
+        varying vec3 vViewPos;
+        ${GLSL_NOISE_SNIPPET}
+        void main() {
+          // Latitude + 3D turbulent storm eddies
+          float turb = fbm(vPos * 2.4 + vec3(time * 0.04, 0.0, 0.0));
+          float bands = vPos.y * 4.2 + turb * 1.15;
+          vec3 col1 = vec3(0.94, 0.85, 0.68);
+          vec3 col2 = vec3(0.76, 0.61, 0.44);
+          vec3 col3 = vec3(0.54, 0.42, 0.31);
+          float w1 = sin(bands * 3.8) * 0.5 + 0.5;
+          float w2 = cos(bands * 7.5 + turb * 3.0) * 0.5 + 0.5;
+          vec3 albedo = mix(mix(col2, col1, w1), col3, w2 * 0.45);
+
+          // Photorealistic Lambert + Terminator Softening + Rim Scatter
+          float ndl = max(0.0, dot(vWorldNormal, sunDir));
+          float diff = pow(ndl, 0.85) * 1.15 + 0.05;
+          vec3 viewDir = normalize(vViewPos);
+          float fresnel = pow(1.0 - max(0.0, dot(normalize(vWorldNormal), viewDir)), 3.0);
+          vec3 finalCol = albedo * diff + vec3(0.98, 0.88, 0.65) * fresnel * ndl * 0.45;
+          gl_FragColor = vec4(finalCol, 1.0);
+        }
+      `
+    });
+
+    const saturnMesh = new THREE.Mesh(new THREE.SphereGeometry(2.35, 96, 96), saturnShaderMat);
+    saturnGroup.add(saturnMesh);
+    saturnGroup.add(createAtmosphereHalo(2.35, 0xfde68a, 0.75));
+
+    // Saturn High-Definition Ring Disc + 3,500 Orbiting 3D Ice Crystals
     function createSaturnRingTexture() {
       const c = document.createElement('canvas');
       c.width = 1024;
       c.height = 64;
       const ctx = c.getContext('2d');
-      // Radial-mapped 1D strip from inner radius (x=0) to outer radius (x=1024)
       for (let x = 0; x < 1024; x++) {
         const u = x / 1024;
         let alpha = 0;
-        let r = 225, g = 202, b = 172;
-        if (u > 0.08 && u < 0.25) {
-          // C Ring (faint inner)
-          alpha = 0.22 + Math.sin(u * 190) * 0.08;
-        } else if (u >= 0.25 && u < 0.62) {
-          // B Ring (bright dense main ring)
-          alpha = 0.85 + Math.sin(u * 320) * 0.12;
-          r = 244; g = 226; b = 198;
-        } else if (u >= 0.62 && u < 0.68) {
-          // Cassini Division (dark gap!)
-          alpha = 0.03;
-        } else if (u >= 0.68 && u < 0.94) {
-          // A Ring (outer ring with Encke gap at 0.86)
-          alpha = (u > 0.85 && u < 0.87) ? 0.05 : 0.68 + Math.cos(u * 260) * 0.1;
-          r = 215; g = 196; b = 170;
+        let r = 230, g = 208, b = 178;
+        if (u > 0.07 && u < 0.24) {
+          alpha = 0.24 + Math.sin(u * 210) * 0.08;
+        } else if (u >= 0.24 && u < 0.62) {
+          alpha = 0.88 + Math.sin(u * 360) * 0.12;
+          r = 248; g = 232; b = 204;
+        } else if (u >= 0.62 && u < 0.675) {
+          alpha = 0.025; // Cassini Division
+        } else if (u >= 0.675 && u < 0.95) {
+          alpha = (u > 0.85 && u < 0.868) ? 0.04 : 0.72 + Math.cos(u * 290) * 0.12;
+          r = 218; g = 198; b = 172;
         }
         ctx.fillStyle = `rgba(${r},${g},${b},${Math.max(0, Math.min(1, alpha))})`;
         ctx.fillRect(x, 0, 1, 64);
@@ -781,321 +1050,238 @@
       return new THREE.CanvasTexture(c);
     }
 
-    function createMarsSurfaceTexture() {
-      const c = document.createElement('canvas');
-      c.width = 2048;
-      c.height = 1024;
-      const ctx = c.getContext('2d');
-      const g = ctx.createLinearGradient(0, 0, 0, 1024);
-      g.addColorStop(0.0, '#e2dcd5'); // North Polar Ice Cap
-      g.addColorStop(0.06, '#a84c2c');
-      g.addColorStop(0.35, '#c85a32');
-      g.addColorStop(0.55, '#9e3f22');
-      g.addColorStop(0.75, '#b8502b');
-      g.addColorStop(0.95, '#8c391e');
-      g.addColorStop(1.0, '#dcd6cf'); // South Polar Cap
-      ctx.fillStyle = g;
-      ctx.fillRect(0, 0, 2048, 1024);
-
-      // Basaltic dark regions (Syrtis Major, Valles Marineris, craters)
-      for (let i = 0; i < 600; i++) {
-        const x = Math.random() * 2048;
-        const y = 90 + Math.random() * 840;
-        const rad = 8 + Math.random() * 95;
-        const rg = ctx.createRadialGradient(x, y, 1, x, y, rad);
-        const dark = Math.random() > 0.45;
-        rg.addColorStop(0, dark ? 'rgba(62, 22, 12, 0.32)' : 'rgba(235, 138, 88, 0.25)');
-        rg.addColorStop(1, 'rgba(0,0,0,0)');
-        ctx.fillStyle = rg;
-        ctx.beginPath();
-        ctx.arc(x, y, rad, 0, Math.PI * 2);
-        ctx.fill();
-      }
-      return new THREE.CanvasTexture(c);
-    }
-
-    function createMoonSurfaceTexture() {
-      const c = document.createElement('canvas');
-      c.width = 2048;
-      c.height = 1024;
-      const ctx = c.getContext('2d');
-      ctx.fillStyle = '#9ca3af';
-      ctx.fillRect(0, 0, 2048, 1024);
-
-      // Dark Lunar Maria & Bright Ray Craters
-      for (let i = 0; i < 450; i++) {
-        const x = Math.random() * 2048;
-        const y = Math.random() * 1024;
-        const rad = 5 + Math.random() * 110;
-        const rg = ctx.createRadialGradient(x, y, rad * 0.1, x, y, rad);
-        if (rad > 55) {
-          rg.addColorStop(0, 'rgba(55, 60, 68, 0.42)');
-          rg.addColorStop(1, 'rgba(55, 60, 68, 0)');
-        } else {
-          rg.addColorStop(0, 'rgba(70, 74, 82, 0.5)');
-          rg.addColorStop(0.82, 'rgba(225, 230, 238, 0.45)');
-          rg.addColorStop(1, 'rgba(0,0,0,0)');
-        }
-        ctx.fillStyle = rg;
-        ctx.beginPath();
-        ctx.arc(x, y, rad, 0, Math.PI * 2);
-        ctx.fill();
-      }
-      return new THREE.CanvasTexture(c);
-    }
-
-    function createFallbackEarthTexture() {
-      const c = document.createElement('canvas');
-      c.width = 2048;
-      c.height = 1024;
-      const ctx = c.getContext('2d');
-      const g = ctx.createLinearGradient(0, 0, 0, 1024);
-      g.addColorStop(0, '#dbeafe');
-      g.addColorStop(0.06, '#0a2547');
-      g.addColorStop(0.5, '#061a38');
-      g.addColorStop(0.94, '#0a2547');
-      g.addColorStop(1, '#e2e8f0');
-      ctx.fillStyle = g;
-      ctx.fillRect(0, 0, 2048, 1024);
-
-      function toXY(lat, lon) {
-        return [((lon + 180) / 360) * 2048, ((90 - lat) / 180) * 1024];
-      }
-      const lands = [
-        { col: '#2d5a3c', pts: [[50, -5], [58.5, -6], [58, -2], [51, 1.5]] },
-        { col: '#345e40', pts: [[36, -9], [48, -4], [60, 5], [70, 22], [66, 50], [45, 40], [38, 22], [37, 12]] },
-        { col: '#9a7b4f', pts: [[35, -6], [37, 11], [31, 33], [11, 51], [-4, 40], [-34, 19], [-16, 12], [5, -8], [16, -17]] },
-        { col: '#3b6647', pts: [[32, 35], [24, 56], [8, 77], [22, 88], [7, 101], [23, 114], [42, 124], [64, 168], [71, 110], [67, 55]] },
-        { col: '#315c3e', pts: [[70, -162], [71, -92], [58, -62], [41, -72], [25, -81], [19, -104], [34, -118], [52, -130]] },
-        { col: '#295738', pts: [[11, -75], [7, -58], [-6, -35], [-24, -43], [-54, -68], [-40, -73], [-16, -72]] },
-        { col: '#8c5e3c', pts: [[-12, 130], [-13, 143], [-28, 153], [-38, 145], [-33, 115], [-21, 114]] }
-      ];
-      lands.forEach(({ col, pts }) => {
-        ctx.fillStyle = col;
-        ctx.beginPath();
-        pts.forEach(([lat, lon], idx) => {
-          const [x, y] = toXY(lat, lon);
-          if (idx === 0) ctx.moveTo(x, y);
-          else ctx.lineTo(x, y);
-        });
-        ctx.closePath();
-        ctx.fill();
-      });
-      return new THREE.CanvasTexture(c);
-    }
-
-    function createProceduralClouds() {
-      const c = document.createElement('canvas');
-      c.width = 1024;
-      c.height = 512;
-      const ctx = c.getContext('2d');
-      for (let i = 0; i < 240; i++) {
-        const x = Math.random() * 1024;
-        const y = 30 + Math.random() * 452;
-        const r = 16 + Math.random() * 65;
-        const rg = ctx.createRadialGradient(x, y, 2, x, y, r);
-        rg.addColorStop(0, 'rgba(255,255,255,0.32)');
-        rg.addColorStop(1, 'rgba(255,255,255,0)');
-        ctx.fillStyle = rg;
-        ctx.beginPath();
-        ctx.ellipse(x, y, r * 2.1, r * 0.6, 0, 0, Math.PI * 2);
-        ctx.fill();
-      }
-      return new THREE.CanvasTexture(c);
-    }
-
-    /* ==========================================================================
-       3. BUILD THE 3D CELESTIAL STATIONS ALONG OUR Z-AXIS FLIGHT CORRIDOR
-       ========================================================================== */
-    // Lighting Rig
-    const ambientLight = new THREE.AmbientLight(0xdbeafe, 0.42);
-    scene.add(ambientLight);
-
-    const sunLight = new THREE.DirectionalLight(0xfffbeb, 2.8);
-    sunLight.position.set(18, 8, 25);
-    scene.add(sunLight);
-
-    const fillLight = new THREE.DirectionalLight(0x60a5fa, 0.75);
-    fillLight.position.set(-15, -6, -10);
-    scene.add(fillLight);
-
-    // 4,000-Star Deep Space Field & Nebula Dust
-    const starCount = 3600;
-    const starGeo = new THREE.BufferGeometry();
-    const starPos = new Float32Array(starCount * 3);
-    for (let i = 0; i < starCount * 3; i += 3) {
-      starPos[i] = (Math.random() - 0.5) * 180;
-      starPos[i + 1] = (Math.random() - 0.5) * 120;
-      starPos[i + 2] = 30 - Math.random() * 190;
-    }
-    starGeo.setAttribute('position', new THREE.BufferAttribute(starPos, 3));
-    const starMat = new THREE.PointsMaterial({
-      color: 0xffffff,
-      size: 0.14,
-      transparent: true,
-      opacity: 0.8
-    });
-    const starField = new THREE.Points(starGeo, starMat);
-    scene.add(starField);
-
-    // STATION 1: SATURN & CRYSTALLINE RINGS (Z = -28)
-    const saturnGroup = new THREE.Group();
-    saturnGroup.position.set(2.3, 0.1, -28);
-    saturnGroup.rotation.z = 0.42;
-    saturnGroup.rotation.x = 0.28;
-    scene.add(saturnGroup);
-
-    const saturnMesh = new THREE.Mesh(
-      new THREE.SphereGeometry(2.35, 72, 72),
-      new THREE.MeshStandardMaterial({
-        map: createSaturnSurfaceTexture(),
-        roughness: 0.75,
-        metalness: 0.05
-      })
-    );
-    saturnGroup.add(saturnMesh);
-    saturnGroup.add(createAtmosphereHalo(2.35, 0xfde68a, 0.65));
-
-    // Saturn Planar UV-Mapped Rings
-    const ringGeo = new THREE.RingGeometry(2.9, 5.6, 128);
+    const ringGeo = new THREE.RingGeometry(2.85, 5.75, 128);
     const posAttr = ringGeo.attributes.position;
     const uvAttr = ringGeo.attributes.uv;
-    const v3 = new THREE.Vector3();
+    const tmpV3 = new THREE.Vector3();
     for (let i = 0; i < posAttr.count; i++) {
-      v3.fromBufferAttribute(posAttr, i);
-      const u = (v3.length() - 2.9) / (5.6 - 2.9);
+      tmpV3.fromBufferAttribute(posAttr, i);
+      const u = (tmpV3.length() - 2.85) / (5.75 - 2.85);
       uvAttr.setXY(i, u, 0.5);
     }
     ringGeo.rotateX(Math.PI / 2);
-    const ringMat = new THREE.MeshStandardMaterial({
-      map: createSaturnRingTexture(),
-      side: THREE.DoubleSide,
-      transparent: true,
-      roughness: 0.5,
-      metalness: 0.1
-    });
-    const saturnRings = new THREE.Mesh(ringGeo, ringMat);
+    const saturnRings = new THREE.Mesh(
+      ringGeo,
+      new THREE.MeshStandardMaterial({
+        map: createSaturnRingTexture(),
+        side: THREE.DoubleSide,
+        transparent: true,
+        roughness: 0.45
+      })
+    );
     saturnGroup.add(saturnRings);
 
-    // STATION 2: MARS (Z = -62)
+    // 3,200 3D Ice-Crystal Ring Particles Orbiting Saturn
+    const ringIceCount = 3200;
+    const ringIceGeo = new THREE.BufferGeometry();
+    const ringIcePos = new Float32Array(ringIceCount * 3);
+    for (let i = 0; i < ringIceCount; i++) {
+      const angle = Math.random() * Math.PI * 2;
+      let rad = 2.9 + Math.random() * 2.8;
+      if (rad > 4.62 && rad < 4.78) rad += 0.22; // Keep Cassini gap clear
+      ringIcePos[i * 3] = Math.cos(angle) * rad;
+      ringIcePos[i * 3 + 1] = (Math.random() - 0.5) * 0.05;
+      ringIcePos[i * 3 + 2] = Math.sin(angle) * rad;
+    }
+    ringIceGeo.setAttribute('position', new THREE.BufferAttribute(ringIcePos, 3));
+    const ringIceParticles = new THREE.Points(
+      ringIceGeo,
+      new THREE.PointsMaterial({ color: 0xfffbeb, size: 0.028, transparent: true, opacity: 0.75 })
+    );
+    saturnGroup.add(ringIceParticles);
+
+    /* ==========================================================================
+       STATION 2: MARS WITH 6-OCTAVE GPU TOPOGRAPHIC CANYON SHADER (Z = -62)
+       ========================================================================== */
     const marsGroup = new THREE.Group();
     marsGroup.position.set(1.9, -0.1, -62);
     scene.add(marsGroup);
 
-    const marsMat = new THREE.MeshStandardMaterial({
-      map: createMarsSurfaceTexture(),
-      roughness: 0.82,
-      metalness: 0.05
-    });
-    const marsMesh = new THREE.Mesh(new THREE.SphereGeometry(2.1, 72, 72), marsMat);
-    marsGroup.add(marsMesh);
-    marsGroup.add(createAtmosphereHalo(2.1, 0xf97316, 0.75));
+    const marsShaderMat = new THREE.ShaderMaterial({
+      uniforms: {
+        sunDir: { value: new THREE.Vector3(0.75, 0.3, 0.6).normalize() }
+      },
+      vertexShader: `
+        varying vec3 vPos;
+        varying vec3 vWorldNormal;
+        varying vec3 vViewPos;
+        void main() {
+          vPos = position;
+          vWorldNormal = normalize(mat3(modelMatrix) * normal);
+          vec4 mvPos = modelViewMatrix * vec4(position, 1.0);
+          vViewPos = -mvPos.xyz;
+          gl_Position = projectionMatrix * mvPos;
+        }
+      `,
+      fragmentShader: `
+        uniform vec3 sunDir;
+        varying vec3 vPos;
+        varying vec3 vWorldNormal;
+        varying vec3 vViewPos;
+        ${GLSL_NOISE_SNIPPET}
+        void main() {
+          float h = fbm(vPos * 1.85);
+          float detail = fbm(vPos * 6.5);
+          // Perturb normal for 3D canyon & crater relief lighting!
+          vec3 nPerturb = normalize(vWorldNormal + vec3(detail - 0.5) * 0.28);
 
-    // STATION 3: THE MOON (Z = -92)
+          vec3 rustLight = vec3(0.84, 0.39, 0.21);
+          vec3 rustMid = vec3(0.66, 0.25, 0.13);
+          vec3 basaltDark = vec3(0.28, 0.12, 0.08);
+          vec3 albedo = mix(basaltDark, mix(rustMid, rustLight, h), smoothstep(0.32, 0.72, h + detail * 0.25));
+
+          // Polar Ice Caps
+          float lat = abs(normalize(vPos).y);
+          float ice = smoothstep(0.86, 0.95, lat + h * 0.08);
+          albedo = mix(albedo, vec3(0.95, 0.93, 0.90), ice);
+
+          float ndl = max(0.0, dot(nPerturb, sunDir));
+          float diff = pow(ndl, 0.85) * 1.2 + 0.04;
+          vec3 viewDir = normalize(vViewPos);
+          float rim = pow(1.0 - max(0.0, dot(normalize(vWorldNormal), viewDir)), 2.8);
+          vec3 col = albedo * diff + vec3(0.98, 0.48, 0.22) * rim * ndl * 0.55;
+          gl_FragColor = vec4(col, 1.0);
+        }
+      `
+    });
+    const marsMesh = new THREE.Mesh(new THREE.SphereGeometry(2.1, 96, 96), marsShaderMat);
+    marsGroup.add(marsMesh);
+    marsGroup.add(createAtmosphereHalo(2.1, 0xf97316, 0.85));
+
+    /* ==========================================================================
+       STATION 3: THE MOON WITH REAL NASA LRO TEXTURE & BUMP CRATERS (Z = -92)
+       ========================================================================== */
     const moonGroup = new THREE.Group();
     moonGroup.position.set(1.5, 0.25, -92);
     scene.add(moonGroup);
 
     const moonMat = new THREE.MeshStandardMaterial({
-      map: createMoonSurfaceTexture(),
-      roughness: 0.9,
-      metalness: 0.02
+      color: 0xd1d5db,
+      roughness: 0.88,
+      metalness: 0.04
     });
-    // Also load official NASA Moon texture from Three.js CDN if available
     textureLoader.load(
       'https://raw.githubusercontent.com/mrdoob/three.js/master/examples/textures/planets/moon_1024.jpg',
       (tex) => {
         moonMat.map = tex;
         moonMat.bumpMap = tex;
-        moonMat.bumpScale = 0.025;
+        moonMat.bumpScale = 0.035;
         moonMat.needsUpdate = true;
       }
     );
-    const moonMesh = new THREE.Mesh(new THREE.SphereGeometry(1.35, 64, 64), moonMat);
+    const moonMesh = new THREE.Mesh(new THREE.SphereGeometry(1.35, 72, 72), moonMat);
     moonGroup.add(moonMesh);
 
-    // STATION 4: PHOTOREALISTIC BLUE MARBLE EARTH (Z = -120)
+    /* ==========================================================================
+       STATION 4: PHOTOREALISTIC BLUE MARBLE EARTH + EXPLODABLE TECTONIC CORE (Z = -120)
+       ========================================================================== */
     const earthGroup = new THREE.Group();
     earthGroup.position.set(2.0, -0.05, -120);
-    earthGroup.rotation.z = 0.41; // 23.5 deg axial tilt
+    earthGroup.rotation.z = 0.32;
     scene.add(earthGroup);
 
     const earthMat = new THREE.MeshPhongMaterial({
-      map: createFallbackEarthTexture(),
-      specular: new THREE.Color(0x334155),
-      shininess: 18
+      color: 0xffffff,
+      specular: new THREE.Color(0x475569),
+      shininess: 24,
+      side: THREE.DoubleSide
     });
 
-    // Load Official High-Res NASA Blue Marble Earth & Normal/Specular/Clouds Maps
-    textureLoader.load(
-      'https://raw.githubusercontent.com/mrdoob/three.js/master/examples/textures/planets/earth_atmos_2048.jpg',
-      (tex) => {
-        earthMat.map = tex;
-        earthMat.needsUpdate = true;
-      }
-    );
-    textureLoader.load(
-      'https://raw.githubusercontent.com/mrdoob/three.js/master/examples/textures/planets/earth_normal_2048.jpg',
-      (tex) => {
-        earthMat.normalMap = tex;
-        earthMat.normalScale.set(0.85, 0.85);
-        earthMat.needsUpdate = true;
-      }
-    );
-    textureLoader.load(
-      'https://raw.githubusercontent.com/mrdoob/three.js/master/examples/textures/planets/earth_specular_2048.jpg',
-      (tex) => {
-        earthMat.specularMap = tex;
-        earthMat.needsUpdate = true;
-      }
-    );
+    textureLoader.load('https://raw.githubusercontent.com/mrdoob/three.js/master/examples/textures/planets/earth_atmos_2048.jpg', (t) => {
+      earthMat.map = t;
+      earthMat.needsUpdate = true;
+    });
+    textureLoader.load('https://raw.githubusercontent.com/mrdoob/three.js/master/examples/textures/planets/earth_normal_2048.jpg', (t) => {
+      earthMat.normalMap = t;
+      earthMat.normalScale.set(1.1, 1.1);
+      earthMat.needsUpdate = true;
+    });
+    textureLoader.load('https://raw.githubusercontent.com/mrdoob/three.js/master/examples/textures/planets/earth_specular_2048.jpg', (t) => {
+      earthMat.specularMap = t;
+      earthMat.needsUpdate = true;
+    });
 
-    const earthMesh = new THREE.Mesh(new THREE.SphereGeometry(2.55, 96, 96), earthMat);
-    earthGroup.add(earthMesh);
+    // Build Earth as Two Hemispheres so the Front Crust Can Physically Slide Open (`Cutaway 3D Core`)!
+    const backHemiGeo = new THREE.SphereGeometry(2.55, 96, 96, Math.PI, Math.PI);
+    const earthBackHemi = new THREE.Mesh(backHemiGeo, earthMat);
+    earthGroup.add(earthBackHemi);
 
-    // Volumetric Cloud Layer Sphere Above Earth
+    const frontHemiGroup = new THREE.Group();
+    const frontHemiGeo = new THREE.SphereGeometry(2.55, 96, 96, 0, Math.PI);
+    const earthFrontHemi = new THREE.Mesh(frontHemiGeo, earthMat);
+    frontHemiGroup.add(earthFrontHemi);
+    earthGroup.add(frontHemiGroup);
+
+    // INTERNAL LAYER 1: Molten Convective Mantle & Liquid Outer Core (Revealed inside Earth!)
+    const mantleShaderMat = new THREE.ShaderMaterial({
+      uniforms: { time: { value: 0 } },
+      vertexShader: `
+        varying vec3 vPos;
+        void main() {
+          vPos = position;
+          gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+        }
+      `,
+      fragmentShader: `
+        uniform float time;
+        varying vec3 vPos;
+        ${GLSL_NOISE_SNIPPET}
+        void main() {
+          float n = fbm(vPos * 2.2 + vec3(time * 0.25));
+          vec3 darkMagma = vec3(0.45, 0.06, 0.02);
+          vec3 brightLava = vec3(0.98, 0.38, 0.05);
+          vec3 goldCore = vec3(1.0, 0.85, 0.25);
+          vec3 col = mix(darkMagma, brightLava, smoothstep(0.25, 0.65, n));
+          col = mix(col, goldCore, smoothstep(0.62, 0.85, n));
+          gl_FragColor = vec4(col, 1.0);
+        }
+      `
+    });
+    const mantleMesh = new THREE.Mesh(new THREE.SphereGeometry(2.12, 64, 64), mantleShaderMat);
+    earthGroup.add(mantleMesh);
+
+    // INTERNAL LAYER 2: 6,000°C Blazing Crystalline Iron Inner Core (Slides out slightly on cutaway!)
+    const innerCoreMat = new THREE.MeshBasicMaterial({ color: 0xfef08a });
+    const innerCoreMesh = new THREE.Mesh(new THREE.SphereGeometry(0.92, 48, 48), innerCoreMat);
+    innerCoreMesh.add(createAtmosphereHalo(0.95, 0xf59e0b, 1.8));
+    earthGroup.add(innerCoreMesh);
+
+    // Volumetric Cloud Sphere
     const earthCloudMat = new THREE.MeshLambertMaterial({
-      map: createProceduralClouds(),
       transparent: true,
-      opacity: 0.78,
+      opacity: 0.84,
       blending: THREE.AdditiveBlending,
       depthWrite: false
     });
-    textureLoader.load(
-      'https://raw.githubusercontent.com/mrdoob/three.js/master/examples/textures/planets/earth_clouds_1024.png',
-      (tex) => {
-        earthCloudMat.map = tex;
-        earthCloudMat.opacity = 0.82;
-        earthCloudMat.needsUpdate = true;
-      }
-    );
-    const earthClouds = new THREE.Mesh(new THREE.SphereGeometry(2.58, 96, 96), earthCloudMat);
+    textureLoader.load('https://raw.githubusercontent.com/mrdoob/three.js/master/examples/textures/planets/earth_clouds_1024.png', (t) => {
+      earthCloudMat.map = t;
+      earthCloudMat.needsUpdate = true;
+    });
+    const earthClouds = new THREE.Mesh(new THREE.SphereGeometry(2.585, 96, 96), earthCloudMat);
     earthGroup.add(earthClouds);
 
     // Sapphire Rayleigh Atmosphere Halo Around Earth
-    earthGroup.add(createAtmosphereHalo(2.55, 0x38bdf8, 1.15));
+    earthGroup.add(createAtmosphereHalo(2.55, 0x38bdf8, 1.25));
 
     /* ==========================================================================
-       4. SMOOTH CAMERA SPLINE FLY-THROUGH + 360° DRAG-TO-SPIN ANY PLANET
+       3. CAMERA SPLINE FLY-THROUGH + TECTONIC CORE CUTAWAY + 360° DRAG SPIN
        ========================================================================== */
-    // 5 Camera Keyframes corresponding to Chapters 0..4
     const CAMERA_STOPS = [
-      // Ch 0: Deep Space Wide Overview looking down the planetary alignment toward Saturn
       { camPos: new THREE.Vector3(0.0, 1.4, -14.5), lookAt: new THREE.Vector3(1.5, 0.0, -32.0) },
-      // Ch 1: Close-up inside Saturn's Golden Ice Rings
       { camPos: new THREE.Vector3(0.2, 0.65, -20.2), lookAt: new THREE.Vector3(1.3, 0.05, -28.0) },
-      // Ch 2: Mars Low-Orbit Flyby
       { camPos: new THREE.Vector3(0.1, -0.05, -55.8), lookAt: new THREE.Vector3(1.05, -0.1, -62.0) },
-      // Ch 3: Skimming the Moon with Earth rising in the background
       { camPos: new THREE.Vector3(0.25, 0.35, -87.4), lookAt: new THREE.Vector3(1.1, 0.12, -96.0) },
-      // Ch 4: Full Orbital Arrival at Photorealistic Blue Marble Earth
-      { camPos: new THREE.Vector3(0.15, 0.0, -113.2), lookAt: new THREE.Vector3(1.05, -0.05, -120.0) }
+      { camPos: new THREE.Vector3(0.15, 0.0, -113.0), lookAt: new THREE.Vector3(1.15, -0.05, -120.0) }
     ];
 
-    let scrollProgress = 0; // 0.0 -> 1.0
+    let scrollProgress = 0;
     let targetScrollProgress = 0;
+    let lastChapterIdx = 0;
 
-    // Interactive 360° Drag-to-Spin offset applied to all planets
+    let isCoreCutaway = false;
+    let curCoreCutaway = 0; // 0.0 -> 1.0
+    let targetCoreCutaway = 0;
+
     let isDragging = false;
     let prevX = 0;
     let prevY = 0;
@@ -1116,8 +1302,9 @@
       const dy = e.clientY - prevY;
       prevX = e.clientX;
       prevY = e.clientY;
-      targetUserSpinY += dx * 0.008;
-      targetUserSpinX = Math.max(-0.65, Math.min(0.65, targetUserSpinX + dy * 0.008));
+      targetUserSpinY += dx * 0.0085;
+      targetUserSpinX = Math.max(-0.65, Math.min(0.65, targetUserSpinX + dy * 0.0085));
+      if (Math.abs(dx) > 12) SpaceAudio.playSpinPulse(Math.abs(dx) * 0.05);
     });
 
     window.addEventListener('pointerup', () => {
@@ -1128,10 +1315,39 @@
     const editorialBlocks = document.querySelectorAll('.editorial-block');
     const scrollLineFill = document.getElementById('scrollLineFill');
     const chapterIndicator = document.getElementById('chapterIndicator');
+    const coreCutawayBtn = document.getElementById('coreCutawayBtn');
+    const earthCoreActionBtn = document.getElementById('earthCoreActionBtn');
+    const coreLabelsLayer = document.getElementById('coreLabelsLayer');
 
-    function updateUIForProgress(norm) {
+    function setCoreCutawayState(open, playSound = true) {
+      isCoreCutaway = open;
+      targetCoreCutaway = open ? 1.0 : 0.0;
+      coreCutawayBtn.classList.toggle('active-core', open);
+      coreCutawayBtn.innerHTML = open ? '🔒 Seal Planet Core' : '🌋 Cutaway 3D Core';
+      earthCoreActionBtn.innerHTML = open ? '🔒 Seal Earth’s Core' : '🌋 Cutaway Earth’s Core';
+      coreLabelsLayer.classList.toggle('visible', open);
+      if (playSound) SpaceAudio.playTectonicCore(open);
+    }
+
+    coreCutawayBtn.addEventListener('click', () => {
+      // If not yet at Earth, warp to Earth and open core!
+      if (targetScrollProgress < 0.85 && !isCoreCutaway) {
+        document.getElementById('ch-4').scrollIntoView({ behavior: 'smooth' });
+      }
+      setCoreCutawayState(!isCoreCutaway, true);
+    });
+
+    earthCoreActionBtn.addEventListener('click', () => {
+      setCoreCutawayState(!isCoreCutaway, true);
+    });
+
+    function updateUIForProgress(norm, triggerAudio = false) {
       scrollLineFill.style.height = `${Math.round(norm * 100)}%`;
       const activeIdx = Math.min(4, Math.round(norm * 4));
+      if (activeIdx !== lastChapterIdx) {
+        lastChapterIdx = activeIdx;
+        if (triggerAudio) SpaceAudio.playPlanetFlyby(activeIdx);
+      }
       chapterIndicator.textContent = `0${activeIdx + 1}`;
       dockItems.forEach((btn, i) => btn.classList.toggle('active', i === activeIdx));
       editorialBlocks.forEach((blk, i) => blk.classList.toggle('in-view', i === activeIdx));
@@ -1142,74 +1358,67 @@
       if (demoModeManual) return;
       const maxScroll = Math.max(1, document.documentElement.scrollHeight - window.innerHeight);
       targetScrollProgress = Math.max(0, Math.min(1, window.scrollY / maxScroll));
-      updateUIForProgress(targetScrollProgress);
+      updateUIForProgress(targetScrollProgress, true);
     });
 
-    // Bottom Dock Planet Fly-To Buttons
     dockItems.forEach((btn) => {
       btn.addEventListener('click', () => {
-        SpaceAudio.playWarpWhoosh(1 + Number(btn.dataset.ch) * 0.12);
-        const secEl = document.getElementById(`ch-${btn.dataset.ch}`);
+        const ch = Number(btn.dataset.ch);
+        SpaceAudio.playPlanetFlyby(ch);
+        const secEl = document.getElementById(`ch-${ch}`);
         if (secEl) secEl.scrollIntoView({ behavior: 'smooth' });
       });
     });
 
     document.getElementById('startFlightBtn').addEventListener('click', () => {
-      SpaceAudio.playWarpWhoosh(1.1);
+      SpaceAudio.playPlanetFlyby(1);
       document.getElementById('ch-1').scrollIntoView({ behavior: 'smooth' });
     });
 
     document.getElementById('jumpEarthBtn').addEventListener('click', () => {
-      SpaceAudio.playWarpWhoosh(1.35);
+      SpaceAudio.playPlanetFlyby(4);
       document.getElementById('ch-4').scrollIntoView({ behavior: 'smooth' });
     });
 
-    document.getElementById('backToSpaceBtn').addEventListener('click', () => {
-      SpaceAudio.playWarpWhoosh(0.95);
-      document.getElementById('ch-0').scrollIntoView({ behavior: 'smooth' });
-    });
-
-    // Daylight / Solar Eclipse Lighting Toggle
     let eclipseMode = false;
     const lightingToggleBtn = document.getElementById('lightingToggleBtn');
     lightingToggleBtn.addEventListener('click', () => {
       eclipseMode = !eclipseMode;
-      SpaceAudio.playSoftClick(560);
+      SpaceAudio.playSpinPulse(2.0);
       if (eclipseMode) {
         sunLight.position.set(-14, 3, -155);
-        sunLight.intensity = 1.6;
+        sunLight.intensity = 1.65;
         lightingToggleBtn.textContent = '🌙 Eclipse Rim Light';
       } else {
-        sunLight.position.set(18, 8, 25);
-        sunLight.intensity = 2.8;
+        sunLight.position.set(20, 8, 28);
+        sunLight.intensity = 2.9;
         lightingToggleBtn.textContent = '☀ Daylight / Eclipse';
       }
     });
 
     document.getElementById('soundToggleBtn').addEventListener('click', () => {
-      SpaceAudio.playWarpWhoosh(1.0);
+      SpaceAudio.playPlanetFlyby(lastChapterIdx);
     });
 
-    // Reservation Modal Controls
+    // Reservation Modal
     const modalBackdrop = document.getElementById('modalBackdrop');
     const confirmBookingBtn = document.getElementById('confirmBookingBtn');
     const suiteOptions = document.querySelectorAll('.suite-option');
 
     function openModal() {
-      SpaceAudio.playSoftClick(640);
+      SpaceAudio.playSpinPulse(1.8);
       modalBackdrop.classList.add('open');
     }
     function closeModal() {
       modalBackdrop.classList.remove('open');
     }
-
     document.getElementById('openReserveBtn').addEventListener('click', openModal);
     document.getElementById('earthReserveBtn').addEventListener('click', openModal);
     document.getElementById('closeModalBtn').addEventListener('click', closeModal);
 
     suiteOptions.forEach((opt) => {
       opt.addEventListener('click', () => {
-        SpaceAudio.playSoftClick(580);
+        SpaceAudio.playSpinPulse(1.5);
         suiteOptions.forEach((o) => o.classList.remove('selected'));
         opt.classList.add('selected');
         confirmBookingBtn.textContent = `Confirm Reservation — ${opt.dataset.price}`;
@@ -1217,30 +1426,27 @@
     });
 
     confirmBookingBtn.addEventListener('click', () => {
-      SpaceAudio.playWarpWhoosh(1.4);
+      SpaceAudio.playTectonicCore(true);
       confirmBookingBtn.textContent = '✓ Capsule Seat Reserved — Confirmation Sent';
       setTimeout(closeModal, 1400);
     });
 
     /* ==========================================================================
-       5. 60FPS RENDER LOOP & INTERPOLATED CAMERA FLIGHT
+       4. 60FPS RENDER LOOP & 3D CORE CALLOUT PROJECTION
        ========================================================================== */
     const curCamPos = new THREE.Vector3();
     const curLookAt = new THREE.Vector3();
+    const projVec = new THREE.Vector3();
     let clockTime = 0;
 
     function evaluateCameraAtProgress(p) {
       const scaled = Math.max(0, Math.min(3.9999, p * 4));
       const idx = Math.floor(scaled);
       const frac = scaled - idx;
-      // Smoothstep easing between stops so planet arrivals feel buttery
       const smoothFrac = frac * frac * (3 - 2 * frac);
 
-      const stopA = CAMERA_STOPS[idx];
-      const stopB = CAMERA_STOPS[idx + 1];
-
-      curCamPos.lerpVectors(stopA.camPos, stopB.camPos, smoothFrac);
-      curLookAt.lerpVectors(stopA.lookAt, stopB.lookAt, smoothFrac);
+      curCamPos.lerpVectors(CAMERA_STOPS[idx].camPos, CAMERA_STOPS[idx + 1].camPos, smoothFrac);
+      curLookAt.lerpVectors(CAMERA_STOPS[idx].lookAt, CAMERA_STOPS[idx + 1].lookAt, smoothFrac);
 
       camera.position.copy(curCamPos);
       camera.lookAt(curLookAt);
@@ -1249,20 +1455,50 @@
     function updateSceneAndRender() {
       evaluateCameraAtProgress(scrollProgress);
 
+      saturnShaderMat.uniforms.time.value = clockTime;
+      mantleShaderMat.uniforms.time.value = clockTime;
+
       // Rotate all celestial bodies + apply user 360° drag spin
       saturnMesh.rotation.y = clockTime * 0.14 + userSpinY;
       saturnRings.rotation.z = clockTime * 0.05 + userSpinY * 0.5;
+      ringIceParticles.rotation.y = -clockTime * 0.08;
       saturnGroup.rotation.x = 0.28 + userSpinX * 0.5;
 
       marsMesh.rotation.y = clockTime * 0.18 + userSpinY;
-      marsMesh.rotation.x = userSpinX * 0.5;
+      marsGroup.rotation.x = userSpinX * 0.5;
 
       moonMesh.rotation.y = clockTime * 0.12 + userSpinY;
-      moonMesh.rotation.x = userSpinX * 0.5;
+      moonGroup.rotation.x = userSpinX * 0.5;
 
-      earthMesh.rotation.y = -1.4 + clockTime * 0.16 + userSpinY;
-      earthClouds.rotation.y = -1.4 + clockTime * 0.21 + userSpinY * 1.05;
+      // Earth & Explodable 3D Tectonic Core Cutaway Animation
+      const baseEarthRot = -1.45 + clockTime * 0.15 + userSpinY;
+      earthBackHemi.rotation.y = baseEarthRot;
+      frontHemiGroup.rotation.y = baseEarthRot;
+      // Slide front hemisphere outward & swing open when Cutaway Core is active!
+      frontHemiGroup.position.x = curCoreCutaway * 2.35;
+      frontHemiGroup.position.z = curCoreCutaway * 0.85;
+      innerCoreMesh.position.z = curCoreCutaway * 0.65;
+      earthClouds.rotation.y = baseEarthRot * 1.08;
+      earthClouds.material.opacity = 0.84 * (1 - curCoreCutaway * 0.55);
       earthGroup.rotation.x = userSpinX * 0.6;
+
+      // Project 3D Core Callout Labels when Cutaway Core is open
+      if (curCoreCutaway > 0.35) {
+        const callouts = [
+          { id: 'lblInnerCore', offset: new THREE.Vector3(0.0, -1.05, 0.8) },
+          { id: 'lblOuterCore', offset: new THREE.Vector3(-1.35, 0.85, 0.4) },
+          { id: 'lblCrust', offset: new THREE.Vector3(2.35, -1.35, 0.85) }
+        ];
+        callouts.forEach(({ id, offset }) => {
+          const el = document.getElementById(id);
+          if (!el) return;
+          projVec.copy(earthGroup.position).add(offset);
+          projVec.project(camera);
+          const sx = (projVec.x * 0.5 + 0.5) * window.innerWidth;
+          const sy = (-(projVec.y * 0.5) + 0.5) * window.innerHeight;
+          el.style.transform = `translate(${sx}px, ${sy}px) translate(-50%, -50%)`;
+        });
+      }
 
       renderer.render(scene, camera);
     }
@@ -1270,20 +1506,21 @@
     function animate() {
       requestAnimationFrame(animate);
       if (demoModeManual) return;
-      clockTime += 0.012;
+      clockTime += 0.015;
 
-      scrollProgress += (targetScrollProgress - scrollProgress) * 0.065;
+      scrollProgress += (targetScrollProgress - scrollProgress) * 0.07;
       userSpinY += (targetUserSpinY - userSpinY) * 0.09;
       userSpinX += (targetUserSpinX - userSpinX) * 0.09;
+      curCoreCutaway += (targetCoreCutaway - curCoreCutaway) * 0.085;
 
       updateSceneAndRender();
     }
 
-    updateUIForProgress(0);
+    updateUIForProgress(0, false);
     animate();
 
     /* ==========================================================================
-       6. DETERMINISTIC CHOREOGRAPHY ENGINE FOR TIKTOK VIDEO & LIVE DEMO (Press R)
+       5. DETERMINISTIC CHOREOGRAPHY ENGINE FOR TIKTOK VIDEO & LIVE DEMO (Press R)
        ========================================================================== */
     const demoCursor = document.getElementById('demoCursor');
     const clickRipple = document.getElementById('clickRipple');
@@ -1295,45 +1532,86 @@
     function lerp(a, b, t) {
       return a + (b - a) * t;
     }
+    function getCenter(el) {
+      const r = el.getBoundingClientRect();
+      return { x: r.left + r.width * 0.5, y: r.top + r.height * 0.5 };
+    }
 
     window.setDemoTime = function(sec) {
       demoModeManual = true;
-      clockTime = sec * 1.4;
+      clockTime = sec * 1.5;
       demoCursor.classList.add('visible');
 
+      const W = window.innerWidth;
+      const H = window.innerHeight;
       const maxScroll = Math.max(1, document.documentElement.scrollHeight - window.innerHeight);
 
-      // 13.5-Second Planetary Fly-Through Choreography:
-      // 0.0s - 3.2s: Fly into Saturn's Crystalline Rings & spin 360°
-      // 3.2s - 6.0s: Warp-fly past Saturn to Mars Red Horizon
-      // 6.0s - 8.5s: Warp-fly past the Cratered Moon as Earth rises
-      // 8.5s - 12.2s: Dive into Photorealistic Blue Marble Earth & spin Earth 360°
-      // 12.2s - 13.5s: Smoothly warp back out to Deep Space for seamless loop
+      // 13.5-Second Viral Planetary Fly-Through & Tectonic Core Cutaway Choreography:
+      // 0.0s - 2.6s: Fly into Saturn's 3,200 3D Ice Rings & spin ring plane
+      // 2.6s - 5.0s: Warp past Mars Valles Marineris 3D Canyons
+      // 5.0s - 7.2s: Skim the Cratered Moon as Earth rises
+      // 7.2s - 9.2s: Arrive at Photorealistic Blue Marble Earth & spin 360°
+      // 9.2s - 12.2s: Click "🌋 Cutaway 3D Core" -> Earth splits open to reveal blazing 6,000°C Inner Core & Molten Mantle!
+      // 12.2s - 13.5s: Seal core & warp back to Deep Space for seamless loop
       let norm = 0;
-      if (sec < 3.2) {
-        norm = lerp(0.0, 0.25, smoothstep(0.2, 2.0, sec));
-        userSpinY = smoothstep(1.2, 3.0, sec) * 1.4;
-      } else if (sec < 6.0) {
-        norm = lerp(0.25, 0.50, smoothstep(3.2, 5.0, sec));
-        userSpinY = 1.4 + smoothstep(3.5, 5.8, sec) * 1.2;
-      } else if (sec < 8.5) {
-        norm = lerp(0.50, 0.75, smoothstep(6.0, 7.6, sec));
-        userSpinY = 2.6 + smoothstep(6.2, 8.3, sec) * 1.1;
+      if (sec < 2.6) {
+        norm = lerp(0.0, 0.25, smoothstep(0.15, 1.5, sec));
+        userSpinY = smoothstep(0.8, 2.5, sec) * 1.3;
+      } else if (sec < 5.0) {
+        norm = lerp(0.25, 0.50, smoothstep(2.6, 3.9, sec));
+        userSpinY = 1.3 + smoothstep(2.8, 4.9, sec) * 1.2;
+      } else if (sec < 7.2) {
+        norm = lerp(0.50, 0.75, smoothstep(5.0, 6.2, sec));
+        userSpinY = 2.5 + smoothstep(5.2, 7.1, sec) * 1.1;
       } else if (sec < 12.2) {
-        norm = lerp(0.75, 1.0, smoothstep(8.5, 9.8, sec));
-        userSpinY = 3.7 + smoothstep(9.0, 12.0, sec) * 2.8;
+        norm = lerp(0.75, 1.0, smoothstep(7.2, 8.4, sec));
+        userSpinY = 3.6 + smoothstep(7.5, 12.0, sec) * 2.2;
       } else {
         norm = lerp(1.0, 0.0, smoothstep(12.2, 13.4, sec));
-        userSpinY = lerp(6.5, 0.0, smoothstep(12.2, 13.4, sec));
+        userSpinY = lerp(5.8, 0.0, smoothstep(12.2, 13.4, sec));
       }
+
+      // Tectonic Core Cutaway active between 9.2s and 12.1s
+      const coreOpen = sec >= 9.2 && sec < 12.1;
+      if (sec >= 9.2 && sec < 12.1) {
+        curCoreCutaway = smoothstep(9.2, 9.85, sec);
+      } else if (sec >= 12.1) {
+        curCoreCutaway = 1.0 - smoothstep(12.1, 12.7, sec);
+      } else {
+        curCoreCutaway = 0.0;
+      }
+      setCoreCutawayState(coreOpen, false);
 
       scrollProgress = norm;
       window.scrollTo(0, norm * maxScroll);
-      updateUIForProgress(norm);
+      updateUIForProgress(norm, false);
+
+      // Cursor choreography
+      const pCoreBtn = getCenter(coreCutawayBtn);
+      let cx = lerp(W * 0.58, W * 0.74, Math.sin(sec * 1.2) * 0.5 + 0.5);
+      let cy = lerp(H * 0.56, H * 0.44, Math.cos(sec * 1.2) * 0.5 + 0.5);
+      if (sec >= 8.4 && sec < 10.0) {
+        const t = smoothstep(8.4, 9.2, sec);
+        cx = lerp(W * 0.68, pCoreBtn.x, t);
+        cy = lerp(H * 0.48, pCoreBtn.y, t);
+      }
+      demoCursor.style.left = `${cx}px`;
+      demoCursor.style.top = `${cy}px`;
+
+      if (sec >= 9.2 && sec <= 9.7) {
+        const dt = (sec - 9.2) / 0.5;
+        clickRipple.style.left = `${pCoreBtn.x}px`;
+        clickRipple.style.top = `${pCoreBtn.y}px`;
+        clickRipple.style.opacity = String(1 - dt);
+        clickRipple.style.transform = `translate(-50%, -50%) scale(${lerp(0.25, 1.75, dt)})`;
+      } else {
+        clickRipple.style.opacity = '0';
+      }
+
       updateSceneAndRender();
     };
 
-    // Press "R" anytime to experience the full automated planetary fly-through live!
+    // Press "R" anytime to watch the full choreographed planetary fly-through & core cutaway live with audio!
     window.addEventListener('keydown', (e) => {
       if (e.key === 'r' || e.key === 'R') {
         let start = performance.now();
@@ -1342,10 +1620,12 @@
           const sec = (now - start) / 1000;
           if (sec <= 13.5) {
             window.setDemoTime(sec);
-            if (sec >= 0.2 && !fired.has('w1')) { fired.add('w1'); SpaceAudio.playWarpWhoosh(1.0); }
-            if (sec >= 3.2 && !fired.has('w2')) { fired.add('w2'); SpaceAudio.playWarpWhoosh(1.15); }
-            if (sec >= 6.0 && !fired.has('w3')) { fired.add('w3'); SpaceAudio.playWarpWhoosh(1.3); }
-            if (sec >= 8.5 && !fired.has('w4')) { fired.add('w4'); SpaceAudio.playWarpWhoosh(1.45); }
+            if (sec >= 0.2 && !fired.has('f1')) { fired.add('f1'); SpaceAudio.playPlanetFlyby(1); }
+            if (sec >= 2.6 && !fired.has('f2')) { fired.add('f2'); SpaceAudio.playPlanetFlyby(2); }
+            if (sec >= 5.0 && !fired.has('f3')) { fired.add('f3'); SpaceAudio.playPlanetFlyby(3); }
+            if (sec >= 7.2 && !fired.has('f4')) { fired.add('f4'); SpaceAudio.playPlanetFlyby(4); }
+            if (sec >= 9.2 && !fired.has('core')) { fired.add('core'); SpaceAudio.playTectonicCore(true); }
+            if (sec >= 12.1 && !fired.has('seal')) { fired.add('seal'); SpaceAudio.playTectonicCore(false); }
             requestAnimationFrame(step);
           } else {
             demoModeManual = false;
