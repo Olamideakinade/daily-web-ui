@@ -55,19 +55,19 @@
     .ambient-orb.one { top: -120px; left: -100px; }
     .ambient-orb.two { bottom: -140px; right: -100px; }
 
-    /* Top Browser Route Bar */
+    /* Top Browser Route Bar + Celebrity & Currency Switchers */
     .fake-browser-bar {
       position: fixed;
       top: 0;
       left: 0;
       right: 0;
-      height: 46px;
+      height: 48px;
       background: #202124;
       border-bottom: 1px solid #3c4043;
       display: flex;
       align-items: center;
       padding: 0 18px;
-      gap: 14px;
+      gap: 12px;
       z-index: 200;
     }
 
@@ -80,25 +80,23 @@
     }
 
     .omnibox {
-      flex: 1;
-      max-width: 680px;
+      width: 220px;
       height: 30px;
       background: #303134;
       border-radius: 100px;
       display: flex;
       align-items: center;
-      padding: 0 16px;
+      padding: 0 14px;
       color: #e8eaed;
-      font-size: 13px;
+      font-size: 12.5px;
       font-weight: 500;
-      letter-spacing: 0.2px;
     }
 
     .bar-controls-right {
       margin-left: auto;
       display: flex;
       align-items: center;
-      gap: 8px;
+      gap: 6px;
     }
 
     .tiny-mode-pill {
@@ -110,6 +108,11 @@
       padding: 4px 10px;
       border-radius: 100px;
       cursor: pointer;
+      transition: all 0.15s ease;
+    }
+
+    .tiny-mode-pill:hover {
+      background: rgba(255, 255, 255, 0.16);
     }
 
     .tiny-mode-pill.active {
@@ -122,8 +125,8 @@
     .crush-card {
       position: relative;
       z-index: 10;
-      width: 510px;
-      min-height: 380px;
+      width: 520px;
+      min-height: 390px;
       background: var(--card-bg);
       border: 1px solid rgba(255, 255, 255, 0.85);
       border-radius: 32px;
@@ -159,15 +162,15 @@
       to   { opacity: 1; transform: translateY(0) scale(1); }
     }
 
-    /* Circular Crush Avatar */
+    /* Circular Celebrity Crush Avatar + Verified Badge */
     .crush-avatar-wrap {
-      width: 96px;
-      height: 96px;
+      width: 108px;
+      height: 108px;
       border-radius: 50%;
       padding: 4px;
-      background: linear-gradient(135deg, #f3c6d3, #d88ca0);
-      box-shadow: 0 10px 25px rgba(158, 42, 75, 0.18);
-      margin-bottom: 20px;
+      background: linear-gradient(135deg, #e1306c, #f77737);
+      box-shadow: 0 12px 28px rgba(158, 42, 75, 0.22);
+      margin-bottom: 10px;
       cursor: pointer;
       position: relative;
       transition: transform 0.25s ease;
@@ -182,7 +185,37 @@
       height: 100%;
       border-radius: 50%;
       object-fit: cover;
-      border: 2px solid #ffffff;
+      object-position: center top;
+      border: 3px solid #ffffff;
+      background: #f3dde2;
+    }
+
+    .verified-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      background: rgba(255, 255, 255, 0.9);
+      border: 1px solid rgba(190, 140, 152, 0.28);
+      padding: 4px 12px;
+      border-radius: 100px;
+      font-size: 12px;
+      font-weight: 800;
+      color: var(--wine-dark);
+      margin-bottom: 12px;
+      box-shadow: 0 4px 12px rgba(110, 20, 35, 0.06);
+    }
+
+    .verified-tick {
+      width: 15px;
+      height: 15px;
+      border-radius: 50%;
+      background: #1d9bf0;
+      color: #ffffff;
+      font-size: 9px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 900;
     }
 
     .top-icon-circle {
@@ -196,12 +229,12 @@
       align-items: center;
       justify-content: center;
       font-size: 26px;
-      margin-bottom: 16px;
+      margin-bottom: 14px;
     }
 
     .serif-heading {
       font-family: 'Playfair Display', Georgia, serif;
-      font-size: 29px;
+      font-size: 28px;
       font-weight: 700;
       color: var(--wine-dark);
       line-height: 1.22;
@@ -210,12 +243,12 @@
     }
 
     .sub-caption {
-      font-size: 13.5px;
+      font-size: 13px;
       font-weight: 500;
       color: var(--text-muted);
       line-height: 1.5;
-      max-width: 380px;
-      margin-bottom: 22px;
+      max-width: 390px;
+      margin-bottom: 18px;
     }
 
     /* Step 1 Buttons Row (Growing YES + Talking Runaway NO) */
@@ -362,21 +395,20 @@
       grid-template-columns: 1fr 1fr;
       gap: 10px;
       width: 100%;
-      max-width: 380px;
+      max-width: 400px;
     }
 
     .food-card {
-      padding: 14px 10px;
+      padding: 12px 10px;
       border-radius: 16px;
       border: 1px solid transparent;
-      background: rgba(255, 255, 255, 0.65);
+      background: rgba(255, 255, 255, 0.68);
       cursor: pointer;
       transition: all 0.2s ease;
       display: flex;
       flex-direction: column;
       align-items: center;
-      gap: 4px;
-      position: relative;
+      gap: 3px;
     }
 
     .food-card:hover {
@@ -391,26 +423,33 @@
     }
 
     .food-name {
-      font-size: 13px;
+      font-size: 12.5px;
       font-weight: 700;
       color: var(--wine-dark);
     }
 
-    .food-tag {
+    .food-sub {
       font-size: 10px;
-      font-weight: 700;
+      font-weight: 600;
+      color: var(--text-muted);
+    }
+
+    .food-tag {
+      font-size: 9.5px;
+      font-weight: 800;
       color: var(--rose-btn);
-      background: rgba(201, 59, 91, 0.1);
+      background: rgba(201, 59, 91, 0.12);
       padding: 2px 7px;
       border-radius: 100px;
+      margin-top: 2px;
     }
 
     .food-toast-alert {
       margin-top: 12px;
-      padding: 8px 14px;
-      border-radius: 10px;
-      background: rgba(110, 20, 35, 0.08);
-      border: 1px solid rgba(110, 20, 35, 0.2);
+      padding: 9px 14px;
+      border-radius: 12px;
+      background: rgba(184, 41, 75, 0.1);
+      border: 1px solid rgba(184, 41, 75, 0.3);
       font-size: 11.5px;
       font-weight: 700;
       color: var(--wine-dark);
@@ -428,26 +467,26 @@
       75% { transform: translateX(6px); }
     }
 
-    /* Step 5B: Mandatory Relationship Terms & Conditions */
+    /* Step 5: Mandatory Relationship Terms & Conditions */
     .terms-list {
       width: 100%;
-      max-width: 400px;
+      max-width: 410px;
       display: flex;
       flex-direction: column;
-      gap: 9px;
-      margin-bottom: 20px;
+      gap: 8px;
+      margin-bottom: 18px;
       text-align: left;
     }
 
     .term-item {
-      background: rgba(255, 255, 255, 0.72);
+      background: rgba(255, 255, 255, 0.75);
       border: 1px solid var(--border-soft);
-      padding: 11px 14px;
+      padding: 10px 13px;
       border-radius: 14px;
       display: flex;
       align-items: center;
       gap: 10px;
-      font-size: 12.5px;
+      font-size: 12px;
       font-weight: 600;
       color: var(--wine-dark);
       cursor: pointer;
@@ -463,12 +502,12 @@
     /* Step 6: THE ITEMIZED ACCEPTANCE FEE INVOICE SCREEN */
     .invoice-box {
       width: 100%;
-      max-width: 390px;
-      background: rgba(255, 255, 255, 0.78);
+      max-width: 400px;
+      background: rgba(255, 255, 255, 0.8);
       border: 1px dashed rgba(142, 27, 50, 0.32);
       border-radius: 18px;
-      padding: 14px 18px;
-      margin-bottom: 14px;
+      padding: 13px 16px;
+      margin-bottom: 12px;
       text-align: left;
     }
 
@@ -476,7 +515,7 @@
       display: flex;
       justify-content: space-between;
       align-items: center;
-      font-size: 12px;
+      font-size: 11.5px;
       font-weight: 600;
       color: #7c4d57;
       padding: 5px 0;
@@ -507,19 +546,19 @@
       letter-spacing: 0.9px;
       text-transform: uppercase;
       color: #b58d96;
-      margin-bottom: 16px;
+      margin-bottom: 14px;
     }
 
     .full-width-btn {
       width: 100%;
-      max-width: 360px;
+      max-width: 370px;
       justify-content: center;
       padding: 14px 24px;
       font-size: 14.5px;
     }
 
     .cancel-trap-btn {
-      margin-top: 9px;
+      margin-top: 8px;
       background: transparent;
       border: none;
       color: var(--text-muted);
@@ -528,10 +567,6 @@
       text-decoration: underline;
       cursor: pointer;
     }
-
-    .cancel-trap-btn:hover {
-      color: var(--wine-dark);
-    }
   </style>
 </head>
 <body>
@@ -539,7 +574,7 @@
   <div class="ambient-orb one"></div>
   <div class="ambient-orb two"></div>
 
-  <!-- Top Browser Route Bar -->
+  <!-- Top Browser Route Bar + 1-Click Celebrity Crush & Currency Switchers -->
   <header class="fake-browser-bar">
     <div class="nav-arrows">
       <span>←</span>
@@ -550,8 +585,14 @@
       <span id="routeText">/route</span>
     </div>
     <div class="bar-controls-right">
-      <button class="tiny-mode-pill active" id="btnCurrencyNG">🇳🇬 ₦150,000</button>
-      <button class="tiny-mode-pill" id="btnCurrencyUK">🇬🇧 £250.00</button>
+      <button class="tiny-mode-pill active celeb-btn" data-celeb="ayra">⭐ Ayra Starr</button>
+      <button class="tiny-mode-pill celeb-btn" data-celeb="tyla">💧 Tyla</button>
+      <button class="tiny-mode-pill celeb-btn" data-celeb="tems">👑 Tems</button>
+      <button class="tiny-mode-pill celeb-btn" data-celeb="rihanna">💎 Rihanna</button>
+      <button class="tiny-mode-pill celeb-btn" data-celeb="zendaya">✨ Zendaya</button>
+      <span style="color: #5f6368;">|</span>
+      <button class="tiny-mode-pill active" id="btnCurrencyNG">🇳🇬 ₦150k</button>
+      <button class="tiny-mode-pill" id="btnCurrencyUK">🇬🇧 £250</button>
     </div>
   </header>
 
@@ -562,17 +603,24 @@
 
     <!-- STEP 1: /route ("Will you go on a date with me?") -->
     <div class="step-screen active" id="step-1">
-      <div class="crush-avatar-wrap" id="avatarTrigger" title="Click to change photo">
+      <div class="crush-avatar-wrap" id="avatarTrigger" title="Click to upload any photo">
         <img
           id="crushAvatarImg"
           class="crush-avatar"
-          src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=400&q=80"
-          alt="Crush"
+          src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=500&q=80"
+          alt="Celebrity Crush"
         />
       </div>
 
-      <h1 class="serif-heading">Will you go on a date with me?</h1>
-      <div style="font-size: 20px; margin-bottom: 16px;">🌸</div>
+      <div class="verified-pill">
+        <span id="celebBadgeName">@ayrastarr</span>
+        <span class="verified-tick">✓</span>
+      </div>
+
+      <h1 class="serif-heading" id="step1Heading">Ayra, will you go on a date with me?</h1>
+      <p class="sub-caption" id="step1Sub" style="margin-bottom: 12px;">
+        (Cancel your London O2 Arena concert real quick, I have ₹2,000 and a dream 🥺🌸)
+      </p>
 
       <div class="yes-no-stage">
         <button class="pink-cta-btn" id="yesBtn">YES 🤍</button>
@@ -583,8 +631,10 @@
     <!-- STEP 2: /confirmed ("Wait, you really said yes?? 😭") -->
     <div class="step-screen" id="step-2">
       <div class="top-icon-circle">🎉</div>
-      <h2 class="serif-heading">Wait, you really said yes?? 😭</h2>
-      <p class="sub-caption">Ngl I was fully prepared for a no 💀 (good thing the "no" button was broken)</p>
+      <h2 class="serif-heading" id="step2Heading">Wait, Ayra Starr really said yes?? 😭</h2>
+      <p class="sub-caption" id="step2Sub">
+        Calling my mum right now to tell her I'm marrying a Grammy superstar 💀 (good thing I disabled the "no" button in CSS)
+      </p>
       <button class="pink-cta-btn" id="toDatePickerBtn">pick a date & time →</button>
     </div>
 
@@ -592,7 +642,7 @@
     <div class="step-screen" id="step-3a">
       <div class="top-icon-circle">📅</div>
       <h2 class="serif-heading">when's the date? 🗓️</h2>
-      <p class="sub-caption" style="margin-bottom: 14px;">pick a day, any day</p>
+      <p class="sub-caption" style="margin-bottom: 14px;">tell your manager to clear your schedule</p>
 
       <div class="calendar-box">
         <div class="cal-month-bar">
@@ -638,62 +688,61 @@
     <div class="step-screen" id="step-4">
       <div class="top-icon-circle">🍽️</div>
       <h2 class="serif-heading">What are we chopping? 🍽️✨</h2>
-      <p class="sub-caption" style="margin-bottom: 14px;">pick your vibe wisely</p>
+      <p class="sub-caption" style="margin-bottom: 12px;">I know you're a millionaire, so pick something humble</p>
 
       <div class="food-grid" id="foodGrid"></div>
       <div class="food-toast-alert" id="foodToastAlert">
-        ⚠️ Locked: Upgrade to "Wife Package™" to unlock Lobster & Nobu 💀 Pick another one!
+        ⚠️ Account Balance Warning: My debit card just started sweating 💀 Please pick Suya or Bossman Chicken abeg!
       </div>
     </div>
 
     <!-- STEP 5: /ready ("glad you didn't say no...") -->
     <div class="step-screen" id="step-5">
       <div class="top-icon-circle">💌</div>
-      <h2 class="serif-heading" id="readyHeading" style="max-width: 380px;">
-        glad you didn't say no.<br/>be ready by 7, I'm coming to get you 🚗
+      <h2 class="serif-heading" id="readyHeading" style="max-width: 400px;">
+        glad you didn't say no.<br/>leave your bodyguards at home, I'm picking you up at 7 🚗
       </h2>
       <p class="sub-caption" style="font-style: italic; margin-bottom: 12px;">
-        P.S. normal people text. I made a website during lunch for you, no big deal
+        P.S. other guys send DMs you never read. I coded a whole web app for you during lunch.
       </p>
 
-      <!-- Hilarious Mandatory Terms Checkboxes -->
+      <!-- Hilarious Mandatory Celebrity Terms Checkboxes -->
       <div class="terms-list">
         <label class="term-item">
           <input type="checkbox" checked onclick="return false;" />
-          <span>I won't say "I'm not hungry" then eat 80% of your fries 🍟</span>
+          <span>I agree to leave my 6 armed security guards at home (I know karate, I'll protect us) 🥋</span>
         </label>
         <label class="term-item">
           <input type="checkbox" checked onclick="return false;" />
-          <span>I agree to laugh at all your dry jokes (even the 2/10 ones) 😂</span>
+          <span>If the bill passes £15 / ₦15,000, I will quietly tap my celebrity black card 💳</span>
         </label>
       </div>
 
       <button class="pink-cta-btn full-width-btn" id="toFinalFeeBtn">ok I accept 🥺</button>
     </div>
 
-    <!-- STEP 6: /final (THE PLOT TWIST: ITEMIZED ACCEPTANCE FEE!) -->
+    <!-- STEP 6: /final (THE PLOT TWIST: CHARGING THE CELEBRITY AN ACCEPTANCE FEE!) -->
     <div class="step-screen" id="step-6">
       <div class="top-icon-circle">💳</div>
-      <h2 class="serif-heading">Acceptance fee</h2>
-      <p class="sub-caption" style="margin-bottom: 12px;">
-        To lock in this date, kindly settle the standard processing fees below. Nothing unusual here.
+      <h2 class="serif-heading">Celebrity Acceptance Fee</h2>
+      <p class="sub-caption" style="margin-bottom: 10px;">
+        Dating a 10/10 software engineer is a high-demand privilege. Kindly settle your compulsory onboarding invoice below:
       </p>
 
-      <!-- Hilarious Itemized Receipt Breakdown -->
       <div class="invoice-box" id="invoiceBreakdown"></div>
 
       <div class="fee-amount" id="feeAmountText">₦150,000</div>
       <div class="fee-disclaimer" id="feeDisclaimer">NON-REFUNDABLE • KLARNA "PAY IN 4" AVAILABLE</div>
 
-      <button class="pink-cta-btn full-width-btn" id="payFeeBtn">pay & accept 🔐✨</button>
-      <button class="cancel-trap-btn" id="cancelTrapBtn">Cancel date & stay single</button>
+      <button class="pink-cta-btn full-width-btn" id="payFeeBtn">pay & lock in your dream man 🔐✨</button>
+      <button class="cancel-trap-btn" id="cancelTrapBtn">Cancel date & go back to world tour</button>
     </div>
 
   </main>
 
   <script>
     /* ==========================================================================
-       1. COMEDY SOUND EFFECTS ENGINE
+       1. SOUND EFFECTS ENGINE
        ========================================================================== */
     const DateSFX = (() => {
       let ctx = null;
@@ -711,7 +760,7 @@
           const g = c.createGain();
           osc.type = 'sine';
           osc.frequency.setValueAtTime(300, now);
-          osc.frequency.exponentialRampToValueAtTime(820, now + 0.13);
+          osc.frequency.exponentialRampToValueAtTime(840, now + 0.13);
           g.gain.setValueAtTime(0.09, now);
           g.gain.exponentialRampToValueAtTime(0.001, now + 0.15);
           osc.connect(g);
@@ -747,7 +796,7 @@
           const g = c.createGain();
           osc.type = 'sawtooth';
           osc.frequency.setValueAtTime(140, now);
-          osc.frequency.setValueAtTime(115, now + 0.1);
+          osc.frequency.setValueAtTime(112, now + 0.1);
           g.gain.setValueAtTime(0.08, now);
           g.gain.exponentialRampToValueAtTime(0.001, now + 0.25);
           osc.connect(g);
@@ -780,7 +829,127 @@
     })();
 
     /* ==========================================================================
-       2. STEP NAVIGATION
+       2. CELEBRITY CRUSH PROFILES (Loads Official High-Res Wikipedia Portraits!)
+       ========================================================================== */
+    const CELEBRITIES = {
+      ayra: {
+        wikiTitle: 'Ayra_Starr',
+        firstName: 'Ayra',
+        fullName: 'Ayra Starr',
+        handle: '@ayrastarr',
+        sub: '(Cancel your London O2 Arena show real quick, I have 2k and a dream 🥺🌸)',
+        dodges: [
+          '"Rush" back to the YES button 😂',
+          'Don’t be a Sability hater 💀',
+          'Even Don Jazzy said click YES 😭',
+          'Your mouse is allergic to No 💀',
+          'Disabled in CSS my love 😌',
+          'Fear God & click YES 🤍'
+        ]
+      },
+      tyla: {
+        wikiTitle: 'Tyla',
+        firstName: 'Tyla',
+        fullName: 'Tyla',
+        handle: '@tyla',
+        sub: '(You make me sweat like "Water", so I coded a whole website to ask you out 🥺🌸)',
+        dodges: [
+          'Don’t make me Lose My Breath 😂',
+          'Even South Africa voted YES 💀',
+          'Mouse broken? Click YES 😭',
+          'Grammy winners can’t click No 😌',
+          'Disabled in CSS my love 💀',
+          'Just click YES 🤍'
+        ]
+      },
+      tems: {
+        wikiTitle: 'Tems',
+        firstName: 'Tems',
+        fullName: 'Tems',
+        handle: '@temsbaby',
+        sub: '(I’ve been waiting on Higher Ground for you to accept this date 🥺🌸)',
+        dodges: [
+          'Wait For U to click YES 😂',
+          'Future & Drake can’t save you 💀',
+          'Why are you chasing the No button? 😭',
+          'Oscar winners must click YES 😌',
+          'Disabled in CSS baby 💀',
+          'Fear God & click YES 🤍'
+        ]
+      },
+      rihanna: {
+        wikiTitle: 'Rihanna',
+        firstName: 'Rihanna',
+        fullName: 'Rihanna',
+        handle: '@badgalriri',
+        sub: '(Forget Fenty & the Super Bowl for one night, let me take you for Shawarma 🥺🌸)',
+        dodges: [
+          'Don’t tell A$AP Rocky 😂',
+          'Billionaires aren’t allowed to click No 💀',
+          'Umbrella ella ella click YES 😭',
+          'Work work work work YES 😌',
+          'Disabled in CSS Riri 💀',
+          'Just click YES 🤍'
+        ]
+      },
+      zendaya: {
+        wikiTitle: 'Zendaya',
+        firstName: 'Zendaya',
+        fullName: 'Zendaya',
+        handle: '@zendaya',
+        sub: '(Even Spider-Man can’t code a whole HTML website for you like I just did 🥺🌸)',
+        dodges: [
+          'Tom Holland is gonna be mad 😂',
+          'Spider-Sense can’t catch this button 💀',
+          'Dune Part 3 can wait, click YES 😭',
+          'Hollywood rules say click YES 😌',
+          'Disabled in CSS 💀',
+          'Just click YES 🤍'
+        ]
+      }
+    };
+
+    let activeCelebKey = 'ayra';
+    const crushAvatarImg = document.getElementById('crushAvatarImg');
+    const celebBadgeName = document.getElementById('celebBadgeName');
+    const step1Heading = document.getElementById('step1Heading');
+    const step1Sub = document.getElementById('step1Sub');
+    const step2Heading = document.getElementById('step2Heading');
+    const celebBtns = document.querySelectorAll('.celeb-btn');
+
+    async function selectCelebrity(key) {
+      activeCelebKey = key;
+      const c = CELEBRITIES[key];
+      celebBtns.forEach((b) => b.classList.toggle('active', b.dataset.celeb === key));
+
+      celebBadgeName.textContent = c.handle;
+      step1Heading.textContent = `${c.firstName}, will you go on a date with me?`;
+      step1Sub.textContent = c.sub;
+      step2Heading.textContent = `Wait, ${c.fullName} really said yes?? 😭`;
+
+      // Fetch official high-res portrait from Wikipedia REST API
+      try {
+        const res = await fetch(`https://en.wikipedia.org/api/rest_v1/page/summary/${c.wikiTitle}`);
+        const data = await res.json();
+        if (data.originalimage && data.originalimage.source) {
+          crushAvatarImg.src = data.originalimage.source;
+        } else if (data.thumbnail && data.thumbnail.source) {
+          crushAvatarImg.src = data.thumbnail.source;
+        }
+      } catch (e) {}
+    }
+
+    celebBtns.forEach((btn) => {
+      btn.addEventListener('click', () => {
+        DateSFX.playTapChime(640);
+        selectCelebrity(btn.dataset.celeb);
+      });
+    });
+
+    selectCelebrity('ayra');
+
+    /* ==========================================================================
+       3. STEP NAVIGATION & RUNAWAY "NO 😂" BUTTON
        ========================================================================== */
     const routeText = document.getElementById('routeText');
     const allSteps = document.querySelectorAll('.step-screen');
@@ -792,29 +961,26 @@
       routeText.textContent = routePath;
     }
 
-    /* ==========================================================================
-       3. TALKING RUNAWAY "NO 😂" BUTTON + GROWING "YES 🤍" BUTTON!
-       ========================================================================== */
     const noBtn = document.getElementById('noBtn');
     const yesBtn = document.getElementById('yesBtn');
-
-    const dodgePositions = [
-      { x: -135, y: -155, text: 'nice try 😂' },
-      { x: 135,  y: -145, text: 'you thought 💀' },
-      { x: -145, y: -55,  text: 'mouse broken? 😭' },
-      { x: 140,  y: -45,  text: 'fear God 🙏' },
-      { x: -120, y: 32,   text: 'disabled in CSS 😌' },
-      { x: 130,  y: 28,   text: 'just click YES 🤍' }
+    const dodgeCoords = [
+      { x: -135, y: -155 },
+      { x: 135,  y: -145 },
+      { x: -145, y: -55 },
+      { x: 140,  y: -45 },
+      { x: -120, y: 32 },
+      { x: 130,  y: 28 }
     ];
     let dodgeIdx = 0;
 
     function dodgeNoButton() {
       DateSFX.playDodgeBoing();
-      const item = dodgePositions[dodgeIdx % dodgePositions.length];
+      const coords = dodgeCoords[dodgeIdx % dodgeCoords.length];
+      const lines = CELEBRITIES[activeCelebKey].dodges;
+      const msg = lines[dodgeIdx % lines.length];
       dodgeIdx++;
-      noBtn.style.transform = `translate(${item.x}px, ${item.y}px)`;
-      noBtn.textContent = item.text;
-      // Make YES button grow bigger every time she tries to click No!
+      noBtn.style.transform = `translate(${coords.x}px, ${coords.y}px)`;
+      noBtn.textContent = msg;
       const yesScale = Math.min(1.55, 1 + dodgeIdx * 0.1);
       yesBtn.style.transform = `scale(${yesScale})`;
     }
@@ -861,49 +1027,49 @@
         DateSFX.playTapChime(740);
         slot.classList.add('selected');
         const shortTime = slot.textContent.replace(':00', '').replace(' PM', '').replace(' AM', '');
-        readyHeading.innerHTML = `glad you didn't say no.<br/>be ready by ${shortTime}, I'm coming to get you 🚗`;
+        readyHeading.innerHTML = `glad you didn't say no.<br/>leave your bodyguards at home, I'm picking you up at ${shortTime} 🚗`;
         setTimeout(() => goToStep('step-4', '/food'), 220);
       });
     });
 
     /* ==========================================================================
-       4. FOOD MENU WITH "WIFE PACKAGE LOCKED" TRAP & ITEMIZED FEE BREAKDOWN
+       4. HILARIOUS HUMBLE FOOD MENU vs LOCKED LUXURY & ITEMIZED INVOICE
        ========================================================================== */
     const REGION_DATA = {
       NG: {
         total: '₦150,000',
-        cancelFee: '₦450,000',
+        cancelFee: '₦15,000,000',
         foods: [
-          { emoji: '🍚', name: 'Jollof Rice', locked: false },
-          { emoji: '🍢', name: 'Suya', locked: false },
-          { emoji: '🍲', name: 'Amala & Ewedu', locked: false },
-          { emoji: '🍩', name: 'Puff-Puff', locked: false },
-          { emoji: '🌯', name: 'Shawarma', locked: false },
-          { emoji: '🦞', name: 'Lobster & Yacht', locked: true, tag: '🔒 Wife Tier' }
+          { emoji: '🍚', name: 'Mama Put Jollof', sub: 'In black nylon (No beef)', locked: false },
+          { emoji: '🍢', name: 'Roadside Suya', sub: 'Bring your own toothpick', locked: false },
+          { emoji: '🍲', name: 'Amala & Ewedu', sub: 'Abula spot under bridge', locked: false },
+          { emoji: '🌯', name: 'Single-Sausage Shawarma', sub: 'Extra cabbage, no chicken', locked: false },
+          { emoji: '💧', name: 'Sachet Pure Water', sub: 'Chilled + deep eye contact', locked: false },
+          { emoji: '🦞', name: 'Victoria Island Yacht Dinner', sub: '₦2.5M / head', locked: true, tag: '🔒 Card Will Decline' }
         ],
         invoice: [
-          ['Compulsory Date Acceptance Fee', '₦65,000'],
-          ['Passenger Princess & Aux Cord Tax', '₦30,000'],
-          ['"I’m Cold" Hoodie Borrow Deposit', '₦40,000'],
-          ['2AM Coding & Server Hosting Fee', '₦15,000']
+          ['Privilege of Dating a Senior Dev Fee', '₦70,000'],
+          ['Paparazzi & Clout Management Tax', '₦30,000'],
+          ['"I’m Cold" Oversized Hoodie Deposit', '₦35,000'],
+          ['Danfo / UberX Split Fare (Both Ways)', '₦15,000']
         ]
       },
       UK: {
         total: '£250.00',
-        cancelFee: '£650.00',
+        cancelFee: '£50,000.00',
         foods: [
-          { emoji: '🍗', name: 'Wingstop', locked: false },
-          { emoji: '🌶️', name: 'Nando’s', locked: false },
-          { emoji: '🧋', name: 'Matcha & Boba', locked: false },
-          { emoji: '🌯', name: 'Shawarma', locked: false },
-          { emoji: '🍔', name: 'Five Guys', locked: false },
-          { emoji: '🍣', name: 'Mayfair Nobu', locked: true, tag: '🔒 Wife Tier' }
+          { emoji: '🍗', name: '£4.99 Bossman Chicken', sub: '3 wings, chips & Mirinda', locked: false },
+          { emoji: '🥟', name: 'Greggs Sausage Roll', sub: 'Cold + £3.60 Meal Deal', locked: false },
+          { emoji: '🌶️', name: 'Nando’s (Kids Menu)', sub: 'Plain wings + tap water', locked: false },
+          { emoji: '🌯', name: 'High-Street Shawarma', sub: 'Extra garlic sauce', locked: false },
+          { emoji: '🧋', name: 'Small Boba (Share 2 Straws)', sub: 'No extra tapioca pearls', locked: false },
+          { emoji: '🍣', name: 'Mayfair Nobu Private Room', sub: '£1,200 / head', locked: true, tag: '🔒 Overdraft Limit' }
         ],
         invoice: [
-          ['Compulsory Date Acceptance Fee', '£110.00'],
-          ['Passenger Princess & Aux Cord Tax', '£45.00'],
-          ['"I’m Cold" Hoodie Borrow Deposit', '£70.00'],
-          ['2AM Coding & Server Hosting Fee', '£25.00']
+          ['Privilege of Dating a Tech Bro Fee', '£115.00'],
+          ['Paparazzi & Clout Management Tax', '£45.00'],
+          ['"I’m Cold" Nike Tech Fleece Deposit', '£65.00'],
+          ['Oyster Card / Lime Bike Split Fare', '£25.00']
         ]
       }
     };
@@ -931,6 +1097,7 @@
         card.innerHTML = `
           <div class="food-emoji">${item.emoji}</div>
           <div class="food-name">${item.name}</div>
+          <div class="food-sub">${item.sub}</div>
           ${item.tag ? `<span class="food-tag">${item.tag}</span>` : ''}
         `;
         card.addEventListener('click', () => {
@@ -955,7 +1122,6 @@
     btnCurrencyNG.addEventListener('click', () => setRegionMode('NG'));
     btnCurrencyUK.addEventListener('click', () => setRegionMode('UK'));
 
-    // Step 5 -> Step 6 (THE PLOT TWIST ACCEPTANCE FEE!)
     document.getElementById('toFinalFeeBtn').addEventListener('click', () => {
       DateSFX.playCashRegisterTwist();
       goToStep('step-6', '/final');
@@ -963,26 +1129,23 @@
 
     const payFeeBtn = document.getElementById('payFeeBtn');
     const cancelTrapBtn = document.getElementById('cancelTrapBtn');
-    const feeDisclaimer = document.getElementById('feeDisclaimer');
 
     payFeeBtn.addEventListener('click', () => {
       DateSFX.playCashRegisterTwist();
-      payFeeBtn.textContent = '✓ Approved — Screenshot & Send Receipt 🧾✨';
+      payFeeBtn.textContent = '✓ Approved — Screenshot & DM Receipt 🧾✨';
     });
 
-    // If she tries to click "Cancel date & stay single", hit her with the 3x Cancellation Penalty!
     cancelTrapBtn.addEventListener('click', () => {
       DateSFX.playErrorBuzz();
       const penalty = REGION_DATA[currentRegion].cancelFee;
-      cancelTrapBtn.textContent = `❌ Cancellation Penalty is ${penalty} (Cheaper to just go on the date 💀)`;
+      cancelTrapBtn.textContent = `❌ Breach of Contract Penalty is ${penalty} (Just pay the ${REGION_DATA[currentRegion].total} abeg 💀)`;
       cancelTrapBtn.style.color = '#b8294b';
       cancelTrapBtn.style.fontWeight = '800';
     });
 
-    // Click Avatar to Upload Custom Crush Photo
+    // Click Avatar to Upload Any Custom Photo from Mac
     const avatarTrigger = document.getElementById('avatarTrigger');
     const avatarInput = document.getElementById('avatarInput');
-    const crushAvatarImg = document.getElementById('crushAvatarImg');
 
     avatarTrigger.addEventListener('click', () => avatarInput.click());
     avatarInput.addEventListener('change', (e) => {
@@ -992,10 +1155,17 @@
       }
     });
 
-    // Keyboard Shortcuts: U = UK, N = Naija, R = Reset
+    // Keyboard Shortcuts:
+    // 1..5 = Switch Celebrity (Ayra Starr, Tyla, Tems, Rihanna, Zendaya)
+    // U = UK (£250), N = Naija (₦150k), R = Reset to Step 1
     window.addEventListener('keydown', (e) => {
       const k = e.key.toLowerCase();
-      if (k === 'u') setRegionMode('UK');
+      if (k === '1') selectCelebrity('ayra');
+      else if (k === '2') selectCelebrity('tyla');
+      else if (k === '3') selectCelebrity('tems');
+      else if (k === '4') selectCelebrity('rihanna');
+      else if (k === '5') selectCelebrity('zendaya');
+      else if (k === 'u') setRegionMode('UK');
       else if (k === 'n') setRegionMode('NG');
       else if (k === 'r') {
         dodgeIdx = 0;
