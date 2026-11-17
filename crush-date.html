@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>for you 🌸</title>
+  <title>for Tems 🌸</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,600;0,700;0,800;1,600&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -18,7 +18,7 @@
       --rose-btn-hover: #b22d4b;
       --lavender-pill: #b892c8;
       --text-muted: #9e7b82;
-      --border-soft: rgba(190, 140, 152, 0.24);
+      --border-soft: rgba(190, 140, 152, 0.22);
     }
 
     * {
@@ -55,19 +55,19 @@
     .ambient-orb.one { top: -120px; left: -100px; }
     .ambient-orb.two { bottom: -140px; right: -100px; }
 
-    /* Top Browser Route Bar + Celebrity & Currency Switchers */
+    /* Top Browser Route Bar (Matches the viral video's /route -> /confirmed -> /final) */
     .fake-browser-bar {
       position: fixed;
       top: 0;
       left: 0;
       right: 0;
-      height: 48px;
+      height: 46px;
       background: #202124;
       border-bottom: 1px solid #3c4043;
       display: flex;
       align-items: center;
       padding: 0 18px;
-      gap: 12px;
+      gap: 14px;
       z-index: 200;
     }
 
@@ -80,15 +80,16 @@
     }
 
     .omnibox {
-      width: 220px;
+      flex: 1;
+      max-width: 640px;
       height: 30px;
       background: #303134;
       border-radius: 100px;
       display: flex;
       align-items: center;
-      padding: 0 14px;
+      padding: 0 16px;
       color: #e8eaed;
-      font-size: 12.5px;
+      font-size: 13px;
       font-weight: 500;
     }
 
@@ -108,11 +109,6 @@
       padding: 4px 10px;
       border-radius: 100px;
       cursor: pointer;
-      transition: all 0.15s ease;
-    }
-
-    .tiny-mode-pill:hover {
-      background: rgba(255, 255, 255, 0.16);
     }
 
     .tiny-mode-pill.active {
@@ -121,18 +117,18 @@
       color: #fff;
     }
 
-    /* Main Romantic Card Container */
+    /* Main Clean Romantic Card */
     .crush-card {
       position: relative;
       z-index: 10;
-      width: 520px;
-      min-height: 390px;
+      width: 490px;
+      min-height: 365px;
       background: var(--card-bg);
       border: 1px solid rgba(255, 255, 255, 0.85);
       border-radius: 32px;
-      padding: 36px 34px;
+      padding: 40px 36px;
       box-shadow:
-        0 28px 65px -15px rgba(110, 20, 35, 0.14),
+        0 28px 65px -15px rgba(110, 20, 35, 0.12),
         0 4px 18px rgba(110, 20, 35, 0.05),
         inset 0 1px 0 #ffffff;
       display: flex;
@@ -158,26 +154,26 @@
     }
 
     @keyframes fadeSlideUp {
-      from { opacity: 0; transform: translateY(14px) scale(0.98); }
+      from { opacity: 0; transform: translateY(12px) scale(0.98); }
       to   { opacity: 1; transform: translateY(0) scale(1); }
     }
 
-    /* Circular Celebrity Crush Avatar + Verified Badge */
+    /* Circular Crush Avatar */
     .crush-avatar-wrap {
-      width: 108px;
-      height: 108px;
+      width: 102px;
+      height: 102px;
       border-radius: 50%;
       padding: 4px;
-      background: linear-gradient(135deg, #e1306c, #f77737);
-      box-shadow: 0 12px 28px rgba(158, 42, 75, 0.22);
-      margin-bottom: 10px;
+      background: linear-gradient(135deg, #f3c6d3, #d88ca0);
+      box-shadow: 0 10px 25px rgba(158, 42, 75, 0.18);
+      margin-bottom: 18px;
       cursor: pointer;
       position: relative;
       transition: transform 0.25s ease;
     }
 
     .crush-avatar-wrap:hover {
-      transform: scale(1.05);
+      transform: scale(1.04);
     }
 
     .crush-avatar {
@@ -186,41 +182,13 @@
       border-radius: 50%;
       object-fit: cover;
       object-position: center top;
-      border: 3px solid #ffffff;
+      border: 2.5px solid #ffffff;
       background: #f3dde2;
     }
 
-    .verified-pill {
-      display: inline-flex;
-      align-items: center;
-      gap: 5px;
-      background: rgba(255, 255, 255, 0.9);
-      border: 1px solid rgba(190, 140, 152, 0.28);
-      padding: 4px 12px;
-      border-radius: 100px;
-      font-size: 12px;
-      font-weight: 800;
-      color: var(--wine-dark);
-      margin-bottom: 12px;
-      box-shadow: 0 4px 12px rgba(110, 20, 35, 0.06);
-    }
-
-    .verified-tick {
-      width: 15px;
-      height: 15px;
-      border-radius: 50%;
-      background: #1d9bf0;
-      color: #ffffff;
-      font-size: 9px;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      font-weight: 900;
-    }
-
     .top-icon-circle {
-      width: 64px;
-      height: 64px;
+      width: 66px;
+      height: 66px;
       border-radius: 50%;
       background: linear-gradient(145deg, #f3dde2, #e9c5ce);
       border: 2px solid #ffffff;
@@ -228,13 +196,13 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 26px;
-      margin-bottom: 14px;
+      font-size: 27px;
+      margin-bottom: 18px;
     }
 
     .serif-heading {
       font-family: 'Playfair Display', Georgia, serif;
-      font-size: 28px;
+      font-size: 29px;
       font-weight: 700;
       color: var(--wine-dark);
       line-height: 1.22;
@@ -243,19 +211,19 @@
     }
 
     .sub-caption {
-      font-size: 13px;
+      font-size: 13.5px;
       font-weight: 500;
       color: var(--text-muted);
       line-height: 1.5;
-      max-width: 390px;
-      margin-bottom: 18px;
+      max-width: 360px;
+      margin-bottom: 22px;
     }
 
-    /* Step 1 Buttons Row (Growing YES + Talking Runaway NO) */
+    /* Step 1 Buttons Row */
     .yes-no-stage {
       position: relative;
       width: 100%;
-      height: 82px;
+      height: 78px;
       display: flex;
       align-items: center;
       justify-content: center;
@@ -266,14 +234,14 @@
       background: linear-gradient(135deg, #d64568, #b8294b);
       color: #ffffff;
       border: none;
-      padding: 13px 32px;
+      padding: 13px 34px;
       border-radius: 100px;
       font-family: 'Plus Jakarta Sans', sans-serif;
       font-size: 14.5px;
       font-weight: 700;
       cursor: pointer;
       box-shadow: 0 10px 24px rgba(184, 41, 75, 0.32);
-      transition: transform 0.22s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.2s ease;
+      transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.2s ease;
       display: inline-flex;
       align-items: center;
       gap: 7px;
@@ -289,10 +257,10 @@
       background: linear-gradient(135deg, #c39bd3, #a569bd);
       color: #ffffff;
       border: none;
-      padding: 11px 22px;
+      padding: 12px 24px;
       border-radius: 100px;
       font-family: 'Plus Jakarta Sans', sans-serif;
-      font-size: 13.5px;
+      font-size: 14px;
       font-weight: 700;
       cursor: pointer;
       box-shadow: 0 8px 18px rgba(165, 105, 189, 0.28);
@@ -389,26 +357,26 @@
       font-weight: 700;
     }
 
-    /* Step 4: Food Vibe Grid + Locked Luxury Trap */
+    /* Step 4: Clean Food Vibe Grid */
     .food-grid {
       display: grid;
       grid-template-columns: 1fr 1fr;
-      gap: 10px;
+      gap: 11px;
       width: 100%;
-      max-width: 400px;
+      max-width: 360px;
     }
 
     .food-card {
-      padding: 12px 10px;
-      border-radius: 16px;
+      padding: 15px 12px;
+      border-radius: 18px;
       border: 1px solid transparent;
-      background: rgba(255, 255, 255, 0.68);
+      background: rgba(255, 255, 255, 0.65);
       cursor: pointer;
       transition: all 0.2s ease;
       display: flex;
       flex-direction: column;
       align-items: center;
-      gap: 3px;
+      gap: 5px;
     }
 
     .food-card:hover {
@@ -419,153 +387,63 @@
     }
 
     .food-emoji {
-      font-size: 24px;
+      font-size: 25px;
     }
 
     .food-name {
-      font-size: 12.5px;
+      font-size: 13px;
       font-weight: 700;
       color: var(--wine-dark);
     }
 
-    .food-sub {
-      font-size: 10px;
-      font-weight: 600;
-      color: var(--text-muted);
-    }
-
-    .food-tag {
-      font-size: 9.5px;
-      font-weight: 800;
-      color: var(--rose-btn);
-      background: rgba(201, 59, 91, 0.12);
-      padding: 2px 7px;
-      border-radius: 100px;
-      margin-top: 2px;
-    }
-
-    .food-toast-alert {
-      margin-top: 12px;
-      padding: 9px 14px;
-      border-radius: 12px;
-      background: rgba(184, 41, 75, 0.1);
-      border: 1px solid rgba(184, 41, 75, 0.3);
-      font-size: 11.5px;
-      font-weight: 700;
-      color: var(--wine-dark);
-      display: none;
-    }
-
-    .food-toast-alert.show {
-      display: block;
-      animation: shakeMini 0.3s ease;
-    }
-
-    @keyframes shakeMini {
-      0%, 100% { transform: translateX(0); }
-      25% { transform: translateX(-6px); }
-      75% { transform: translateX(6px); }
-    }
-
-    /* Step 5: Mandatory Relationship Terms & Conditions */
-    .terms-list {
+    /* Step 6: Clean Acceptance Fee + Short Funny Breakdown */
+    .mini-receipt {
       width: 100%;
-      max-width: 410px;
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
-      margin-bottom: 18px;
-      text-align: left;
-    }
-
-    .term-item {
-      background: rgba(255, 255, 255, 0.75);
-      border: 1px solid var(--border-soft);
-      padding: 10px 13px;
+      max-width: 340px;
+      background: rgba(255, 255, 255, 0.72);
+      border: 1px dashed rgba(142, 27, 50, 0.25);
       border-radius: 14px;
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      font-size: 12px;
-      font-weight: 600;
-      color: var(--wine-dark);
-      cursor: pointer;
-    }
-
-    .term-item input {
-      width: 16px;
-      height: 16px;
-      accent-color: var(--rose-btn);
-      flex-shrink: 0;
-    }
-
-    /* Step 6: THE ITEMIZED ACCEPTANCE FEE INVOICE SCREEN */
-    .invoice-box {
-      width: 100%;
-      max-width: 400px;
-      background: rgba(255, 255, 255, 0.8);
-      border: 1px dashed rgba(142, 27, 50, 0.32);
-      border-radius: 18px;
-      padding: 13px 16px;
+      padding: 10px 14px;
       margin-bottom: 12px;
-      text-align: left;
+      font-size: 12px;
+      color: #7c4d57;
     }
 
-    .invoice-row {
+    .mini-receipt-row {
       display: flex;
       justify-content: space-between;
-      align-items: center;
-      font-size: 11.5px;
+      padding: 3px 0;
       font-weight: 600;
-      color: #7c4d57;
-      padding: 5px 0;
-      border-bottom: 1px solid rgba(190, 140, 152, 0.14);
     }
 
-    .invoice-row:last-child {
-      border-bottom: none;
-    }
-
-    .invoice-row strong {
+    .mini-receipt-row strong {
       color: var(--wine-dark);
-      font-weight: 800;
     }
 
     .fee-amount {
       font-family: 'Plus Jakarta Sans', sans-serif;
-      font-size: 42px;
+      font-size: 44px;
       font-weight: 800;
       color: #80132b;
       letter-spacing: -1px;
-      margin: 2px 0 4px;
+      margin: 2px 0 6px;
     }
 
     .fee-disclaimer {
       font-size: 9.5px;
       font-weight: 800;
-      letter-spacing: 0.9px;
+      letter-spacing: 1px;
       text-transform: uppercase;
       color: #b58d96;
-      margin-bottom: 14px;
+      margin-bottom: 20px;
     }
 
     .full-width-btn {
       width: 100%;
-      max-width: 370px;
+      max-width: 340px;
       justify-content: center;
-      padding: 14px 24px;
-      font-size: 14.5px;
-    }
-
-    .cancel-trap-btn {
-      margin-top: 8px;
-      background: transparent;
-      border: none;
-      color: var(--text-muted);
-      font-size: 11.5px;
-      font-weight: 600;
-      text-decoration: underline;
-      cursor: pointer;
+      padding: 15px 26px;
+      font-size: 15px;
     }
   </style>
 </head>
@@ -574,7 +452,7 @@
   <div class="ambient-orb one"></div>
   <div class="ambient-orb two"></div>
 
-  <!-- Top Browser Route Bar + 1-Click Celebrity Crush & Currency Switchers -->
+  <!-- Top Browser Route Bar -->
   <header class="fake-browser-bar">
     <div class="nav-arrows">
       <span>←</span>
@@ -585,14 +463,12 @@
       <span id="routeText">/route</span>
     </div>
     <div class="bar-controls-right">
-      <button class="tiny-mode-pill active celeb-btn" data-celeb="ayra">⭐ Ayra Starr</button>
+      <button class="tiny-mode-pill active celeb-btn" data-celeb="tems">👑 Tems</button>
+      <button class="tiny-mode-pill celeb-btn" data-celeb="ayra">⭐ Ayra Starr</button>
       <button class="tiny-mode-pill celeb-btn" data-celeb="tyla">💧 Tyla</button>
-      <button class="tiny-mode-pill celeb-btn" data-celeb="tems">👑 Tems</button>
-      <button class="tiny-mode-pill celeb-btn" data-celeb="rihanna">💎 Rihanna</button>
-      <button class="tiny-mode-pill celeb-btn" data-celeb="zendaya">✨ Zendaya</button>
       <span style="color: #5f6368;">|</span>
-      <button class="tiny-mode-pill active" id="btnCurrencyNG">🇳🇬 ₦150k</button>
-      <button class="tiny-mode-pill" id="btnCurrencyUK">🇬🇧 £250</button>
+      <button class="tiny-mode-pill active" id="btnCurrencyNG">🇳🇬 ₦150,000</button>
+      <button class="tiny-mode-pill" id="btnCurrencyUK">🇬🇧 £250.00</button>
     </div>
   </header>
 
@@ -607,20 +483,14 @@
         <img
           id="crushAvatarImg"
           class="crush-avatar"
-          src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=500&q=80"
-          alt="Celebrity Crush"
+          src="https://upload.wikimedia.org/wikipedia/commons/c/cc/Tems_in_2025.jpg"
+          onerror="this.src='https://upload.wikimedia.org/wikipedia/commons/e/ec/Tems_on_NdaniTV_Sessions_-cropped.png'"
+          alt="Tems"
         />
       </div>
 
-      <div class="verified-pill">
-        <span id="celebBadgeName">@ayrastarr</span>
-        <span class="verified-tick">✓</span>
-      </div>
-
-      <h1 class="serif-heading" id="step1Heading">Ayra, will you go on a date with me?</h1>
-      <p class="sub-caption" id="step1Sub" style="margin-bottom: 12px;">
-        (Cancel your London O2 Arena concert real quick, I have ₹2,000 and a dream 🥺🌸)
-      </p>
+      <h1 class="serif-heading" id="step1Heading">Will you go on a date with me?</h1>
+      <div style="font-size: 20px; margin-bottom: 16px;">🌸</div>
 
       <div class="yes-no-stage">
         <button class="pink-cta-btn" id="yesBtn">YES 🤍</button>
@@ -631,10 +501,8 @@
     <!-- STEP 2: /confirmed ("Wait, you really said yes?? 😭") -->
     <div class="step-screen" id="step-2">
       <div class="top-icon-circle">🎉</div>
-      <h2 class="serif-heading" id="step2Heading">Wait, Ayra Starr really said yes?? 😭</h2>
-      <p class="sub-caption" id="step2Sub">
-        Calling my mum right now to tell her I'm marrying a Grammy superstar 💀 (good thing I disabled the "no" button in CSS)
-      </p>
+      <h2 class="serif-heading" id="step2Heading">Wait, Tems really said yes?? 😭</h2>
+      <p class="sub-caption">Ngl I was fully prepared for a no 💀</p>
       <button class="pink-cta-btn" id="toDatePickerBtn">pick a date & time →</button>
     </div>
 
@@ -642,7 +510,7 @@
     <div class="step-screen" id="step-3a">
       <div class="top-icon-circle">📅</div>
       <h2 class="serif-heading">when's the date? 🗓️</h2>
-      <p class="sub-caption" style="margin-bottom: 14px;">tell your manager to clear your schedule</p>
+      <p class="sub-caption" style="margin-bottom: 16px;">pick a day, any day</p>
 
       <div class="calendar-box">
         <div class="cal-month-bar">
@@ -666,7 +534,7 @@
     <div class="step-screen" id="step-3b">
       <div class="top-icon-circle">🕖</div>
       <h2 class="serif-heading">what time works? 🕒</h2>
-      <p class="sub-caption" id="selectedDateSub" style="margin-bottom: 14px;">September 12, 2026 — pick a time</p>
+      <p class="sub-caption" id="selectedDateSub" style="margin-bottom: 16px;">September 12, 2026 — pick a time</p>
 
       <div class="time-grid">
         <button class="time-slot">12:00 PM</button>
@@ -688,54 +556,38 @@
     <div class="step-screen" id="step-4">
       <div class="top-icon-circle">🍽️</div>
       <h2 class="serif-heading">What are we chopping? 🍽️✨</h2>
-      <p class="sub-caption" style="margin-bottom: 12px;">I know you're a millionaire, so pick something humble</p>
+      <p class="sub-caption" style="margin-bottom: 16px;">pick your vibe</p>
 
       <div class="food-grid" id="foodGrid"></div>
-      <div class="food-toast-alert" id="foodToastAlert">
-        ⚠️ Account Balance Warning: My debit card just started sweating 💀 Please pick Suya or Bossman Chicken abeg!
-      </div>
     </div>
 
     <!-- STEP 5: /ready ("glad you didn't say no...") -->
     <div class="step-screen" id="step-5">
       <div class="top-icon-circle">💌</div>
-      <h2 class="serif-heading" id="readyHeading" style="max-width: 400px;">
-        glad you didn't say no.<br/>leave your bodyguards at home, I'm picking you up at 7 🚗
+      <h2 class="serif-heading" id="readyHeading" style="max-width: 360px;">
+        glad you didn't say no.<br/>be ready by 7, I'm coming to get you 🚗
       </h2>
-      <p class="sub-caption" style="font-style: italic; margin-bottom: 12px;">
-        P.S. other guys send DMs you never read. I coded a whole web app for you during lunch.
+      <p class="sub-caption" style="font-style: italic; margin-bottom: 14px;">
+        P.S. normal people text. I made a website during lunch for you, no big deal
       </p>
-
-      <!-- Hilarious Mandatory Celebrity Terms Checkboxes -->
-      <div class="terms-list">
-        <label class="term-item">
-          <input type="checkbox" checked onclick="return false;" />
-          <span>I agree to leave my 6 armed security guards at home (I know karate, I'll protect us) 🥋</span>
-        </label>
-        <label class="term-item">
-          <input type="checkbox" checked onclick="return false;" />
-          <span>If the bill passes £15 / ₦15,000, I will quietly tap my celebrity black card 💳</span>
-        </label>
-      </div>
-
+      <div style="font-size: 13px; letter-spacing: 4px; margin-bottom: 20px;">💗 💗 💗 💗 💗</div>
       <button class="pink-cta-btn full-width-btn" id="toFinalFeeBtn">ok I accept 🥺</button>
     </div>
 
-    <!-- STEP 6: /final (THE PLOT TWIST: CHARGING THE CELEBRITY AN ACCEPTANCE FEE!) -->
+    <!-- STEP 6: /final (THE PLOT TWIST: ACCEPTANCE FEE!) -->
     <div class="step-screen" id="step-6">
       <div class="top-icon-circle">💳</div>
-      <h2 class="serif-heading">Celebrity Acceptance Fee</h2>
-      <p class="sub-caption" style="margin-bottom: 10px;">
-        Dating a 10/10 software engineer is a high-demand privilege. Kindly settle your compulsory onboarding invoice below:
+      <h2 class="serif-heading">Acceptance fee</h2>
+      <p class="sub-caption" style="margin-bottom: 12px;">
+        To lock in this date, kindly settle the fee below. Fully standard procedure, nothing unusual here.
       </p>
 
-      <div class="invoice-box" id="invoiceBreakdown"></div>
+      <div class="mini-receipt" id="miniReceipt"></div>
 
       <div class="fee-amount" id="feeAmountText">₦150,000</div>
-      <div class="fee-disclaimer" id="feeDisclaimer">NON-REFUNDABLE • KLARNA "PAY IN 4" AVAILABLE</div>
+      <div class="fee-disclaimer">NON-REFUNDABLE • DATE GUARANTEED TO BE WORTH IT</div>
 
-      <button class="pink-cta-btn full-width-btn" id="payFeeBtn">pay & lock in your dream man 🔐✨</button>
-      <button class="cancel-trap-btn" id="cancelTrapBtn">Cancel date & go back to world tour</button>
+      <button class="pink-cta-btn full-width-btn" id="payFeeBtn">pay & accept 🔐✨</button>
     </div>
 
   </main>
@@ -759,14 +611,14 @@
           const osc = c.createOscillator();
           const g = c.createGain();
           osc.type = 'sine';
-          osc.frequency.setValueAtTime(300, now);
-          osc.frequency.exponentialRampToValueAtTime(840, now + 0.13);
-          g.gain.setValueAtTime(0.09, now);
-          g.gain.exponentialRampToValueAtTime(0.001, now + 0.15);
+          osc.frequency.setValueAtTime(320, now);
+          osc.frequency.exponentialRampToValueAtTime(780, now + 0.12);
+          g.gain.setValueAtTime(0.08, now);
+          g.gain.exponentialRampToValueAtTime(0.001, now + 0.14);
           osc.connect(g);
           g.connect(c.destination);
           osc.start(now);
-          osc.stop(now + 0.16);
+          osc.stop(now + 0.15);
         } catch (e) {}
       }
 
@@ -788,24 +640,6 @@
         } catch (e) {}
       }
 
-      function playErrorBuzz() {
-        try {
-          const c = getCtx();
-          const now = c.currentTime;
-          const osc = c.createOscillator();
-          const g = c.createGain();
-          osc.type = 'sawtooth';
-          osc.frequency.setValueAtTime(140, now);
-          osc.frequency.setValueAtTime(112, now + 0.1);
-          g.gain.setValueAtTime(0.08, now);
-          g.gain.exponentialRampToValueAtTime(0.001, now + 0.25);
-          osc.connect(g);
-          g.connect(c.destination);
-          osc.start(now);
-          osc.stop(now + 0.26);
-        } catch (e) {}
-      }
-
       function playCashRegisterTwist() {
         try {
           const c = getCtx();
@@ -815,7 +649,7 @@
             const g = c.createGain();
             osc.type = 'sine';
             osc.frequency.setValueAtTime(f, now + i * 0.09);
-            g.gain.setValueAtTime(0.12, now + i * 0.09);
+            g.gain.setValueAtTime(0.11, now + i * 0.09);
             g.gain.exponentialRampToValueAtTime(0.0001, now + i * 0.09 + 0.45);
             osc.connect(g);
             g.connect(c.destination);
@@ -825,109 +659,41 @@
         } catch (e) {}
       }
 
-      return { playDodgeBoing, playTapChime, playErrorBuzz, playCashRegisterTwist };
+      return { playDodgeBoing, playTapChime, playCashRegisterTwist };
     })();
 
     /* ==========================================================================
-       2. CELEBRITY CRUSH PROFILES (Loads Official High-Res Wikipedia Portraits!)
+       2. CELEBRITY SWITCHER (TEMS IS DEFAULT!)
        ========================================================================== */
     const CELEBRITIES = {
+      tems: {
+        wikiTitle: 'Tems',
+        name: 'Tems',
+        fallbackImg: 'https://upload.wikimedia.org/wikipedia/commons/c/cc/Tems_in_2025.jpg'
+      },
       ayra: {
         wikiTitle: 'Ayra_Starr',
-        firstName: 'Ayra',
-        fullName: 'Ayra Starr',
-        handle: '@ayrastarr',
-        sub: '(Cancel your London O2 Arena show real quick, I have 2k and a dream 🥺🌸)',
-        dodges: [
-          '"Rush" back to the YES button 😂',
-          'Don’t be a Sability hater 💀',
-          'Even Don Jazzy said click YES 😭',
-          'Your mouse is allergic to No 💀',
-          'Disabled in CSS my love 😌',
-          'Fear God & click YES 🤍'
-        ]
+        name: 'Ayra Starr',
+        fallbackImg: 'https://commons.wikimedia.org/wiki/Special:FilePath/Ayra_Starr_(cropped).jpg'
       },
       tyla: {
         wikiTitle: 'Tyla',
-        firstName: 'Tyla',
-        fullName: 'Tyla',
-        handle: '@tyla',
-        sub: '(You make me sweat like "Water", so I coded a whole website to ask you out 🥺🌸)',
-        dodges: [
-          'Don’t make me Lose My Breath 😂',
-          'Even South Africa voted YES 💀',
-          'Mouse broken? Click YES 😭',
-          'Grammy winners can’t click No 😌',
-          'Disabled in CSS my love 💀',
-          'Just click YES 🤍'
-        ]
-      },
-      tems: {
-        wikiTitle: 'Tems',
-        firstName: 'Tems',
-        fullName: 'Tems',
-        handle: '@temsbaby',
-        sub: '(I’ve been waiting on Higher Ground for you to accept this date 🥺🌸)',
-        dodges: [
-          'Wait For U to click YES 😂',
-          'Future & Drake can’t save you 💀',
-          'Why are you chasing the No button? 😭',
-          'Oscar winners must click YES 😌',
-          'Disabled in CSS baby 💀',
-          'Fear God & click YES 🤍'
-        ]
-      },
-      rihanna: {
-        wikiTitle: 'Rihanna',
-        firstName: 'Rihanna',
-        fullName: 'Rihanna',
-        handle: '@badgalriri',
-        sub: '(Forget Fenty & the Super Bowl for one night, let me take you for Shawarma 🥺🌸)',
-        dodges: [
-          'Don’t tell A$AP Rocky 😂',
-          'Billionaires aren’t allowed to click No 💀',
-          'Umbrella ella ella click YES 😭',
-          'Work work work work YES 😌',
-          'Disabled in CSS Riri 💀',
-          'Just click YES 🤍'
-        ]
-      },
-      zendaya: {
-        wikiTitle: 'Zendaya',
-        firstName: 'Zendaya',
-        fullName: 'Zendaya',
-        handle: '@zendaya',
-        sub: '(Even Spider-Man can’t code a whole HTML website for you like I just did 🥺🌸)',
-        dodges: [
-          'Tom Holland is gonna be mad 😂',
-          'Spider-Sense can’t catch this button 💀',
-          'Dune Part 3 can wait, click YES 😭',
-          'Hollywood rules say click YES 😌',
-          'Disabled in CSS 💀',
-          'Just click YES 🤍'
-        ]
+        name: 'Tyla',
+        fallbackImg: 'https://commons.wikimedia.org/wiki/Special:FilePath/Tyla_2024.jpg'
       }
     };
 
-    let activeCelebKey = 'ayra';
     const crushAvatarImg = document.getElementById('crushAvatarImg');
-    const celebBadgeName = document.getElementById('celebBadgeName');
-    const step1Heading = document.getElementById('step1Heading');
-    const step1Sub = document.getElementById('step1Sub');
     const step2Heading = document.getElementById('step2Heading');
     const celebBtns = document.querySelectorAll('.celeb-btn');
 
     async function selectCelebrity(key) {
-      activeCelebKey = key;
       const c = CELEBRITIES[key];
+      if (!c) return;
       celebBtns.forEach((b) => b.classList.toggle('active', b.dataset.celeb === key));
+      step2Heading.textContent = `Wait, ${c.name} really said yes?? 😭`;
+      crushAvatarImg.src = c.fallbackImg;
 
-      celebBadgeName.textContent = c.handle;
-      step1Heading.textContent = `${c.firstName}, will you go on a date with me?`;
-      step1Sub.textContent = c.sub;
-      step2Heading.textContent = `Wait, ${c.fullName} really said yes?? 😭`;
-
-      // Fetch official high-res portrait from Wikipedia REST API
       try {
         const res = await fetch(`https://en.wikipedia.org/api/rest_v1/page/summary/${c.wikiTitle}`);
         const data = await res.json();
@@ -946,7 +712,8 @@
       });
     });
 
-    selectCelebrity('ayra');
+    // Load Tems immediately on start
+    selectCelebrity('tems');
 
     /* ==========================================================================
        3. STEP NAVIGATION & RUNAWAY "NO 😂" BUTTON
@@ -963,26 +730,21 @@
 
     const noBtn = document.getElementById('noBtn');
     const yesBtn = document.getElementById('yesBtn');
-    const dodgeCoords = [
-      { x: -135, y: -155 },
-      { x: 135,  y: -145 },
-      { x: -145, y: -55 },
-      { x: 140,  y: -45 },
-      { x: -120, y: 32 },
-      { x: 130,  y: 28 }
+    const dodgeStates = [
+      { x: -135, y: -160, label: 'no 😂' },
+      { x: 135,  y: -150, label: 'wrong button 😂' },
+      { x: -145, y: -55,  label: 'try again 💀' },
+      { x: 140,  y: -45,  label: 'abeg click yes 🥺' },
+      { x: -120, y: 32,   label: 'no is spoiled 😂' }
     ];
     let dodgeIdx = 0;
 
     function dodgeNoButton() {
       DateSFX.playDodgeBoing();
-      const coords = dodgeCoords[dodgeIdx % dodgeCoords.length];
-      const lines = CELEBRITIES[activeCelebKey].dodges;
-      const msg = lines[dodgeIdx % lines.length];
+      const st = dodgeStates[dodgeIdx % dodgeStates.length];
       dodgeIdx++;
-      noBtn.style.transform = `translate(${coords.x}px, ${coords.y}px)`;
-      noBtn.textContent = msg;
-      const yesScale = Math.min(1.55, 1 + dodgeIdx * 0.1);
-      yesBtn.style.transform = `scale(${yesScale})`;
+      noBtn.style.transform = `translate(${st.x}px, ${st.y}px)`;
+      noBtn.textContent = st.label;
     }
 
     noBtn.addEventListener('mouseenter', dodgeNoButton);
@@ -998,7 +760,7 @@
       goToStep('step-3a', '/date-picker');
     });
 
-    // Populate Calendar Days (1..30)
+    // Calendar Days (1..30)
     const calGrid = document.getElementById('calGrid');
     const selectedDateSub = document.getElementById('selectedDateSub');
     let chosenDay = 12;
@@ -1020,100 +782,82 @@
       calGrid.appendChild(btn);
     }
 
-    // Step 3B (Time Slots) -> Step 4 (Food)
+    // Time Slots -> Food
     const readyHeading = document.getElementById('readyHeading');
     document.querySelectorAll('.time-slot').forEach((slot) => {
       slot.addEventListener('click', () => {
         DateSFX.playTapChime(740);
         slot.classList.add('selected');
         const shortTime = slot.textContent.replace(':00', '').replace(' PM', '').replace(' AM', '');
-        readyHeading.innerHTML = `glad you didn't say no.<br/>leave your bodyguards at home, I'm picking you up at ${shortTime} 🚗`;
+        readyHeading.innerHTML = `glad you didn't say no.<br/>be ready by ${shortTime}, I'm coming to get you 🚗`;
         setTimeout(() => goToStep('step-4', '/food'), 220);
       });
     });
 
     /* ==========================================================================
-       4. HILARIOUS HUMBLE FOOD MENU vs LOCKED LUXURY & ITEMIZED INVOICE
+       4. FOOD MENU & SHORT FUNNY ACCEPTANCE FEE BREAKDOWN
        ========================================================================== */
     const REGION_DATA = {
       NG: {
         total: '₦150,000',
-        cancelFee: '₦15,000,000',
         foods: [
-          { emoji: '🍚', name: 'Mama Put Jollof', sub: 'In black nylon (No beef)', locked: false },
-          { emoji: '🍢', name: 'Roadside Suya', sub: 'Bring your own toothpick', locked: false },
-          { emoji: '🍲', name: 'Amala & Ewedu', sub: 'Abula spot under bridge', locked: false },
-          { emoji: '🌯', name: 'Single-Sausage Shawarma', sub: 'Extra cabbage, no chicken', locked: false },
-          { emoji: '💧', name: 'Sachet Pure Water', sub: 'Chilled + deep eye contact', locked: false },
-          { emoji: '🦞', name: 'Victoria Island Yacht Dinner', sub: '₦2.5M / head', locked: true, tag: '🔒 Card Will Decline' }
+          { emoji: '🍚', name: 'Jollof Rice' },
+          { emoji: '🍢', name: 'Suya' },
+          { emoji: '🍲', name: 'Amala & Ewedu' },
+          { emoji: '🍩', name: 'Puff-Puff' },
+          { emoji: '🥟', name: 'Small Chops' },
+          { emoji: '🌯', name: 'Shawarma' }
         ],
-        invoice: [
-          ['Privilege of Dating a Senior Dev Fee', '₦70,000'],
-          ['Paparazzi & Clout Management Tax', '₦30,000'],
-          ['"I’m Cold" Oversized Hoodie Deposit', '₦35,000'],
-          ['Danfo / UberX Split Fare (Both Ways)', '₦15,000']
+        receipt: [
+          ['Date Acceptance Fee', '₦100,000'],
+          ['"I’m Cold" Hoodie Deposit', '₦35,000'],
+          ['Fuel & Aux Cord Tax', '₦15,000']
         ]
       },
       UK: {
         total: '£250.00',
-        cancelFee: '£50,000.00',
         foods: [
-          { emoji: '🍗', name: '£4.99 Bossman Chicken', sub: '3 wings, chips & Mirinda', locked: false },
-          { emoji: '🥟', name: 'Greggs Sausage Roll', sub: 'Cold + £3.60 Meal Deal', locked: false },
-          { emoji: '🌶️', name: 'Nando’s (Kids Menu)', sub: 'Plain wings + tap water', locked: false },
-          { emoji: '🌯', name: 'High-Street Shawarma', sub: 'Extra garlic sauce', locked: false },
-          { emoji: '🧋', name: 'Small Boba (Share 2 Straws)', sub: 'No extra tapioca pearls', locked: false },
-          { emoji: '🍣', name: 'Mayfair Nobu Private Room', sub: '£1,200 / head', locked: true, tag: '🔒 Overdraft Limit' }
+          { emoji: '🍗', name: 'Wingstop' },
+          { emoji: '🌶️', name: 'Nando’s' },
+          { emoji: '🥟', name: 'Greggs Roll' },
+          { emoji: '🧋', name: 'Matcha & Boba' },
+          { emoji: '🍔', name: 'Five Guys' },
+          { emoji: '🌯', name: 'Shawarma' }
         ],
-        invoice: [
-          ['Privilege of Dating a Tech Bro Fee', '£115.00'],
-          ['Paparazzi & Clout Management Tax', '£45.00'],
-          ['"I’m Cold" Nike Tech Fleece Deposit', '£65.00'],
-          ['Oyster Card / Lime Bike Split Fare', '£25.00']
+        receipt: [
+          ['Date Acceptance Fee', '£150.00'],
+          ['"I’m Cold" Hoodie Deposit', '£65.00'],
+          ['Uber & Aux Cord Tax', '£35.00']
         ]
       }
     };
 
-    let currentRegion = 'NG';
     const foodGrid = document.getElementById('foodGrid');
-    const foodToastAlert = document.getElementById('foodToastAlert');
-    const invoiceBreakdown = document.getElementById('invoiceBreakdown');
+    const miniReceipt = document.getElementById('miniReceipt');
     const feeAmountText = document.getElementById('feeAmountText');
     const btnCurrencyNG = document.getElementById('btnCurrencyNG');
     const btnCurrencyUK = document.getElementById('btnCurrencyUK');
 
     function setRegionMode(mode) {
-      currentRegion = mode;
       btnCurrencyNG.classList.toggle('active', mode === 'NG');
       btnCurrencyUK.classList.toggle('active', mode === 'UK');
       const data = REGION_DATA[mode];
       feeAmountText.textContent = data.total;
 
       foodGrid.innerHTML = '';
-      foodToastAlert.classList.remove('show');
       data.foods.forEach((item) => {
         const card = document.createElement('div');
         card.className = 'food-card';
-        card.innerHTML = `
-          <div class="food-emoji">${item.emoji}</div>
-          <div class="food-name">${item.name}</div>
-          <div class="food-sub">${item.sub}</div>
-          ${item.tag ? `<span class="food-tag">${item.tag}</span>` : ''}
-        `;
+        card.innerHTML = `<div class="food-emoji">${item.emoji}</div><div class="food-name">${item.name}</div>`;
         card.addEventListener('click', () => {
-          if (item.locked) {
-            DateSFX.playErrorBuzz();
-            foodToastAlert.classList.add('show');
-          } else {
-            DateSFX.playTapChime(780);
-            goToStep('step-5', '/ready');
-          }
+          DateSFX.playTapChime(780);
+          goToStep('step-5', '/ready');
         });
         foodGrid.appendChild(card);
       });
 
-      invoiceBreakdown.innerHTML = data.invoice
-        .map(([lbl, val]) => `<div class="invoice-row"><span>${lbl}</span><strong>${val}</strong></div>`)
+      miniReceipt.innerHTML = data.receipt
+        .map(([lbl, val]) => `<div class="mini-receipt-row"><span>${lbl}</span><strong>${val}</strong></div>`)
         .join('');
     }
 
@@ -1127,23 +871,12 @@
       goToStep('step-6', '/final');
     });
 
-    const payFeeBtn = document.getElementById('payFeeBtn');
-    const cancelTrapBtn = document.getElementById('cancelTrapBtn');
-
-    payFeeBtn.addEventListener('click', () => {
+    document.getElementById('payFeeBtn').addEventListener('click', (e) => {
       DateSFX.playCashRegisterTwist();
-      payFeeBtn.textContent = '✓ Approved — Screenshot & DM Receipt 🧾✨';
+      e.currentTarget.textContent = 'awaiting bank transfer... 💳✨';
     });
 
-    cancelTrapBtn.addEventListener('click', () => {
-      DateSFX.playErrorBuzz();
-      const penalty = REGION_DATA[currentRegion].cancelFee;
-      cancelTrapBtn.textContent = `❌ Breach of Contract Penalty is ${penalty} (Just pay the ${REGION_DATA[currentRegion].total} abeg 💀)`;
-      cancelTrapBtn.style.color = '#b8294b';
-      cancelTrapBtn.style.fontWeight = '800';
-    });
-
-    // Click Avatar to Upload Any Custom Photo from Mac
+    // Click Avatar to Upload Any Custom Photo
     const avatarTrigger = document.getElementById('avatarTrigger');
     const avatarInput = document.getElementById('avatarInput');
 
@@ -1155,23 +888,18 @@
       }
     });
 
-    // Keyboard Shortcuts:
-    // 1..5 = Switch Celebrity (Ayra Starr, Tyla, Tems, Rihanna, Zendaya)
-    // U = UK (£250), N = Naija (₦150k), R = Reset to Step 1
+    // Keyboard Shortcuts: 1 = Tems, 2 = Ayra Starr, 3 = Tyla, U = UK, N = Naija, R = Reset
     window.addEventListener('keydown', (e) => {
       const k = e.key.toLowerCase();
-      if (k === '1') selectCelebrity('ayra');
-      else if (k === '2') selectCelebrity('tyla');
-      else if (k === '3') selectCelebrity('tems');
-      else if (k === '4') selectCelebrity('rihanna');
-      else if (k === '5') selectCelebrity('zendaya');
+      if (k === '1') selectCelebrity('tems');
+      else if (k === '2') selectCelebrity('ayra');
+      else if (k === '3') selectCelebrity('tyla');
       else if (k === 'u') setRegionMode('UK');
       else if (k === 'n') setRegionMode('NG');
       else if (k === 'r') {
         dodgeIdx = 0;
         noBtn.style.transform = 'translate(0, 0)';
         noBtn.textContent = 'no 😂';
-        yesBtn.style.transform = 'scale(1)';
         goToStep('step-1', '/route');
       }
     });
