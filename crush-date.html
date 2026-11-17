@@ -1,0 +1,815 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>for you 🌸</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,600;0,700;0,800;1,600&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg-blush: #f3e4e8;
+      --bg-cream: #faf3f0;
+      --card-bg: #fcf6f5;
+      --wine-dark: #6e1423;
+      --wine-mid: #8e1b32;
+      --rose-btn: #c93b5b;
+      --rose-btn-hover: #b22d4b;
+      --lavender-pill: #b892c8;
+      --text-muted: #9e7b82;
+      --border-soft: rgba(190, 140, 152, 0.22);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      -webkit-font-smoothing: antialiased;
+      user-select: none;
+    }
+
+    body {
+      min-height: 100vh;
+      width: 100vw;
+      overflow: hidden;
+      background: radial-gradient(circle at 50% 35%, #f9eef0 0%, #eddbe0 55%, #e2cdd4 100%);
+      font-family: 'Plus Jakarta Sans', -apple-system, sans-serif;
+      color: var(--wine-dark);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+    }
+
+    /* Subtle Floating Ambient Petals / Hearts */
+    .ambient-orb {
+      position: fixed;
+      width: 420px;
+      height: 420px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(219, 112, 147, 0.14) 0%, transparent 70%);
+      pointer-events: none;
+      z-index: 0;
+    }
+    .ambient-orb.one { top: -120px; left: -100px; }
+    .ambient-orb.two { bottom: -140px; right: -100px; }
+
+    /* Optional Fake URL Route Bar at Top (Matches the video's /route -> /confirmed -> /final!) */
+    .fake-browser-bar {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 46px;
+      background: #202124;
+      border-bottom: 1px solid #3c4043;
+      display: flex;
+      align-items: center;
+      padding: 0 18px;
+      gap: 14px;
+      z-index: 200;
+    }
+
+    body.hide-chrome-bar .fake-browser-bar {
+      display: none;
+    }
+
+    .nav-arrows {
+      display: flex;
+      gap: 12px;
+      color: #9aa0a6;
+      font-size: 14px;
+      font-weight: 600;
+    }
+
+    .omnibox {
+      flex: 1;
+      max-width: 680px;
+      height: 30px;
+      background: #303134;
+      border-radius: 100px;
+      display: flex;
+      align-items: center;
+      padding: 0 16px;
+      color: #e8eaed;
+      font-size: 13px;
+      font-weight: 500;
+      letter-spacing: 0.2px;
+    }
+
+    .omnibox .domain-muted {
+      color: #9aa0a6;
+    }
+
+    .bar-controls-right {
+      margin-left: auto;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .tiny-mode-pill {
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(255, 255, 255, 0.14);
+      color: #e8eaed;
+      font-size: 11px;
+      font-weight: 600;
+      padding: 4px 10px;
+      border-radius: 100px;
+      cursor: pointer;
+    }
+
+    .tiny-mode-pill.active {
+      background: var(--rose-btn);
+      border-color: var(--rose-btn);
+      color: #fff;
+    }
+
+    /* Main Romantic Card Container */
+    .crush-card {
+      position: relative;
+      z-index: 10;
+      width: 490px;
+      min-height: 360px;
+      background: var(--card-bg);
+      border: 1px solid rgba(255, 255, 255, 0.8);
+      border-radius: 32px;
+      padding: 42px 38px;
+      box-shadow:
+        0 28px 65px -15px rgba(110, 20, 35, 0.12),
+        0 4px 18px rgba(110, 20, 35, 0.05),
+        inset 0 1px 0 #ffffff;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      transition: all 0.35s cubic-bezier(0.22, 1, 0.36, 1);
+      overflow: hidden;
+    }
+
+    .step-screen {
+      display: none;
+      width: 100%;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      animation: fadeSlideUp 0.38s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    }
+
+    .step-screen.active {
+      display: flex;
+    }
+
+    @keyframes fadeSlideUp {
+      from { opacity: 0; transform: translateY(14px) scale(0.98); }
+      to   { opacity: 1; transform: translateY(0) scale(1); }
+    }
+
+    /* Circular Crush Avatar (Click to upload custom photo!) */
+    .crush-avatar-wrap {
+      width: 96px;
+      height: 96px;
+      border-radius: 50%;
+      padding: 4px;
+      background: linear-gradient(135deg, #f3c6d3, #d88ca0);
+      box-shadow: 0 10px 25px rgba(158, 42, 75, 0.18);
+      margin-bottom: 22px;
+      cursor: pointer;
+      position: relative;
+      transition: transform 0.25s ease;
+    }
+
+    .crush-avatar-wrap:hover {
+      transform: scale(1.05);
+    }
+
+    .crush-avatar {
+      width: 100%;
+      height: 100%;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 2px solid #ffffff;
+    }
+
+    /* Top Icon Circle for Steps 2..6 */
+    .top-icon-circle {
+      width: 68px;
+      height: 68px;
+      border-radius: 50%;
+      background: linear-gradient(145deg, #f3dde2, #e9c5ce);
+      border: 2px solid #ffffff;
+      box-shadow: 0 8px 20px rgba(142, 27, 50, 0.12);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 28px;
+      margin-bottom: 20px;
+    }
+
+    .serif-heading {
+      font-family: 'Playfair Display', Georgia, serif;
+      font-size: 30px;
+      font-weight: 700;
+      color: var(--wine-dark);
+      line-height: 1.22;
+      letter-spacing: -0.4px;
+      margin-bottom: 10px;
+    }
+
+    .sub-caption {
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--text-muted);
+      line-height: 1.55;
+      max-width: 360px;
+      margin-bottom: 26px;
+    }
+
+    /* Step 1 Buttons Row (YES + Runaway NO) */
+    .yes-no-stage {
+      position: relative;
+      width: 100%;
+      height: 76px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 16px;
+    }
+
+    .pink-cta-btn {
+      background: linear-gradient(135deg, #d64568, #b8294b);
+      color: #ffffff;
+      border: none;
+      padding: 13px 34px;
+      border-radius: 100px;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-size: 14.5px;
+      font-weight: 700;
+      cursor: pointer;
+      box-shadow: 0 10px 24px rgba(184, 41, 75, 0.32);
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      z-index: 5;
+    }
+
+    .pink-cta-btn:hover {
+      transform: translateY(-2px) scale(1.03);
+      box-shadow: 0 14px 28px rgba(184, 41, 75, 0.42);
+    }
+
+    .runaway-no-btn {
+      background: linear-gradient(135deg, #c39bd3, #a569bd);
+      color: #ffffff;
+      border: none;
+      padding: 12px 26px;
+      border-radius: 100px;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-size: 14px;
+      font-weight: 700;
+      cursor: pointer;
+      box-shadow: 0 8px 18px rgba(165, 105, 189, 0.28);
+      transition: transform 0.18s cubic-bezier(0.34, 1.56, 0.64, 1);
+      z-index: 15;
+    }
+
+    /* Step 3: Calendar Grid */
+    .calendar-box {
+      width: 100%;
+      max-width: 340px;
+      margin-bottom: 10px;
+    }
+
+    .cal-month-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--wine-dark);
+      margin-bottom: 14px;
+      padding: 0 8px;
+    }
+
+    .cal-grid {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap: 6px;
+    }
+
+    .cal-day-head {
+      font-size: 10px;
+      font-weight: 700;
+      color: var(--text-muted);
+      padding-bottom: 4px;
+    }
+
+    .cal-day {
+      height: 36px;
+      border-radius: 10px;
+      border: 1px solid transparent;
+      background: transparent;
+      color: var(--wine-dark);
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+
+    .cal-day:hover {
+      background: rgba(201, 59, 91, 0.12);
+      border-color: rgba(201, 59, 91, 0.35);
+    }
+
+    .cal-day.today-ring {
+      border-color: rgba(184, 146, 200, 0.65);
+      background: rgba(255, 255, 255, 0.7);
+    }
+
+    .cal-day.selected {
+      background: var(--rose-btn);
+      color: #ffffff;
+      box-shadow: 0 6px 14px rgba(201, 59, 91, 0.35);
+    }
+
+    /* Step 3B: Time Slot Grid */
+    .time-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      width: 100%;
+      max-width: 340px;
+    }
+
+    .time-slot {
+      padding: 10px 14px;
+      border-radius: 12px;
+      border: 1px solid var(--border-soft);
+      background: rgba(255, 255, 255, 0.65);
+      color: var(--wine-dark);
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+
+    .time-slot:hover,
+    .time-slot.selected {
+      border-color: var(--rose-btn);
+      background: rgba(201, 59, 91, 0.12);
+      font-weight: 700;
+    }
+
+    /* Step 4: Food Vibe Grid */
+    .food-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      width: 100%;
+      max-width: 360px;
+    }
+
+    .food-card {
+      padding: 16px 12px;
+      border-radius: 18px;
+      border: 1px solid transparent;
+      background: rgba(255, 255, 255, 0.6);
+      cursor: pointer;
+      transition: all 0.2s ease;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .food-card:hover {
+      background: #ffffff;
+      border-color: rgba(201, 59, 91, 0.4);
+      transform: translateY(-2px);
+      box-shadow: 0 10px 20px rgba(110, 20, 35, 0.08);
+    }
+
+    .food-emoji {
+      font-size: 26px;
+    }
+
+    .food-name {
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--wine-dark);
+    }
+
+    /* Step 6: THE PLOT TWIST ACCEPTANCE FEE SCREEN */
+    .fee-amount {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-size: 46px;
+      font-weight: 800;
+      color: #80132b;
+      letter-spacing: -1px;
+      margin: 4px 0 6px;
+    }
+
+    .fee-disclaimer {
+      font-size: 9.5px;
+      font-weight: 800;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      color: #b58d96;
+      margin-bottom: 24px;
+    }
+
+    .full-width-btn {
+      width: 100%;
+      max-width: 330px;
+      justify-content: center;
+      padding: 15px 28px;
+      font-size: 15px;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="ambient-orb one"></div>
+  <div class="ambient-orb two"></div>
+
+  <!-- Top Browser Route Bar (Shows /route -> /confirmed -> /date-picker -> /food -> /ready -> /final) -->
+  <header class="fake-browser-bar">
+    <div class="nav-arrows">
+      <span>←</span>
+      <span>→</span>
+      <span>↻</span>
+    </div>
+    <div class="omnibox">
+      <span id="routeText">/route</span>
+    </div>
+    <div class="bar-controls-right">
+      <button class="tiny-mode-pill active" id="btnCurrencyNG">🇳🇬 ₦150,000</button>
+      <button class="tiny-mode-pill" id="btnCurrencyUK">🇬🇧 £250.00</button>
+    </div>
+  </header>
+
+  <!-- Hidden file input so you can click the avatar to put any crush photo! -->
+  <input type="file" id="avatarInput" accept="image/*" style="display: none;" />
+
+  <!-- Main Romantic Card -->
+  <main class="crush-card" id="crushCard">
+
+    <!-- STEP 1: /route ("Will you go on a date with me?") -->
+    <div class="step-screen active" id="step-1">
+      <div class="crush-avatar-wrap" id="avatarTrigger" title="Click to change photo">
+        <img
+          id="crushAvatarImg"
+          class="crush-avatar"
+          src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=400&q=80"
+          alt="Crush"
+        />
+      </div>
+
+      <h1 class="serif-heading">Will you go on a date with me?</h1>
+      <div style="font-size: 20px; margin-bottom: 18px;">🌸</div>
+
+      <div class="yes-no-stage">
+        <button class="pink-cta-btn" id="yesBtn">YES 🤍</button>
+        <button class="runaway-no-btn" id="noBtn">no 😂</button>
+      </div>
+    </div>
+
+    <!-- STEP 2: /confirmed ("Wait, you really said yes?? 😭") -->
+    <div class="step-screen" id="step-2">
+      <div class="top-icon-circle">🎉</div>
+      <h2 class="serif-heading">Wait, you really said yes?? 😭</h2>
+      <p class="sub-caption">Ngl I was fully prepared for a no 💀</p>
+      <button class="pink-cta-btn" id="toDatePickerBtn">pick a date & time →</button>
+    </div>
+
+    <!-- STEP 3A: /date-picker ("when's the date? 📅") -->
+    <div class="step-screen" id="step-3a">
+      <div class="top-icon-circle">📅</div>
+      <h2 class="serif-heading">when's the date? 🗓️</h2>
+      <p class="sub-caption" style="margin-bottom: 18px;">pick a day, any day</p>
+
+      <div class="calendar-box">
+        <div class="cal-month-bar">
+          <span>‹</span>
+          <span>November 2026</span>
+          <span>›</span>
+        </div>
+        <div class="cal-grid" id="calGrid">
+          <div class="cal-day-head">Su</div>
+          <div class="cal-day-head">Mo</div>
+          <div class="cal-day-head">Tu</div>
+          <div class="cal-day-head">We</div>
+          <div class="cal-day-head">Th</div>
+          <div class="cal-day-head">Fr</div>
+          <div class="cal-day-head">Sa</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- STEP 3B: /date-picker ("what time works? 🕖") -->
+    <div class="step-screen" id="step-3b">
+      <div class="top-icon-circle">🕖</div>
+      <h2 class="serif-heading">what time works? 🕒</h2>
+      <p class="sub-caption" id="selectedDateSub" style="margin-bottom: 18px;">November 14, 2026 — pick a time</p>
+
+      <div class="time-grid" id="timeGrid">
+        <button class="time-slot">12:00 PM</button>
+        <button class="time-slot">12:30 PM</button>
+        <button class="time-slot">2:00 PM</button>
+        <button class="time-slot">2:30 PM</button>
+        <button class="time-slot">5:00 PM</button>
+        <button class="time-slot">5:30 PM</button>
+        <button class="time-slot">6:00 PM</button>
+        <button class="time-slot">6:30 PM</button>
+        <button class="time-slot">7:00 PM</button>
+        <button class="time-slot">7:30 PM</button>
+        <button class="time-slot">8:00 PM</button>
+        <button class="time-slot">8:30 PM</button>
+      </div>
+    </div>
+
+    <!-- STEP 4: /food ("What are we chopping? 🍽️✨") -->
+    <div class="step-screen" id="step-4">
+      <div class="top-icon-circle">🍽️</div>
+      <h2 class="serif-heading" id="foodHeading">What are we chopping? 🍽️✨</h2>
+      <p class="sub-caption" style="margin-bottom: 18px;">pick your vibe</p>
+
+      <div class="food-grid" id="foodGrid"></div>
+    </div>
+
+    <!-- STEP 5: /ready ("glad you didn't say no. be ready by 7...") -->
+    <div class="step-screen" id="step-5">
+      <div class="top-icon-circle">💌</div>
+      <h2 class="serif-heading" id="readyHeading" style="max-width: 360px;">
+        glad you didn't say no.<br/>be ready by 7, I'm coming to get you 🚗
+      </h2>
+      <p class="sub-caption" style="font-style: italic; margin-bottom: 14px;">
+        P.S. normal people text. I made a whole website during lunch for you, no big deal
+      </p>
+      <div style="font-size: 13px; letter-spacing: 4px; margin-bottom: 22px;">💗 💗 💗 💗 💗</div>
+      <button class="pink-cta-btn full-width-btn" id="toFinalFeeBtn">ok I accept 🥺</button>
+    </div>
+
+    <!-- STEP 6: /final (THE PLOT TWIST: ACCEPTANCE FEE!) -->
+    <div class="step-screen" id="step-6">
+      <div class="top-icon-circle">💳</div>
+      <h2 class="serif-heading">Acceptance fee</h2>
+      <p class="sub-caption" style="margin-bottom: 14px;">
+        To lock in this date, kindly settle the fee below. Fully standard procedure, nothing unusual here.
+      </p>
+
+      <div class="fee-amount" id="feeAmountText">₦150,000</div>
+      <div class="fee-disclaimer">NON-REFUNDABLE • DATE GUARANTEED TO BE WORTH IT</div>
+
+      <button class="pink-cta-btn full-width-btn" id="payFeeBtn">pay & accept 🔐✨</button>
+    </div>
+
+  </main>
+
+  <script>
+    /* ==========================================================================
+       1. CUTE POP & DODGE SOUND EFFECTS
+       ========================================================================== */
+    const DateSFX = (() => {
+      let ctx = null;
+      function getCtx() {
+        if (!ctx) ctx = new (window.AudioContext || window.webkitAudioContext)();
+        if (ctx.state === 'suspended') ctx.resume();
+        return ctx;
+      }
+
+      function playDodgeBoing() {
+        try {
+          const c = getCtx();
+          const now = c.currentTime;
+          const osc = c.createOscillator();
+          const g = c.createGain();
+          osc.type = 'sine';
+          osc.frequency.setValueAtTime(320, now);
+          osc.frequency.exponentialRampToValueAtTime(780, now + 0.12);
+          g.gain.setValueAtTime(0.08, now);
+          g.gain.exponentialRampToValueAtTime(0.001, now + 0.14);
+          osc.connect(g);
+          g.connect(c.destination);
+          osc.start(now);
+          osc.stop(now + 0.15);
+        } catch (e) {}
+      }
+
+      function playTapChime(freq = 580) {
+        try {
+          const c = getCtx();
+          const now = c.currentTime;
+          const osc = c.createOscillator();
+          const g = c.createGain();
+          osc.type = 'triangle';
+          osc.frequency.setValueAtTime(freq, now);
+          osc.frequency.exponentialRampToValueAtTime(freq * 1.25, now + 0.12);
+          g.gain.setValueAtTime(0.09, now);
+          g.gain.exponentialRampToValueAtTime(0.001, now + 0.16);
+          osc.connect(g);
+          g.connect(c.destination);
+          osc.start(now);
+          osc.stop(now + 0.17);
+        } catch (e) {}
+      }
+
+      function playCashRegisterTwist() {
+        try {
+          const c = getCtx();
+          const now = c.currentTime;
+          [987.77, 1318.51].forEach((f, i) => {
+            const osc = c.createOscillator();
+            const g = c.createGain();
+            osc.type = 'sine';
+            osc.frequency.setValueAtTime(f, now + i * 0.09);
+            g.gain.setValueAtTime(0.11, now + i * 0.09);
+            g.gain.exponentialRampToValueAtTime(0.0001, now + i * 0.09 + 0.45);
+            osc.connect(g);
+            g.connect(c.destination);
+            osc.start(now + i * 0.09);
+            osc.stop(now + i * 0.09 + 0.48);
+          });
+        } catch (e) {}
+      }
+
+      return { playDodgeBoing, playTapChime, playCashRegisterTwist };
+    })();
+
+    /* ==========================================================================
+       2. STEP NAVIGATION & FAKE URL ROUTE BAR
+       ========================================================================== */
+    const routeText = document.getElementById('routeText');
+    const allSteps = document.querySelectorAll('.step-screen');
+
+    function goToStep(stepId, routePath) {
+      allSteps.forEach((s) => s.classList.remove('active'));
+      const target = document.getElementById(stepId);
+      if (target) target.classList.add('active');
+      routeText.textContent = routePath;
+    }
+
+    /* ==========================================================================
+       3. RUNAWAY "NO 😂" BUTTON PHYSICS (Dodges cursor around the card!)
+       ========================================================================== */
+    const noBtn = document.getElementById('noBtn');
+    const dodgePositions = [
+      { x: -135, y: -165 },
+      { x: 135, y: -150 },
+      { x: -145, y: -60 },
+      { x: 140, y: -45 },
+      { x: -120, y: 35 },
+      { x: 125, y: 30 }
+    ];
+    let dodgeIdx = 0;
+
+    function dodgeNoButton() {
+      DateSFX.playDodgeBoing();
+      const pos = dodgePositions[dodgeIdx % dodgePositions.length];
+      dodgeIdx++;
+      noBtn.style.transform = `translate(${pos.x}px, ${pos.y}px)`;
+    }
+
+    noBtn.addEventListener('mouseenter', dodgeNoButton);
+    noBtn.addEventListener('click', dodgeNoButton);
+
+    // Step 1 -> Step 2
+    document.getElementById('yesBtn').addEventListener('click', () => {
+      DateSFX.playTapChime(620);
+      goToStep('step-2', '/confirmed');
+    });
+
+    // Step 2 -> Step 3A (Calendar)
+    document.getElementById('toDatePickerBtn').addEventListener('click', () => {
+      DateSFX.playTapChime(660);
+      goToStep('step-3a', '/date-picker');
+    });
+
+    // Populate Calendar Days (1..30)
+    const calGrid = document.getElementById('calGrid');
+    const selectedDateSub = document.getElementById('selectedDateSub');
+    let chosenDay = 12;
+
+    for (let empty = 0; empty < 2; empty++) {
+      const sp = document.createElement('div');
+      calGrid.appendChild(sp);
+    }
+    for (let d = 1; d <= 30; d++) {
+      const btn = document.createElement('button');
+      btn.className = 'cal-day' + (d === 10 ? ' today-ring' : '');
+      btn.textContent = d;
+      btn.addEventListener('click', () => {
+        DateSFX.playTapChime(700);
+        chosenDay = d;
+        btn.classList.add('selected');
+        selectedDateSub.textContent = `September ${chosenDay}, 2026 — pick a time`;
+        setTimeout(() => goToStep('step-3b', '/date-picker'), 220);
+      });
+      calGrid.appendChild(btn);
+    }
+
+    // Step 3B (Time Slots) -> Step 4 (Food)
+    const readyHeading = document.getElementById('readyHeading');
+    document.querySelectorAll('.time-slot').forEach((slot) => {
+      slot.addEventListener('click', () => {
+        DateSFX.playTapChime(740);
+        slot.classList.add('selected');
+        const shortTime = slot.textContent.replace(':00', '').replace(' PM', '').replace(' AM', '');
+        readyHeading.innerHTML = `glad you didn't say no.<br/>be ready by ${shortTime}, I'm coming to get you 🚗`;
+        setTimeout(() => goToStep('step-4', '/food'), 220);
+      });
+    });
+
+    // Step 4 (Food Grid) — Supports BOTH Naija Mode (₦150,000) & UK Mode (£250.00)!
+    const FOOD_MENUS = {
+      NG: [
+        { emoji: '🍚', name: 'Jollof Rice' },
+        { emoji: '🍢', name: 'Suya' },
+        { emoji: '🍲', name: 'Amala & Ewedu' },
+        { emoji: '🍩', name: 'Puff-Puff' },
+        { emoji: '🥟', name: 'Small Chops' },
+        { emoji: '🌯', name: 'Shawarma' }
+      ],
+      UK: [
+        { emoji: '🍗', name: 'Wingstop' },
+        { emoji: '🌶️', name: 'Nando’s' },
+        { emoji: '🍣', name: 'Sushi Samba' },
+        { emoji: '🥩', name: 'Steakhouse' },
+        { emoji: '🧋', name: 'Matcha & Boba' },
+        { emoji: '🌯', name: 'Shawarma' }
+      ]
+    };
+
+    const foodGrid = document.getElementById('foodGrid');
+    const feeAmountText = document.getElementById('feeAmountText');
+    const btnCurrencyNG = document.getElementById('btnCurrencyNG');
+    const btnCurrencyUK = document.getElementById('btnCurrencyUK');
+
+    function setRegionMode(mode) {
+      btnCurrencyNG.classList.toggle('active', mode === 'NG');
+      btnCurrencyUK.classList.toggle('active', mode === 'UK');
+      feeAmountText.textContent = mode === 'NG' ? '₦150,000' : '£250.00';
+
+      foodGrid.innerHTML = '';
+      FOOD_MENUS[mode].forEach((item) => {
+        const card = document.createElement('div');
+        card.className = 'food-card';
+        card.innerHTML = `<div class="food-emoji">${item.emoji}</div><div class="food-name">${item.name}</div>`;
+        card.addEventListener('click', () => {
+          DateSFX.playTapChime(780);
+          goToStep('step-5', '/ready');
+        });
+        foodGrid.appendChild(card);
+      });
+    }
+
+    setRegionMode('NG');
+
+    btnCurrencyNG.addEventListener('click', () => setRegionMode('NG'));
+    btnCurrencyUK.addEventListener('click', () => setRegionMode('UK'));
+
+    // Step 5 -> Step 6 (THE PLOT TWIST ACCEPTANCE FEE!)
+    document.getElementById('toFinalFeeBtn').addEventListener('click', () => {
+      DateSFX.playCashRegisterTwist();
+      goToStep('step-6', '/final');
+    });
+
+    document.getElementById('payFeeBtn').addEventListener('click', (e) => {
+      DateSFX.playCashRegisterTwist();
+      e.currentTarget.textContent = 'Processing Bank Transfer... 💳✨';
+    });
+
+    // Click Avatar to Upload Custom Crush Photo
+    const avatarTrigger = document.getElementById('avatarTrigger');
+    const avatarInput = document.getElementById('avatarInput');
+    const crushAvatarImg = document.getElementById('crushAvatarImg');
+
+    avatarTrigger.addEventListener('click', () => avatarInput.click());
+    avatarInput.addEventListener('change', (e) => {
+      const file = e.target.files && e.target.files[0];
+      if (file) {
+        crushAvatarImg.src = URL.createObjectURL(file);
+      }
+    });
+
+    // Keyboard Shortcuts:
+    // Press 'U' = Switch to UK (£250.00 + Wingstop/Nando's)
+    // Press 'N' = Switch to Naija (₦150,000 + Jollof/Suya)
+    // Press 'R' = Reset back to Step 1 (/route)
+    window.addEventListener('keydown', (e) => {
+      const k = e.key.toLowerCase();
+      if (k === 'u') setRegionMode('UK');
+      else if (k === 'n') setRegionMode('NG');
+      else if (k === 'r') {
+        noBtn.style.transform = 'translate(0, 0)';
+        goToStep('step-1', '/route');
+      }
+    });
+  </script>
+</body>
+</html>
