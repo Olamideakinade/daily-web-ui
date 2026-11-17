@@ -18,7 +18,7 @@
       --rose-btn-hover: #b22d4b;
       --lavender-pill: #b892c8;
       --text-muted: #9e7b82;
-      --border-soft: rgba(190, 140, 152, 0.22);
+      --border-soft: rgba(190, 140, 152, 0.24);
     }
 
     * {
@@ -43,7 +43,6 @@
       position: relative;
     }
 
-    /* Subtle Floating Ambient Petals / Hearts */
     .ambient-orb {
       position: fixed;
       width: 420px;
@@ -56,7 +55,7 @@
     .ambient-orb.one { top: -120px; left: -100px; }
     .ambient-orb.two { bottom: -140px; right: -100px; }
 
-    /* Optional Fake URL Route Bar at Top (Matches the video's /route -> /confirmed -> /final!) */
+    /* Top Browser Route Bar */
     .fake-browser-bar {
       position: fixed;
       top: 0;
@@ -70,10 +69,6 @@
       padding: 0 18px;
       gap: 14px;
       z-index: 200;
-    }
-
-    body.hide-chrome-bar .fake-browser-bar {
-      display: none;
     }
 
     .nav-arrows {
@@ -97,10 +92,6 @@
       font-size: 13px;
       font-weight: 500;
       letter-spacing: 0.2px;
-    }
-
-    .omnibox .domain-muted {
-      color: #9aa0a6;
     }
 
     .bar-controls-right {
@@ -131,14 +122,14 @@
     .crush-card {
       position: relative;
       z-index: 10;
-      width: 490px;
-      min-height: 360px;
+      width: 510px;
+      min-height: 380px;
       background: var(--card-bg);
-      border: 1px solid rgba(255, 255, 255, 0.8);
+      border: 1px solid rgba(255, 255, 255, 0.85);
       border-radius: 32px;
-      padding: 42px 38px;
+      padding: 36px 34px;
       box-shadow:
-        0 28px 65px -15px rgba(110, 20, 35, 0.12),
+        0 28px 65px -15px rgba(110, 20, 35, 0.14),
         0 4px 18px rgba(110, 20, 35, 0.05),
         inset 0 1px 0 #ffffff;
       display: flex;
@@ -156,7 +147,7 @@
       flex-direction: column;
       align-items: center;
       justify-content: center;
-      animation: fadeSlideUp 0.38s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+      animation: fadeSlideUp 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards;
     }
 
     .step-screen.active {
@@ -168,7 +159,7 @@
       to   { opacity: 1; transform: translateY(0) scale(1); }
     }
 
-    /* Circular Crush Avatar (Click to upload custom photo!) */
+    /* Circular Crush Avatar */
     .crush-avatar-wrap {
       width: 96px;
       height: 96px;
@@ -176,7 +167,7 @@
       padding: 4px;
       background: linear-gradient(135deg, #f3c6d3, #d88ca0);
       box-shadow: 0 10px 25px rgba(158, 42, 75, 0.18);
-      margin-bottom: 22px;
+      margin-bottom: 20px;
       cursor: pointer;
       position: relative;
       transition: transform 0.25s ease;
@@ -194,10 +185,9 @@
       border: 2px solid #ffffff;
     }
 
-    /* Top Icon Circle for Steps 2..6 */
     .top-icon-circle {
-      width: 68px;
-      height: 68px;
+      width: 64px;
+      height: 64px;
       border-radius: 50%;
       background: linear-gradient(145deg, #f3dde2, #e9c5ce);
       border: 2px solid #ffffff;
@@ -205,34 +195,34 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 28px;
-      margin-bottom: 20px;
+      font-size: 26px;
+      margin-bottom: 16px;
     }
 
     .serif-heading {
       font-family: 'Playfair Display', Georgia, serif;
-      font-size: 30px;
+      font-size: 29px;
       font-weight: 700;
       color: var(--wine-dark);
       line-height: 1.22;
       letter-spacing: -0.4px;
-      margin-bottom: 10px;
+      margin-bottom: 8px;
     }
 
     .sub-caption {
-      font-size: 14px;
+      font-size: 13.5px;
       font-weight: 500;
       color: var(--text-muted);
-      line-height: 1.55;
-      max-width: 360px;
-      margin-bottom: 26px;
+      line-height: 1.5;
+      max-width: 380px;
+      margin-bottom: 22px;
     }
 
-    /* Step 1 Buttons Row (YES + Runaway NO) */
+    /* Step 1 Buttons Row (Growing YES + Talking Runaway NO) */
     .yes-no-stage {
       position: relative;
       width: 100%;
-      height: 76px;
+      height: 82px;
       display: flex;
       align-items: center;
       justify-content: center;
@@ -243,14 +233,14 @@
       background: linear-gradient(135deg, #d64568, #b8294b);
       color: #ffffff;
       border: none;
-      padding: 13px 34px;
+      padding: 13px 32px;
       border-radius: 100px;
       font-family: 'Plus Jakarta Sans', sans-serif;
       font-size: 14.5px;
       font-weight: 700;
       cursor: pointer;
       box-shadow: 0 10px 24px rgba(184, 41, 75, 0.32);
-      transition: transform 0.2s ease, box-shadow 0.2s ease;
+      transition: transform 0.22s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.2s ease;
       display: inline-flex;
       align-items: center;
       gap: 7px;
@@ -266,22 +256,23 @@
       background: linear-gradient(135deg, #c39bd3, #a569bd);
       color: #ffffff;
       border: none;
-      padding: 12px 26px;
+      padding: 11px 22px;
       border-radius: 100px;
       font-family: 'Plus Jakarta Sans', sans-serif;
-      font-size: 14px;
+      font-size: 13.5px;
       font-weight: 700;
       cursor: pointer;
       box-shadow: 0 8px 18px rgba(165, 105, 189, 0.28);
       transition: transform 0.18s cubic-bezier(0.34, 1.56, 0.64, 1);
-      z-index: 15;
+      z-index: 25;
+      white-space: nowrap;
     }
 
     /* Step 3: Calendar Grid */
     .calendar-box {
       width: 100%;
       max-width: 340px;
-      margin-bottom: 10px;
+      margin-bottom: 6px;
     }
 
     .cal-month-bar {
@@ -291,14 +282,14 @@
       font-size: 14px;
       font-weight: 700;
       color: var(--wine-dark);
-      margin-bottom: 14px;
+      margin-bottom: 12px;
       padding: 0 8px;
     }
 
     .cal-grid {
       display: grid;
       grid-template-columns: repeat(7, 1fr);
-      gap: 6px;
+      gap: 5px;
     }
 
     .cal-day-head {
@@ -309,7 +300,7 @@
     }
 
     .cal-day {
-      height: 36px;
+      height: 35px;
       border-radius: 10px;
       border: 1px solid transparent;
       background: transparent;
@@ -365,26 +356,27 @@
       font-weight: 700;
     }
 
-    /* Step 4: Food Vibe Grid */
+    /* Step 4: Food Vibe Grid + Locked Luxury Trap */
     .food-grid {
       display: grid;
       grid-template-columns: 1fr 1fr;
-      gap: 12px;
+      gap: 10px;
       width: 100%;
-      max-width: 360px;
+      max-width: 380px;
     }
 
     .food-card {
-      padding: 16px 12px;
-      border-radius: 18px;
+      padding: 14px 10px;
+      border-radius: 16px;
       border: 1px solid transparent;
-      background: rgba(255, 255, 255, 0.6);
+      background: rgba(255, 255, 255, 0.65);
       cursor: pointer;
       transition: all 0.2s ease;
       display: flex;
       flex-direction: column;
       align-items: center;
-      gap: 6px;
+      gap: 4px;
+      position: relative;
     }
 
     .food-card:hover {
@@ -395,7 +387,7 @@
     }
 
     .food-emoji {
-      font-size: 26px;
+      font-size: 24px;
     }
 
     .food-name {
@@ -404,31 +396,141 @@
       color: var(--wine-dark);
     }
 
-    /* Step 6: THE PLOT TWIST ACCEPTANCE FEE SCREEN */
+    .food-tag {
+      font-size: 10px;
+      font-weight: 700;
+      color: var(--rose-btn);
+      background: rgba(201, 59, 91, 0.1);
+      padding: 2px 7px;
+      border-radius: 100px;
+    }
+
+    .food-toast-alert {
+      margin-top: 12px;
+      padding: 8px 14px;
+      border-radius: 10px;
+      background: rgba(110, 20, 35, 0.08);
+      border: 1px solid rgba(110, 20, 35, 0.2);
+      font-size: 11.5px;
+      font-weight: 700;
+      color: var(--wine-dark);
+      display: none;
+    }
+
+    .food-toast-alert.show {
+      display: block;
+      animation: shakeMini 0.3s ease;
+    }
+
+    @keyframes shakeMini {
+      0%, 100% { transform: translateX(0); }
+      25% { transform: translateX(-6px); }
+      75% { transform: translateX(6px); }
+    }
+
+    /* Step 5B: Mandatory Relationship Terms & Conditions */
+    .terms-list {
+      width: 100%;
+      max-width: 400px;
+      display: flex;
+      flex-direction: column;
+      gap: 9px;
+      margin-bottom: 20px;
+      text-align: left;
+    }
+
+    .term-item {
+      background: rgba(255, 255, 255, 0.72);
+      border: 1px solid var(--border-soft);
+      padding: 11px 14px;
+      border-radius: 14px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 12.5px;
+      font-weight: 600;
+      color: var(--wine-dark);
+      cursor: pointer;
+    }
+
+    .term-item input {
+      width: 16px;
+      height: 16px;
+      accent-color: var(--rose-btn);
+      flex-shrink: 0;
+    }
+
+    /* Step 6: THE ITEMIZED ACCEPTANCE FEE INVOICE SCREEN */
+    .invoice-box {
+      width: 100%;
+      max-width: 390px;
+      background: rgba(255, 255, 255, 0.78);
+      border: 1px dashed rgba(142, 27, 50, 0.32);
+      border-radius: 18px;
+      padding: 14px 18px;
+      margin-bottom: 14px;
+      text-align: left;
+    }
+
+    .invoice-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 12px;
+      font-weight: 600;
+      color: #7c4d57;
+      padding: 5px 0;
+      border-bottom: 1px solid rgba(190, 140, 152, 0.14);
+    }
+
+    .invoice-row:last-child {
+      border-bottom: none;
+    }
+
+    .invoice-row strong {
+      color: var(--wine-dark);
+      font-weight: 800;
+    }
+
     .fee-amount {
       font-family: 'Plus Jakarta Sans', sans-serif;
-      font-size: 46px;
+      font-size: 42px;
       font-weight: 800;
       color: #80132b;
       letter-spacing: -1px;
-      margin: 4px 0 6px;
+      margin: 2px 0 4px;
     }
 
     .fee-disclaimer {
       font-size: 9.5px;
       font-weight: 800;
-      letter-spacing: 1px;
+      letter-spacing: 0.9px;
       text-transform: uppercase;
       color: #b58d96;
-      margin-bottom: 24px;
+      margin-bottom: 16px;
     }
 
     .full-width-btn {
       width: 100%;
-      max-width: 330px;
+      max-width: 360px;
       justify-content: center;
-      padding: 15px 28px;
-      font-size: 15px;
+      padding: 14px 24px;
+      font-size: 14.5px;
+    }
+
+    .cancel-trap-btn {
+      margin-top: 9px;
+      background: transparent;
+      border: none;
+      color: var(--text-muted);
+      font-size: 11.5px;
+      font-weight: 600;
+      text-decoration: underline;
+      cursor: pointer;
+    }
+
+    .cancel-trap-btn:hover {
+      color: var(--wine-dark);
     }
   </style>
 </head>
@@ -437,7 +539,7 @@
   <div class="ambient-orb one"></div>
   <div class="ambient-orb two"></div>
 
-  <!-- Top Browser Route Bar (Shows /route -> /confirmed -> /date-picker -> /food -> /ready -> /final) -->
+  <!-- Top Browser Route Bar -->
   <header class="fake-browser-bar">
     <div class="nav-arrows">
       <span>←</span>
@@ -453,7 +555,6 @@
     </div>
   </header>
 
-  <!-- Hidden file input so you can click the avatar to put any crush photo! -->
   <input type="file" id="avatarInput" accept="image/*" style="display: none;" />
 
   <!-- Main Romantic Card -->
@@ -471,7 +572,7 @@
       </div>
 
       <h1 class="serif-heading">Will you go on a date with me?</h1>
-      <div style="font-size: 20px; margin-bottom: 18px;">🌸</div>
+      <div style="font-size: 20px; margin-bottom: 16px;">🌸</div>
 
       <div class="yes-no-stage">
         <button class="pink-cta-btn" id="yesBtn">YES 🤍</button>
@@ -483,7 +584,7 @@
     <div class="step-screen" id="step-2">
       <div class="top-icon-circle">🎉</div>
       <h2 class="serif-heading">Wait, you really said yes?? 😭</h2>
-      <p class="sub-caption">Ngl I was fully prepared for a no 💀</p>
+      <p class="sub-caption">Ngl I was fully prepared for a no 💀 (good thing the "no" button was broken)</p>
       <button class="pink-cta-btn" id="toDatePickerBtn">pick a date & time →</button>
     </div>
 
@@ -491,12 +592,12 @@
     <div class="step-screen" id="step-3a">
       <div class="top-icon-circle">📅</div>
       <h2 class="serif-heading">when's the date? 🗓️</h2>
-      <p class="sub-caption" style="margin-bottom: 18px;">pick a day, any day</p>
+      <p class="sub-caption" style="margin-bottom: 14px;">pick a day, any day</p>
 
       <div class="calendar-box">
         <div class="cal-month-bar">
           <span>‹</span>
-          <span>November 2026</span>
+          <span>September 2026</span>
           <span>›</span>
         </div>
         <div class="cal-grid" id="calGrid">
@@ -515,9 +616,9 @@
     <div class="step-screen" id="step-3b">
       <div class="top-icon-circle">🕖</div>
       <h2 class="serif-heading">what time works? 🕒</h2>
-      <p class="sub-caption" id="selectedDateSub" style="margin-bottom: 18px;">November 14, 2026 — pick a time</p>
+      <p class="sub-caption" id="selectedDateSub" style="margin-bottom: 14px;">September 12, 2026 — pick a time</p>
 
-      <div class="time-grid" id="timeGrid">
+      <div class="time-grid">
         <button class="time-slot">12:00 PM</button>
         <button class="time-slot">12:30 PM</button>
         <button class="time-slot">2:00 PM</button>
@@ -536,44 +637,63 @@
     <!-- STEP 4: /food ("What are we chopping? 🍽️✨") -->
     <div class="step-screen" id="step-4">
       <div class="top-icon-circle">🍽️</div>
-      <h2 class="serif-heading" id="foodHeading">What are we chopping? 🍽️✨</h2>
-      <p class="sub-caption" style="margin-bottom: 18px;">pick your vibe</p>
+      <h2 class="serif-heading">What are we chopping? 🍽️✨</h2>
+      <p class="sub-caption" style="margin-bottom: 14px;">pick your vibe wisely</p>
 
       <div class="food-grid" id="foodGrid"></div>
+      <div class="food-toast-alert" id="foodToastAlert">
+        ⚠️ Locked: Upgrade to "Wife Package™" to unlock Lobster & Nobu 💀 Pick another one!
+      </div>
     </div>
 
-    <!-- STEP 5: /ready ("glad you didn't say no. be ready by 7...") -->
+    <!-- STEP 5: /ready ("glad you didn't say no...") -->
     <div class="step-screen" id="step-5">
       <div class="top-icon-circle">💌</div>
-      <h2 class="serif-heading" id="readyHeading" style="max-width: 360px;">
+      <h2 class="serif-heading" id="readyHeading" style="max-width: 380px;">
         glad you didn't say no.<br/>be ready by 7, I'm coming to get you 🚗
       </h2>
-      <p class="sub-caption" style="font-style: italic; margin-bottom: 14px;">
-        P.S. normal people text. I made a whole website during lunch for you, no big deal
+      <p class="sub-caption" style="font-style: italic; margin-bottom: 12px;">
+        P.S. normal people text. I made a website during lunch for you, no big deal
       </p>
-      <div style="font-size: 13px; letter-spacing: 4px; margin-bottom: 22px;">💗 💗 💗 💗 💗</div>
+
+      <!-- Hilarious Mandatory Terms Checkboxes -->
+      <div class="terms-list">
+        <label class="term-item">
+          <input type="checkbox" checked onclick="return false;" />
+          <span>I won't say "I'm not hungry" then eat 80% of your fries 🍟</span>
+        </label>
+        <label class="term-item">
+          <input type="checkbox" checked onclick="return false;" />
+          <span>I agree to laugh at all your dry jokes (even the 2/10 ones) 😂</span>
+        </label>
+      </div>
+
       <button class="pink-cta-btn full-width-btn" id="toFinalFeeBtn">ok I accept 🥺</button>
     </div>
 
-    <!-- STEP 6: /final (THE PLOT TWIST: ACCEPTANCE FEE!) -->
+    <!-- STEP 6: /final (THE PLOT TWIST: ITEMIZED ACCEPTANCE FEE!) -->
     <div class="step-screen" id="step-6">
       <div class="top-icon-circle">💳</div>
       <h2 class="serif-heading">Acceptance fee</h2>
-      <p class="sub-caption" style="margin-bottom: 14px;">
-        To lock in this date, kindly settle the fee below. Fully standard procedure, nothing unusual here.
+      <p class="sub-caption" style="margin-bottom: 12px;">
+        To lock in this date, kindly settle the standard processing fees below. Nothing unusual here.
       </p>
 
+      <!-- Hilarious Itemized Receipt Breakdown -->
+      <div class="invoice-box" id="invoiceBreakdown"></div>
+
       <div class="fee-amount" id="feeAmountText">₦150,000</div>
-      <div class="fee-disclaimer">NON-REFUNDABLE • DATE GUARANTEED TO BE WORTH IT</div>
+      <div class="fee-disclaimer" id="feeDisclaimer">NON-REFUNDABLE • KLARNA "PAY IN 4" AVAILABLE</div>
 
       <button class="pink-cta-btn full-width-btn" id="payFeeBtn">pay & accept 🔐✨</button>
+      <button class="cancel-trap-btn" id="cancelTrapBtn">Cancel date & stay single</button>
     </div>
 
   </main>
 
   <script>
     /* ==========================================================================
-       1. CUTE POP & DODGE SOUND EFFECTS
+       1. COMEDY SOUND EFFECTS ENGINE
        ========================================================================== */
     const DateSFX = (() => {
       let ctx = null;
@@ -590,14 +710,14 @@
           const osc = c.createOscillator();
           const g = c.createGain();
           osc.type = 'sine';
-          osc.frequency.setValueAtTime(320, now);
-          osc.frequency.exponentialRampToValueAtTime(780, now + 0.12);
-          g.gain.setValueAtTime(0.08, now);
-          g.gain.exponentialRampToValueAtTime(0.001, now + 0.14);
+          osc.frequency.setValueAtTime(300, now);
+          osc.frequency.exponentialRampToValueAtTime(820, now + 0.13);
+          g.gain.setValueAtTime(0.09, now);
+          g.gain.exponentialRampToValueAtTime(0.001, now + 0.15);
           osc.connect(g);
           g.connect(c.destination);
           osc.start(now);
-          osc.stop(now + 0.15);
+          osc.stop(now + 0.16);
         } catch (e) {}
       }
 
@@ -619,6 +739,24 @@
         } catch (e) {}
       }
 
+      function playErrorBuzz() {
+        try {
+          const c = getCtx();
+          const now = c.currentTime;
+          const osc = c.createOscillator();
+          const g = c.createGain();
+          osc.type = 'sawtooth';
+          osc.frequency.setValueAtTime(140, now);
+          osc.frequency.setValueAtTime(115, now + 0.1);
+          g.gain.setValueAtTime(0.08, now);
+          g.gain.exponentialRampToValueAtTime(0.001, now + 0.25);
+          osc.connect(g);
+          g.connect(c.destination);
+          osc.start(now);
+          osc.stop(now + 0.26);
+        } catch (e) {}
+      }
+
       function playCashRegisterTwist() {
         try {
           const c = getCtx();
@@ -628,7 +766,7 @@
             const g = c.createGain();
             osc.type = 'sine';
             osc.frequency.setValueAtTime(f, now + i * 0.09);
-            g.gain.setValueAtTime(0.11, now + i * 0.09);
+            g.gain.setValueAtTime(0.12, now + i * 0.09);
             g.gain.exponentialRampToValueAtTime(0.0001, now + i * 0.09 + 0.45);
             osc.connect(g);
             g.connect(c.destination);
@@ -638,11 +776,11 @@
         } catch (e) {}
       }
 
-      return { playDodgeBoing, playTapChime, playCashRegisterTwist };
+      return { playDodgeBoing, playTapChime, playErrorBuzz, playCashRegisterTwist };
     })();
 
     /* ==========================================================================
-       2. STEP NAVIGATION & FAKE URL ROUTE BAR
+       2. STEP NAVIGATION
        ========================================================================== */
     const routeText = document.getElementById('routeText');
     const allSteps = document.querySelectorAll('.step-screen');
@@ -655,36 +793,40 @@
     }
 
     /* ==========================================================================
-       3. RUNAWAY "NO 😂" BUTTON PHYSICS (Dodges cursor around the card!)
+       3. TALKING RUNAWAY "NO 😂" BUTTON + GROWING "YES 🤍" BUTTON!
        ========================================================================== */
     const noBtn = document.getElementById('noBtn');
+    const yesBtn = document.getElementById('yesBtn');
+
     const dodgePositions = [
-      { x: -135, y: -165 },
-      { x: 135, y: -150 },
-      { x: -145, y: -60 },
-      { x: 140, y: -45 },
-      { x: -120, y: 35 },
-      { x: 125, y: 30 }
+      { x: -135, y: -155, text: 'nice try 😂' },
+      { x: 135,  y: -145, text: 'you thought 💀' },
+      { x: -145, y: -55,  text: 'mouse broken? 😭' },
+      { x: 140,  y: -45,  text: 'fear God 🙏' },
+      { x: -120, y: 32,   text: 'disabled in CSS 😌' },
+      { x: 130,  y: 28,   text: 'just click YES 🤍' }
     ];
     let dodgeIdx = 0;
 
     function dodgeNoButton() {
       DateSFX.playDodgeBoing();
-      const pos = dodgePositions[dodgeIdx % dodgePositions.length];
+      const item = dodgePositions[dodgeIdx % dodgePositions.length];
       dodgeIdx++;
-      noBtn.style.transform = `translate(${pos.x}px, ${pos.y}px)`;
+      noBtn.style.transform = `translate(${item.x}px, ${item.y}px)`;
+      noBtn.textContent = item.text;
+      // Make YES button grow bigger every time she tries to click No!
+      const yesScale = Math.min(1.55, 1 + dodgeIdx * 0.1);
+      yesBtn.style.transform = `scale(${yesScale})`;
     }
 
     noBtn.addEventListener('mouseenter', dodgeNoButton);
     noBtn.addEventListener('click', dodgeNoButton);
 
-    // Step 1 -> Step 2
-    document.getElementById('yesBtn').addEventListener('click', () => {
+    yesBtn.addEventListener('click', () => {
       DateSFX.playTapChime(620);
       goToStep('step-2', '/confirmed');
     });
 
-    // Step 2 -> Step 3A (Calendar)
     document.getElementById('toDatePickerBtn').addEventListener('click', () => {
       DateSFX.playTapChime(660);
       goToStep('step-3a', '/date-picker');
@@ -696,8 +838,7 @@
     let chosenDay = 12;
 
     for (let empty = 0; empty < 2; empty++) {
-      const sp = document.createElement('div');
-      calGrid.appendChild(sp);
+      calGrid.appendChild(document.createElement('div'));
     }
     for (let d = 1; d <= 30; d++) {
       const btn = document.createElement('button');
@@ -725,47 +866,88 @@
       });
     });
 
-    // Step 4 (Food Grid) — Supports BOTH Naija Mode (₦150,000) & UK Mode (£250.00)!
-    const FOOD_MENUS = {
-      NG: [
-        { emoji: '🍚', name: 'Jollof Rice' },
-        { emoji: '🍢', name: 'Suya' },
-        { emoji: '🍲', name: 'Amala & Ewedu' },
-        { emoji: '🍩', name: 'Puff-Puff' },
-        { emoji: '🥟', name: 'Small Chops' },
-        { emoji: '🌯', name: 'Shawarma' }
-      ],
-      UK: [
-        { emoji: '🍗', name: 'Wingstop' },
-        { emoji: '🌶️', name: 'Nando’s' },
-        { emoji: '🍣', name: 'Sushi Samba' },
-        { emoji: '🥩', name: 'Steakhouse' },
-        { emoji: '🧋', name: 'Matcha & Boba' },
-        { emoji: '🌯', name: 'Shawarma' }
-      ]
+    /* ==========================================================================
+       4. FOOD MENU WITH "WIFE PACKAGE LOCKED" TRAP & ITEMIZED FEE BREAKDOWN
+       ========================================================================== */
+    const REGION_DATA = {
+      NG: {
+        total: '₦150,000',
+        cancelFee: '₦450,000',
+        foods: [
+          { emoji: '🍚', name: 'Jollof Rice', locked: false },
+          { emoji: '🍢', name: 'Suya', locked: false },
+          { emoji: '🍲', name: 'Amala & Ewedu', locked: false },
+          { emoji: '🍩', name: 'Puff-Puff', locked: false },
+          { emoji: '🌯', name: 'Shawarma', locked: false },
+          { emoji: '🦞', name: 'Lobster & Yacht', locked: true, tag: '🔒 Wife Tier' }
+        ],
+        invoice: [
+          ['Compulsory Date Acceptance Fee', '₦65,000'],
+          ['Passenger Princess & Aux Cord Tax', '₦30,000'],
+          ['"I’m Cold" Hoodie Borrow Deposit', '₦40,000'],
+          ['2AM Coding & Server Hosting Fee', '₦15,000']
+        ]
+      },
+      UK: {
+        total: '£250.00',
+        cancelFee: '£650.00',
+        foods: [
+          { emoji: '🍗', name: 'Wingstop', locked: false },
+          { emoji: '🌶️', name: 'Nando’s', locked: false },
+          { emoji: '🧋', name: 'Matcha & Boba', locked: false },
+          { emoji: '🌯', name: 'Shawarma', locked: false },
+          { emoji: '🍔', name: 'Five Guys', locked: false },
+          { emoji: '🍣', name: 'Mayfair Nobu', locked: true, tag: '🔒 Wife Tier' }
+        ],
+        invoice: [
+          ['Compulsory Date Acceptance Fee', '£110.00'],
+          ['Passenger Princess & Aux Cord Tax', '£45.00'],
+          ['"I’m Cold" Hoodie Borrow Deposit', '£70.00'],
+          ['2AM Coding & Server Hosting Fee', '£25.00']
+        ]
+      }
     };
 
+    let currentRegion = 'NG';
     const foodGrid = document.getElementById('foodGrid');
+    const foodToastAlert = document.getElementById('foodToastAlert');
+    const invoiceBreakdown = document.getElementById('invoiceBreakdown');
     const feeAmountText = document.getElementById('feeAmountText');
     const btnCurrencyNG = document.getElementById('btnCurrencyNG');
     const btnCurrencyUK = document.getElementById('btnCurrencyUK');
 
     function setRegionMode(mode) {
+      currentRegion = mode;
       btnCurrencyNG.classList.toggle('active', mode === 'NG');
       btnCurrencyUK.classList.toggle('active', mode === 'UK');
-      feeAmountText.textContent = mode === 'NG' ? '₦150,000' : '£250.00';
+      const data = REGION_DATA[mode];
+      feeAmountText.textContent = data.total;
 
       foodGrid.innerHTML = '';
-      FOOD_MENUS[mode].forEach((item) => {
+      foodToastAlert.classList.remove('show');
+      data.foods.forEach((item) => {
         const card = document.createElement('div');
         card.className = 'food-card';
-        card.innerHTML = `<div class="food-emoji">${item.emoji}</div><div class="food-name">${item.name}</div>`;
+        card.innerHTML = `
+          <div class="food-emoji">${item.emoji}</div>
+          <div class="food-name">${item.name}</div>
+          ${item.tag ? `<span class="food-tag">${item.tag}</span>` : ''}
+        `;
         card.addEventListener('click', () => {
-          DateSFX.playTapChime(780);
-          goToStep('step-5', '/ready');
+          if (item.locked) {
+            DateSFX.playErrorBuzz();
+            foodToastAlert.classList.add('show');
+          } else {
+            DateSFX.playTapChime(780);
+            goToStep('step-5', '/ready');
+          }
         });
         foodGrid.appendChild(card);
       });
+
+      invoiceBreakdown.innerHTML = data.invoice
+        .map(([lbl, val]) => `<div class="invoice-row"><span>${lbl}</span><strong>${val}</strong></div>`)
+        .join('');
     }
 
     setRegionMode('NG');
@@ -779,9 +961,22 @@
       goToStep('step-6', '/final');
     });
 
-    document.getElementById('payFeeBtn').addEventListener('click', (e) => {
+    const payFeeBtn = document.getElementById('payFeeBtn');
+    const cancelTrapBtn = document.getElementById('cancelTrapBtn');
+    const feeDisclaimer = document.getElementById('feeDisclaimer');
+
+    payFeeBtn.addEventListener('click', () => {
       DateSFX.playCashRegisterTwist();
-      e.currentTarget.textContent = 'Processing Bank Transfer... 💳✨';
+      payFeeBtn.textContent = '✓ Approved — Screenshot & Send Receipt 🧾✨';
+    });
+
+    // If she tries to click "Cancel date & stay single", hit her with the 3x Cancellation Penalty!
+    cancelTrapBtn.addEventListener('click', () => {
+      DateSFX.playErrorBuzz();
+      const penalty = REGION_DATA[currentRegion].cancelFee;
+      cancelTrapBtn.textContent = `❌ Cancellation Penalty is ${penalty} (Cheaper to just go on the date 💀)`;
+      cancelTrapBtn.style.color = '#b8294b';
+      cancelTrapBtn.style.fontWeight = '800';
     });
 
     // Click Avatar to Upload Custom Crush Photo
@@ -797,16 +992,16 @@
       }
     });
 
-    // Keyboard Shortcuts:
-    // Press 'U' = Switch to UK (£250.00 + Wingstop/Nando's)
-    // Press 'N' = Switch to Naija (₦150,000 + Jollof/Suya)
-    // Press 'R' = Reset back to Step 1 (/route)
+    // Keyboard Shortcuts: U = UK, N = Naija, R = Reset
     window.addEventListener('keydown', (e) => {
       const k = e.key.toLowerCase();
       if (k === 'u') setRegionMode('UK');
       else if (k === 'n') setRegionMode('NG');
       else if (k === 'r') {
+        dodgeIdx = 0;
         noBtn.style.transform = 'translate(0, 0)';
+        noBtn.textContent = 'no 😂';
+        yesBtn.style.transform = 'scale(1)';
         goToStep('step-1', '/route');
       }
     });
