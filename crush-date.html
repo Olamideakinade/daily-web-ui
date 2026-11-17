@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>for you 🌸</title>
+  <title>for Tems 🌸</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,600;0,700;0,800;1,600&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -55,7 +55,7 @@
     .ambient-orb.one { top: -120px; left: -100px; }
     .ambient-orb.two { bottom: -140px; right: -100px; }
 
-    /* Top Browser Route Bar + Celebrity & Currency Switchers */
+    /* Top Browser Route Bar */
     .fake-browser-bar {
       position: fixed;
       top: 0;
@@ -80,7 +80,7 @@
     }
 
     .omnibox {
-      width: 220px;
+      width: 240px;
       height: 30px;
       background: #303134;
       border-radius: 100px;
@@ -125,7 +125,7 @@
     .crush-card {
       position: relative;
       z-index: 10;
-      width: 520px;
+      width: 515px;
       min-height: 390px;
       background: var(--card-bg);
       border: 1px solid rgba(255, 255, 255, 0.85);
@@ -164,8 +164,8 @@
 
     /* Circular Celebrity Crush Avatar + Verified Badge */
     .crush-avatar-wrap {
-      width: 108px;
-      height: 108px;
+      width: 112px;
+      height: 112px;
       border-radius: 50%;
       padding: 4px;
       background: linear-gradient(135deg, #e1306c, #f77737);
@@ -185,7 +185,7 @@
       height: 100%;
       border-radius: 50%;
       object-fit: cover;
-      object-position: center top;
+      object-position: center 18%;
       border: 3px solid #ffffff;
       background: #f3dde2;
     }
@@ -194,7 +194,7 @@
       display: inline-flex;
       align-items: center;
       gap: 5px;
-      background: rgba(255, 255, 255, 0.9);
+      background: rgba(255, 255, 255, 0.92);
       border: 1px solid rgba(190, 140, 152, 0.28);
       padding: 4px 12px;
       border-radius: 100px;
@@ -216,6 +216,22 @@
       align-items: center;
       justify-content: center;
       font-weight: 900;
+    }
+
+    /* Fake iMessage Notification Banner on Step 2 */
+    .imessage-banner {
+      width: 100%;
+      max-width: 390px;
+      background: rgba(255, 255, 255, 0.92);
+      border: 1px solid rgba(190, 140, 152, 0.3);
+      border-radius: 16px;
+      padding: 10px 14px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      text-align: left;
+      margin-bottom: 16px;
+      box-shadow: 0 10px 24px rgba(110, 20, 35, 0.08);
     }
 
     .top-icon-circle {
@@ -243,7 +259,7 @@
     }
 
     .sub-caption {
-      font-size: 13px;
+      font-size: 13.5px;
       font-weight: 500;
       color: var(--text-muted);
       line-height: 1.5;
@@ -395,11 +411,11 @@
       grid-template-columns: 1fr 1fr;
       gap: 10px;
       width: 100%;
-      max-width: 400px;
+      max-width: 390px;
     }
 
     .food-card {
-      padding: 12px 10px;
+      padding: 13px 10px;
       border-radius: 16px;
       border: 1px solid transparent;
       background: rgba(255, 255, 255, 0.68);
@@ -419,17 +435,17 @@
     }
 
     .food-emoji {
-      font-size: 24px;
+      font-size: 25px;
     }
 
     .food-name {
-      font-size: 12.5px;
+      font-size: 13px;
       font-weight: 700;
       color: var(--wine-dark);
     }
 
     .food-sub {
-      font-size: 10px;
+      font-size: 10.5px;
       font-weight: 600;
       color: var(--text-muted);
     }
@@ -448,8 +464,8 @@
       margin-top: 12px;
       padding: 9px 14px;
       border-radius: 12px;
-      background: rgba(184, 41, 75, 0.1);
-      border: 1px solid rgba(184, 41, 75, 0.3);
+      background: rgba(184, 41, 75, 0.12);
+      border: 1px solid rgba(184, 41, 75, 0.35);
       font-size: 11.5px;
       font-weight: 700;
       color: var(--wine-dark);
@@ -467,46 +483,14 @@
       75% { transform: translateX(6px); }
     }
 
-    /* Step 5: Mandatory Relationship Terms & Conditions */
-    .terms-list {
-      width: 100%;
-      max-width: 410px;
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
-      margin-bottom: 18px;
-      text-align: left;
-    }
-
-    .term-item {
-      background: rgba(255, 255, 255, 0.75);
-      border: 1px solid var(--border-soft);
-      padding: 10px 13px;
-      border-radius: 14px;
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      font-size: 12px;
-      font-weight: 600;
-      color: var(--wine-dark);
-      cursor: pointer;
-    }
-
-    .term-item input {
-      width: 16px;
-      height: 16px;
-      accent-color: var(--rose-btn);
-      flex-shrink: 0;
-    }
-
     /* Step 6: THE ITEMIZED ACCEPTANCE FEE INVOICE SCREEN */
     .invoice-box {
       width: 100%;
-      max-width: 400px;
-      background: rgba(255, 255, 255, 0.8);
-      border: 1px dashed rgba(142, 27, 50, 0.32);
+      max-width: 390px;
+      background: rgba(255, 255, 255, 0.82);
+      border: 1px dashed rgba(142, 27, 50, 0.34);
       border-radius: 18px;
-      padding: 13px 16px;
+      padding: 12px 16px;
       margin-bottom: 12px;
       text-align: left;
     }
@@ -515,7 +499,7 @@
       display: flex;
       justify-content: space-between;
       align-items: center;
-      font-size: 11.5px;
+      font-size: 12px;
       font-weight: 600;
       color: #7c4d57;
       padding: 5px 0;
@@ -533,7 +517,7 @@
 
     .fee-amount {
       font-family: 'Plus Jakarta Sans', sans-serif;
-      font-size: 42px;
+      font-size: 44px;
       font-weight: 800;
       color: #80132b;
       letter-spacing: -1px;
@@ -551,7 +535,7 @@
 
     .full-width-btn {
       width: 100%;
-      max-width: 370px;
+      max-width: 360px;
       justify-content: center;
       padding: 14px 24px;
       font-size: 14.5px;
@@ -574,7 +558,7 @@
   <div class="ambient-orb one"></div>
   <div class="ambient-orb two"></div>
 
-  <!-- Top Browser Route Bar + 1-Click Celebrity Crush & Currency Switchers -->
+  <!-- Top Browser Route Bar + Celebrity & Currency Switchers -->
   <header class="fake-browser-bar">
     <div class="nav-arrows">
       <span>←</span>
@@ -585,9 +569,8 @@
       <span id="routeText">/route</span>
     </div>
     <div class="bar-controls-right">
-      <button class="tiny-mode-pill active celeb-btn" data-celeb="ayra">⭐ Ayra Starr</button>
+      <button class="tiny-mode-pill active celeb-btn" data-celeb="tems">👑 Tems</button>
       <button class="tiny-mode-pill celeb-btn" data-celeb="tyla">💧 Tyla</button>
-      <button class="tiny-mode-pill celeb-btn" data-celeb="tems">👑 Tems</button>
       <button class="tiny-mode-pill celeb-btn" data-celeb="rihanna">💎 Rihanna</button>
       <button class="tiny-mode-pill celeb-btn" data-celeb="zendaya">✨ Zendaya</button>
       <span style="color: #5f6368;">|</span>
@@ -601,25 +584,25 @@
   <!-- Main Romantic Card -->
   <main class="crush-card" id="crushCard">
 
-    <!-- STEP 1: /route ("Will you go on a date with me?") -->
+    <!-- STEP 1: /route ("Tems, will you go on a date with me?") -->
     <div class="step-screen active" id="step-1">
       <div class="crush-avatar-wrap" id="avatarTrigger" title="Click to upload any photo">
         <img
           id="crushAvatarImg"
           class="crush-avatar"
-          src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=500&q=80"
-          alt="Celebrity Crush"
+          src="https://upload.wikimedia.org/wikipedia/commons/c/cc/Tems_in_2025.jpg"
+          alt="Tems"
         />
       </div>
 
       <div class="verified-pill">
-        <span id="celebBadgeName">@ayrastarr</span>
+        <span id="celebBadgeName">@temsbaby</span>
         <span class="verified-tick">✓</span>
       </div>
 
-      <h1 class="serif-heading" id="step1Heading">Ayra, will you go on a date with me?</h1>
+      <h1 class="serif-heading" id="step1Heading">Tems, will you go on a date with me?</h1>
       <p class="sub-caption" id="step1Sub" style="margin-bottom: 12px;">
-        (Cancel your London O2 Arena concert real quick, I have ₹2,000 and a dream 🥺🌸)
+        Future & Drake waited for u… I wrote 400 lines of HTML for u 🌸🥺
       </p>
 
       <div class="yes-no-stage">
@@ -628,13 +611,23 @@
       </div>
     </div>
 
-    <!-- STEP 2: /confirmed ("Wait, you really said yes?? 😭") -->
+    <!-- STEP 2: /confirmed ("Wait, Tems actually said yes?? 😭") -->
     <div class="step-screen" id="step-2">
       <div class="top-icon-circle">🎉</div>
-      <h2 class="serif-heading" id="step2Heading">Wait, Ayra Starr really said yes?? 😭</h2>
-      <p class="sub-caption" id="step2Sub">
-        Calling my mum right now to tell her I'm marrying a Grammy superstar 💀 (good thing I disabled the "no" button in CSS)
+      <h2 class="serif-heading" id="step2Heading">Wait, Tems actually said yes?? 😭</h2>
+      <p class="sub-caption" id="step2Sub" style="margin-bottom: 14px;">
+        Ngl I was fully prepared for a no 💀 Calling my mum right now to tell her a Grammy winner is cooking for us
       </p>
+
+      <!-- Hilarious Fake Text Notification from Future -->
+      <div class="imessage-banner" id="jealousBanner">
+        <span style="font-size: 22px;">💬</span>
+        <div>
+          <div style="font-size: 11px; font-weight: 800; color: var(--wine-dark);" id="jealousSender">Future (1 new message)</div>
+          <div style="font-size: 12px; color: #7c4d57;" id="jealousMsg">"Bro delete this website right now 💀"</div>
+        </div>
+      </div>
+
       <button class="pink-cta-btn" id="toDatePickerBtn">pick a date & time →</button>
     </div>
 
@@ -642,7 +635,7 @@
     <div class="step-screen" id="step-3a">
       <div class="top-icon-circle">📅</div>
       <h2 class="serif-heading">when's the date? 🗓️</h2>
-      <p class="sub-caption" style="margin-bottom: 14px;">tell your manager to clear your schedule</p>
+      <p class="sub-caption" style="margin-bottom: 14px;">pick a day, any day (cancel Coachella if it clashes)</p>
 
       <div class="calendar-box">
         <div class="cal-month-bar">
@@ -688,11 +681,11 @@
     <div class="step-screen" id="step-4">
       <div class="top-icon-circle">🍽️</div>
       <h2 class="serif-heading">What are we chopping? 🍽️✨</h2>
-      <p class="sub-caption" style="margin-bottom: 12px;">I know you're a millionaire, so pick something humble</p>
+      <p class="sub-caption" style="margin-bottom: 12px;">pick your vibe (remember I'm on a developer budget abeg)</p>
 
       <div class="food-grid" id="foodGrid"></div>
       <div class="food-toast-alert" id="foodToastAlert">
-        ⚠️ Account Balance Warning: My debit card just started sweating 💀 Please pick Suya or Bossman Chicken abeg!
+        💳 Bank Alert: My account balance is ₦3,400 💀 Fear God and pick Suya or Jollof Rice abeg!
       </div>
     </div>
 
@@ -700,35 +693,31 @@
     <div class="step-screen" id="step-5">
       <div class="top-icon-circle">💌</div>
       <h2 class="serif-heading" id="readyHeading" style="max-width: 400px;">
-        glad you didn't say no.<br/>leave your bodyguards at home, I'm picking you up at 7 🚗
+        glad you didn't say no.<br/>be ready by 7, I'm coming to get you 🚗
       </h2>
-      <p class="sub-caption" style="font-style: italic; margin-bottom: 12px;">
-        P.S. Drake and Future send DMs you never open. I coded a whole web app for you during lunch.
+      <p class="sub-caption" style="font-style: italic; margin-bottom: 14px;">
+        P.S. leave your 6 bodyguards at home, I booked a front-seat Keke Napep for both of us. No big deal.
       </p>
-
-      <!-- Hilarious Mandatory Celebrity Terms Checkboxes -->
-      <div class="terms-list" id="termsListContainer">
-        <!-- Dynamically rendered according to celebrity -->
-      </div>
+      <div style="font-size: 13px; letter-spacing: 4px; margin-bottom: 20px;">💗 💗 💗 💗 💗</div>
 
       <button class="pink-cta-btn full-width-btn" id="toFinalFeeBtn">ok I accept 🥺</button>
     </div>
 
-    <!-- STEP 6: /final (THE PLOT TWIST: CHARGING THE CELEBRITY AN ACCEPTANCE FEE!) -->
+    <!-- STEP 6: /final (THE PLOT TWIST: CHARGING TEMS AN ACCEPTANCE FEE!) -->
     <div class="step-screen" id="step-6">
       <div class="top-icon-circle">💳</div>
-      <h2 class="serif-heading">Celebrity Acceptance Fee</h2>
+      <h2 class="serif-heading">Acceptance fee</h2>
       <p class="sub-caption" style="margin-bottom: 10px;">
-        Dating a 10/10 software engineer is a high-demand privilege. Kindly settle your compulsory onboarding invoice below:
+        To lock in this date, kindly settle the standard girlfriend processing fees below. Fully standard procedure, nothing unusual here:
       </p>
 
       <div class="invoice-box" id="invoiceBreakdown"></div>
 
       <div class="fee-amount" id="feeAmountText">₦150,000</div>
-      <div class="fee-disclaimer" id="feeDisclaimer">NON-REFUNDABLE • KLARNA "PAY IN 4" AVAILABLE</div>
+      <div class="fee-disclaimer" id="feeDisclaimer">NON-REFUNDABLE • GRAMMY AWARD ACCEPTED AS COLLATERAL 🏆</div>
 
-      <button class="pink-cta-btn full-width-btn" id="payFeeBtn">pay & lock in your dream man 🔐✨</button>
-      <button class="cancel-trap-btn" id="cancelTrapBtn">Cancel date & go back to world tour</button>
+      <button class="pink-cta-btn full-width-btn" id="payFeeBtn">pay & accept 🔐✨</button>
+      <button class="cancel-trap-btn" id="cancelTrapBtn">Cancel date & stay single</button>
     </div>
 
   </main>
@@ -822,30 +811,36 @@
     })();
 
     /* ==========================================================================
-       2. CELEBRITY CRUSH PROFILES (Loads Official High-Res Wikipedia Portraits!)
+       2. CELEBRITY CRUSH PROFILES (Tems is Default #1!)
        ========================================================================== */
     const CELEBRITIES = {
-      ayra: {
-        wikiTitle: 'Ayra_Starr',
-        firstName: 'Ayra',
-        fullName: 'Ayra Starr',
-        handle: '@ayrastarr',
-        sub: '(Cancel your London O2 Arena show real quick, I have 2k and a dream 🥺🌸)',
+      tems: {
+        wikiTitle: 'Tems',
+        fallbackImg: 'https://upload.wikimedia.org/wikipedia/commons/c/cc/Tems_in_2025.jpg',
+        firstName: 'Tems',
+        fullName: 'Tems',
+        handle: '@temsbaby',
+        sub: 'Future & Drake waited for u… I wrote 400 lines of HTML for u 🌸🥺',
+        jealousSender: 'Future (1 new message)',
+        jealousMsg: '"Bro delete this website right now before I call Drake 💀"',
         dodges: [
-          '"Rush" back to the YES button 😂',
-          'Don’t be a Sability hater 💀',
-          'Even Don Jazzy said click YES 😭',
-          'Your mouse is allergic to No 💀',
-          'Disabled in CSS my love 😌',
+          'Tryna "Free Mind" from me? 😂',
+          'Even Future said click YES 💀',
+          'Wait For U to click YES 😭',
+          'Grammy winners can’t click No 😌',
+          'Disabled in CSS baby 💀',
           'Fear God & click YES 🤍'
         ]
       },
       tyla: {
         wikiTitle: 'Tyla',
+        fallbackImg: 'https://upload.wikimedia.org/wikipedia/commons/c/cc/Tems_in_2025.jpg',
         firstName: 'Tyla',
         fullName: 'Tyla',
         handle: '@tyla',
-        sub: '(You make me sweat like "Water", so I coded a whole website to ask you out 🥺🌸)',
+        sub: 'You make me sweat like "Water", so I coded a whole website for u 🌸🥺',
+        jealousSender: 'Travis Scott (1 new message)',
+        jealousMsg: '"Bro thinks he has a chance with Tyla 💀"',
         dodges: [
           'Don’t make me Lose My Breath 😂',
           'Even South Africa voted YES 💀',
@@ -855,70 +850,37 @@
           'Just click YES 🤍'
         ]
       },
-      tems: {
-        wikiTitle: 'Tems',
-        firstName: 'Tems',
-        fullName: 'Tems',
-        handle: '@temsbaby',
-        sub: '(Put Drake & Future on hold for one night baby... I have ₦2,500 and pure intentions 🥺🌸)',
-        confirmedSub: 'Calling my pastor right now to confirm the prophecy 💀 Drake is currently crying in Toronto, Future has unfollowed you, and my mother is already buying wedding lace.',
-        terms: [
-          'I agree to leave my 8 armed security guards at home (I know karate, I will protect us) 🥋',
-          'I promise not to ask Drake for a feature on my tech podcast during dinner 🎤',
-          'I will softly sing "Wait For U" whenever the waiter brings the bill 😭',
-          'If the bill exceeds £15 / ₦15,000, I will quietly tap my Grammy Award black card 💳'
-        ],
-        invoice: {
-          NG: [
-            ['Privilege of Dating a 10/10 Senior Dev', '₦65,000'],
-            ['Emotional Support for Listening to "Free Mind" on Loop', '₦35,000'],
-            ['Drake & Future Broken Heart Trauma Tax', '₦30,000'],
-            ['Grammy Award Polishing & Maintenance Fee', '₦20,000']
-          ],
-          UK: [
-            ['Privilege of Dating a Tech Bro Founder', '£110.00'],
-            ['Emotional Support for Listening to "Free Mind" on Loop', '£55.00'],
-            ['Drake Broken Heart & Toronto Therapy Fund', '£45.00'],
-            ['Grammy Polishing & Oyster Card Split Fare', '£40.00']
-          ]
-        },
-        dodges: [
-          'Wait For U to click YES 😂',
-          'Drake is typing... 💀',
-          'Even Future clicked YES 😭',
-          'Grammy winners must click YES 😌',
-          'Disabled in CSS baby 💀',
-          'Leave Drake on read & click YES 🤍',
-          'Why are you fighting destiny? 😭'
-        ]
-      },
       rihanna: {
         wikiTitle: 'Rihanna',
+        fallbackImg: 'https://upload.wikimedia.org/wikipedia/commons/c/cc/Tems_in_2025.jpg',
         firstName: 'Rihanna',
         fullName: 'Rihanna',
         handle: '@badgalriri',
-        sub: '(Forget Fenty & the Super Bowl for one night, let me take you for Shawarma 🥺🌸)',
+        sub: 'Forget Fenty & the Super Bowl for one night, let’s go for Shawarma 🌸🥺',
+        jealousSender: 'A$AP Rocky (1 new message)',
+        jealousMsg: '"Fam drop your location right now 💀"',
         dodges: [
           'Don’t tell A$AP Rocky 😂',
-          'Billionaires aren’t allowed to click No 💀',
+          'Billionaires can’t click No 💀',
           'Umbrella ella ella click YES 😭',
-          'Work work work work YES 😌',
-          'Disabled in CSS Riri 💀',
+          'Disabled in CSS Riri 😌',
           'Just click YES 🤍'
         ]
       },
       zendaya: {
         wikiTitle: 'Zendaya',
+        fallbackImg: 'https://upload.wikimedia.org/wikipedia/commons/c/cc/Tems_in_2025.jpg',
         firstName: 'Zendaya',
         fullName: 'Zendaya',
         handle: '@zendaya',
-        sub: '(Even Spider-Man can’t code a whole HTML website for you like I just did 🥺🌸)',
+        sub: 'Even Spider-Man can’t code a whole HTML website for u like I just did 🌸🥺',
+        jealousSender: 'Tom Holland (1 new message)',
+        jealousMsg: '"Mate why are you asking my fiancée to eat Suya?? 💀"',
         dodges: [
           'Tom Holland is gonna be mad 😂',
-          'Spider-Sense can’t catch this button 💀',
+          'Spider-Sense can’t catch this 💀',
           'Dune Part 3 can wait, click YES 😭',
-          'Hollywood rules say click YES 😌',
-          'Disabled in CSS 💀',
+          'Disabled in CSS 😌',
           'Just click YES 🤍'
         ]
       }
@@ -930,8 +892,8 @@
     const step1Heading = document.getElementById('step1Heading');
     const step1Sub = document.getElementById('step1Sub');
     const step2Heading = document.getElementById('step2Heading');
-    const step2Sub = document.getElementById('step2Sub');
-    const termsListContainer = document.getElementById('termsListContainer');
+    const jealousSender = document.getElementById('jealousSender');
+    const jealousMsg = document.getElementById('jealousMsg');
     const celebBtns = document.querySelectorAll('.celeb-btn');
 
     async function selectCelebrity(key) {
@@ -942,38 +904,11 @@
       celebBadgeName.textContent = c.handle;
       step1Heading.textContent = `${c.firstName}, will you go on a date with me?`;
       step1Sub.textContent = c.sub;
-      step2Heading.textContent = `Wait, ${c.fullName} really said yes?? 😭`;
-      if (c.confirmedSub && step2Sub) {
-        step2Sub.textContent = c.confirmedSub;
-      } else if (step2Sub) {
-        step2Sub.textContent = `Calling my mum right now to tell her I'm marrying a superstar 💀 (good thing I disabled the "no" button in CSS)`;
-      }
+      step2Heading.textContent = `Wait, ${c.fullName} actually said yes?? 😭`;
+      jealousSender.textContent = c.jealousSender;
+      jealousMsg.textContent = c.jealousMsg;
+      crushAvatarImg.src = c.fallbackImg;
 
-      // Render custom terms for this celebrity
-      if (termsListContainer && c.terms) {
-        termsListContainer.innerHTML = c.terms.map(t => `
-          <label class="term-item">
-            <input type="checkbox" checked onclick="return false;" />
-            <span>${t}</span>
-          </label>
-        `).join('');
-      } else if (termsListContainer) {
-        termsListContainer.innerHTML = `
-          <label class="term-item">
-            <input type="checkbox" checked onclick="return false;" />
-            <span>I agree to leave my 6 armed security guards at home (I know karate, I'll protect us) 🥋</span>
-          </label>
-          <label class="term-item">
-            <input type="checkbox" checked onclick="return false;" />
-            <span>If the bill passes £15 / ₦15,000, I will quietly tap my celebrity black card 💳</span>
-          </label>
-        `;
-      }
-
-      // Refresh invoice with celebrity-specific items
-      renderInvoice();
-
-      // Fetch official high-res portrait from Wikipedia REST API
       try {
         const res = await fetch(`https://en.wikipedia.org/api/rest_v1/page/summary/${c.wikiTitle}`);
         const data = await res.json();
@@ -1073,49 +1008,49 @@
         DateSFX.playTapChime(740);
         slot.classList.add('selected');
         const shortTime = slot.textContent.replace(':00', '').replace(' PM', '').replace(' AM', '');
-        readyHeading.innerHTML = `glad you didn't say no.<br/>leave your bodyguards at home, I'm picking you up at ${shortTime} 🚗`;
+        readyHeading.innerHTML = `glad you didn't say no.<br/>be ready by ${shortTime}, I'm coming to get you 🚗`;
         setTimeout(() => goToStep('step-4', '/food'), 220);
       });
     });
 
     /* ==========================================================================
-       4. HILARIOUS HUMBLE FOOD MENU vs LOCKED LUXURY & ITEMIZED INVOICE
+       4. HUMBLE FOOD MENU vs LOCKED LUXURY & ITEMIZED INVOICE
        ========================================================================== */
     const REGION_DATA = {
       NG: {
         total: '₦150,000',
         cancelFee: '₦15,000,000',
+        alertMsg: '💳 OPay Alert: Account balance is ₦3,400 💀 Fear God and pick Suya or Jollof Rice abeg!',
         foods: [
-          { emoji: '🍚', name: 'Mama Put Jollof', sub: 'In black nylon (No beef)', locked: false },
-          { emoji: '🍢', name: 'Roadside Suya', sub: 'Bring your own toothpick', locked: false },
+          { emoji: '🍚', name: 'Jollof Rice', sub: 'Mama Put nylon (1 meat)', locked: false },
+          { emoji: '🍢', name: 'Roadside Suya', sub: 'Newspaper wrap + onions', locked: false },
           { emoji: '🍲', name: 'Amala & Ewedu', sub: 'Abula spot under bridge', locked: false },
-          { emoji: '🌯', name: 'Single-Sausage Shawarma', sub: 'Extra cabbage, no chicken', locked: false },
-          { emoji: '💧', name: 'Sachet Pure Water', sub: 'Chilled + deep eye contact', locked: false },
-          { emoji: '🦞', name: 'Victoria Island Yacht Dinner', sub: '₦2.5M / head', locked: true, tag: '🔒 Card Will Decline' }
+          { emoji: '🍩', name: 'Puff-Puff & Mirinda', sub: '5 pieces in white nylon', locked: false },
+          { emoji: '🌯', name: 'Shawarma', sub: 'Single sausage, no chicken', locked: false },
+          { emoji: '🦞', name: 'Eko Hotel VIP Buffet', sub: '₦850,000 / head', locked: true, tag: '🔒 Above My Budget' }
         ],
         invoice: [
-          ['Privilege of Dating a Senior Dev Fee', '₦70,000'],
-          ['Paparazzi & Clout Management Tax', '₦30,000'],
-          ['"I’m Cold" Oversized Hoodie Deposit', '₦35,000'],
-          ['Danfo / UberX Split Fare (Both Ways)', '₦15,000']
+          ['Privilege of Dating a Senior Dev Fee', '₦80,000'],
+          ['"I’m Cold" Hoodie Borrow Deposit', '₦50,000'],
+          ['Keke Napep / Uber Fuel Contribution', '₦20,000']
         ]
       },
       UK: {
         total: '£250.00',
         cancelFee: '£50,000.00',
+        alertMsg: '💳 Monzo Alert: Account balance is £2.15 💀 Fear God and pick Bossman Wings or Greggs!',
         foods: [
-          { emoji: '🍗', name: '£4.99 Bossman Chicken', sub: '3 wings, chips & Mirinda', locked: false },
+          { emoji: '🍗', name: '£4.99 Bossman Wings', sub: '3 wings, chips & Mirinda', locked: false },
           { emoji: '🥟', name: 'Greggs Sausage Roll', sub: 'Cold + £3.60 Meal Deal', locked: false },
           { emoji: '🌶️', name: 'Nando’s (Kids Menu)', sub: 'Plain wings + tap water', locked: false },
-          { emoji: '🌯', name: 'High-Street Shawarma', sub: 'Extra garlic sauce', locked: false },
-          { emoji: '🧋', name: 'Small Boba (Share 2 Straws)', sub: 'No extra tapioca pearls', locked: false },
-          { emoji: '🍣', name: 'Mayfair Nobu Private Room', sub: '£1,200 / head', locked: true, tag: '🔒 Overdraft Limit' }
+          { emoji: '🌯', name: 'High-Street Shawarma', sub: 'Extra cabbage & garlic', locked: false },
+          { emoji: '🧋', name: '1 Small Boba (2 Straws)', sub: 'We are sharing it', locked: false },
+          { emoji: '🍣', name: 'Mayfair Nobu VIP Room', sub: '£1,200 / head', locked: true, tag: '🔒 Overdraft Limit' }
         ],
         invoice: [
-          ['Privilege of Dating a Tech Bro Fee', '£115.00'],
-          ['Paparazzi & Clout Management Tax', '£45.00'],
-          ['"I’m Cold" Nike Tech Fleece Deposit', '£65.00'],
-          ['Oyster Card / Lime Bike Split Fare', '£25.00']
+          ['Privilege of Dating a Tech Bro Fee', '£130.00'],
+          ['"I’m Cold" Nike Tech Fleece Deposit', '£85.00'],
+          ['Lime Bike / Bus Fare Split (Both Ways)', '£35.00']
         ]
       }
     };
@@ -1128,21 +1063,13 @@
     const btnCurrencyNG = document.getElementById('btnCurrencyNG');
     const btnCurrencyUK = document.getElementById('btnCurrencyUK');
 
-    function renderInvoice() {
-      if (!invoiceBreakdown) return;
-      const c = CELEBRITIES[activeCelebKey];
-      const items = (c && c.invoice && c.invoice[currentRegion]) ? c.invoice[currentRegion] : REGION_DATA[currentRegion].invoice;
-      invoiceBreakdown.innerHTML = items
-        .map(([lbl, val]) => `<div class="invoice-row"><span>${lbl}</span><strong>${val}</strong></div>`)
-        .join('');
-    }
-
     function setRegionMode(mode) {
       currentRegion = mode;
       btnCurrencyNG.classList.toggle('active', mode === 'NG');
       btnCurrencyUK.classList.toggle('active', mode === 'UK');
       const data = REGION_DATA[mode];
       feeAmountText.textContent = data.total;
+      foodToastAlert.textContent = data.alertMsg;
 
       foodGrid.innerHTML = '';
       foodToastAlert.classList.remove('show');
@@ -1167,7 +1094,9 @@
         foodGrid.appendChild(card);
       });
 
-      renderInvoice();
+      invoiceBreakdown.innerHTML = data.invoice
+        .map(([lbl, val]) => `<div class="invoice-row"><span>${lbl}</span><strong>${val}</strong></div>`)
+        .join('');
     }
 
     setRegionMode('NG');
@@ -1185,13 +1114,13 @@
 
     payFeeBtn.addEventListener('click', () => {
       DateSFX.playCashRegisterTwist();
-      payFeeBtn.textContent = '✓ Approved — Screenshot & DM Receipt 🧾✨';
+      payFeeBtn.textContent = '🏆 Or Transfer 1 Grammy Award as Collateral ✨';
     });
 
     cancelTrapBtn.addEventListener('click', () => {
       DateSFX.playErrorBuzz();
       const penalty = REGION_DATA[currentRegion].cancelFee;
-      cancelTrapBtn.textContent = `❌ Breach of Contract Penalty is ${penalty} (Just pay the ${REGION_DATA[currentRegion].total} abeg 💀)`;
+      cancelTrapBtn.textContent = `❌ Cancellation Penalty is ${penalty} (Cheaper to just go on the date 💀)`;
       cancelTrapBtn.style.color = '#b8294b';
       cancelTrapBtn.style.fontWeight = '800';
     });
@@ -1209,15 +1138,14 @@
     });
 
     // Keyboard Shortcuts:
-    // 1..5 = Switch Celebrity (Ayra Starr, Tyla, Tems, Rihanna, Zendaya)
+    // 1 = Tems, 2 = Tyla, 3 = Rihanna, 4 = Zendaya
     // U = UK (£250), N = Naija (₦150k), R = Reset to Step 1
     window.addEventListener('keydown', (e) => {
       const k = e.key.toLowerCase();
-      if (k === '1') selectCelebrity('ayra');
+      if (k === '1') selectCelebrity('tems');
       else if (k === '2') selectCelebrity('tyla');
-      else if (k === '3') selectCelebrity('tems');
-      else if (k === '4') selectCelebrity('rihanna');
-      else if (k === '5') selectCelebrity('zendaya');
+      else if (k === '3') selectCelebrity('rihanna');
+      else if (k === '4') selectCelebrity('zendaya');
       else if (k === 'u') setRegionMode('UK');
       else if (k === 'n') setRegionMode('NG');
       else if (k === 'r') {
